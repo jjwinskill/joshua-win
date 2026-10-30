@@ -1,7 +1,7 @@
 # The check pipeline (G3). Each job runs only if the one before it passed, so slow checks
 # never run on broken code. Later phase 1 tickets add Playwright and axe, then Lighthouse,
 # after the build. Actions are pinned to commit SHAs; the comment gives the release.
-# Checkouts don't keep the GitHub token, so dependency install scripts can't read it.
+# Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
 name: CI
 
 on:

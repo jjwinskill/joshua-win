@@ -37,10 +37,10 @@
 
 ## How this repo pins Node (decided in phase 1, 2026-10-29)
 
-**Node is pinned with `devEngines.runtime` in `package.json`, not `.nvmrc`** (Josh's call, phase 1 spec #1). There is deliberately no `.nvmrc`, so the pin lives in one place.
+**Node is pinned with `devEngines.runtime` in `package.json`, not `.nvmrc`** (Josh's call, phase 1 spec #1). There is deliberately no `.nvmrc`: `devEngines.runtime` is the one source of truth, and the lockfile and the agent-shell path below follow it.
 
-- The pin is an **exact version** (`26.13.0`), not a range. CI's `pnpm/setup` installs Node from the `devEngines.runtime` value and then runs `pnpm install --no-runtime`, so it does **not** use the lockfile's Node. With a range, CI could run a newer Node than the lockfile records (seen in the CI logs on 2026-10-29: `Installing runtime node@^26.0.0`).
-- `pnpm install` downloads that Node if needed (`onFail: download`) and locks its checksum in `pnpm-lock.yaml` (it shows up as a `node` dev dependency in the install output).
+- The pin is an **exact version** (`26.13.0`), not a range. CI's `pnpm/setup` (v3.1.2) installs Node from the `devEngines.runtime` value and then runs `pnpm install --no-runtime`, so it does **not** use the lockfile's Node. With a range, CI could run a newer Node than the lockfile records (seen in the CI logs on 2026-10-29: `Installing runtime node@^26.0.0`).
+- `pnpm install` downloads that Node if needed (`onFail: download`) and locks its checksum in `pnpm-lock.yaml` (it shows up as a `node` dev dependency in the install output). Locally the checksum is checked; in CI it isn't, because of `--no-runtime`.
 - Every `pnpm <script>` and `pnpm exec` runs under the locked Node, because pnpm links it as `node_modules/.bin/node`. Checked: with Node 24 first on PATH, `pnpm exec node -v` prints v26.13.0.
 - A bare `node` typed in a shell is **not** pinned (no global shims are installed), so run project code through pnpm.
 - In CI, `pnpm/setup` reads the same pin when its `runtime` input is omitted.

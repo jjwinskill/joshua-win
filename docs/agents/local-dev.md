@@ -31,7 +31,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 | `src/layouts/` | Page shells (`Base.astro`) |
 | `src/components/` | The shared React component library. No Astro or framework APIs, so the bake-off can reuse it in Next. |
 | `src/lib/` | Plain TypeScript helpers |
-| `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`, not `src/content/config.ts`, which is Astro's deprecated legacy path. |
+| `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
 | `content/lorem/` | Lorem pieces, free to edit |
 
 ## Tests

@@ -160,17 +160,10 @@
 | G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
 | G19 | `www.joshua.win` 301s to `/skill` too, as a second custom domain on the same Worker. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
-| G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Josh flagged that the scaffold PR merged with only its author's checks. | |
+| G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
 
 ## Change log
 
 - 2026-10-29: plan v1 written from the planning grill (G1–G13).
-- 2026-10-29: phase 1 spec (issue #1) marked phase 1 in progress and added:
-  - G14: Node pinned with `devEngines.runtime` (phase 1 scaffold line)
-  - G15: TypeScript 6.0 and ESLint (phase 1 scaffold line)
-  - G16: PR previews not gated (phase 1 privacy)
-  - G17: PR previews via Worker Previews (phase 1 CI/CD)
-  - G18: Web Analytics through the manual beacon on production (phase 1)
-  - G19: `www` redirects like the bare domain (phase 1 routing)
-  - G20: the four email addresses, and lorem copy until Josh writes it (phase 1 email)
+- 2026-10-29: phase 1 spec (issue #1) added G14–G20 (the Node pin, TypeScript 6 and ESLint, ungated Worker Previews, the manual analytics beacon, the `www` redirect, the email addresses). Phase 1 marked in progress.
 - 2026-10-29: the review of the scaffold PR made G14's pin an exact version, and added G21 (independent review on every PR, in Work tracking).
