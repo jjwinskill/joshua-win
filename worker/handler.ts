@@ -1,5 +1,9 @@
 import { decideGate, type GateSettings } from './gate';
-import { BASE_PATH, route } from './route';
+import { BASE_PATH, isLocal, route } from './route';
+
+// Browsers go straight to https for 30 days after a visit, so an http invite link can't send the
+// secret in the clear. Short while the site is pre-launch; a longer value is hard to take back.
+const HSTS = 'max-age=2592000';
 
 // What the Worker needs from its ASSETS binding; a stand-in satisfies it in unit tests.
 export interface Assets {
@@ -19,7 +23,9 @@ export async function handle(
     console.error(error);
     response = new Response('Internal error', { status: 500 });
   }
-  return withNoindex(response);
+  const headed = withNoindex(response);
+  if (!isLocal(new URL(request.url))) headed.headers.set('Strict-Transport-Security', HSTS);
+  return headed;
 }
 
 async function respond(

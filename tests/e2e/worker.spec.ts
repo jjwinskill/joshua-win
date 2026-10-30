@@ -52,20 +52,6 @@ test.describe('redirects into /skill/', () => {
     });
   }
 
-  // Locally a Host header stands in for www.joshua.win.
-  const www = { Host: 'www.joshua.win' };
-  for (const [from, to] of [
-    ['/', 'https://joshua.win/skill/'],
-    ['/skill/no-such-page/', 'https://joshua.win/skill/no-such-page/'],
-  ] as const) {
-    test(`www${from} → ${to}`, async ({ request, baseURL }) => {
-      const response = await request.get(new URL(from, baseURL).href, {
-        ...noRedirects,
-        headers: www,
-      });
-      expect(response.status()).toBe(301);
-      expect(response.headers()['location']).toBe(to);
-      expect(response.headers()['x-robots-tag']).toBe('noindex');
-    });
-  }
+  // www is covered by worker/route.test.ts and, on the live host, tests/smoke/: `wrangler dev` sets
+  // the host the Worker sees (dev.host in wrangler.jsonc), so a Host header can't reach that branch.
 });

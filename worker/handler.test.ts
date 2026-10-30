@@ -59,6 +59,17 @@ describe('handle', () => {
       expect(response.headers.get('Cache-Control')).toBe('no-store');
     });
 
+    it('sets HSTS on public hosts, redirects included, and not locally', async () => {
+      const assets = fakeAssets();
+      const hsts = 'Strict-Transport-Security';
+      const page = await handle(await memberRequest(), assets, on);
+      expect(page.headers.get(hsts)).toBe('max-age=2592000');
+      const redirect = await handle(new Request('https://joshua.win/'), assets, on);
+      expect(redirect.headers.get(hsts)).toBe('max-age=2592000');
+      const local = await handle(new Request('http://127.0.0.1:8787/skill/'), assets, on);
+      expect(local.headers.get(hsts)).toBeNull();
+    });
+
     it('turns a failure into a 500 that still carries noindex', async () => {
       const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
       const response = await handle(await memberRequest(), failingAssets, on);

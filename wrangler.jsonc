@@ -1,10 +1,21 @@
 // The Worker in front of the static site. Checked against wrangler 4.155.0 and the Workers
-// static-assets docs on 2026-10-29. Custom domains and previews come in #6 and #7.
+// static-assets docs on 2026-10-29, and custom domains on 2026-10-30. Previews come in #7.
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "joshua-win",
   "compatibility_date": "2026-10-29",
   "main": "./worker/index.ts",
+  // Custom domains send every path on these hosts to the Worker, and Cloudflare manages their DNS.
+  "routes": [
+    { "pattern": "joshua.win", "custom_domain": true },
+    { "pattern": "www.joshua.win", "custom_domain": true },
+  ],
+  // Without this, `wrangler dev` tells the Worker each request is for the first route, over http.
+  // The Worker would upgrade it to https, and Wrangler would rewrite that back: a redirect loop.
+  "dev": { "host": "localhost", "upstream_protocol": "http" },
+  // No workers.dev URLs until #7 decides what they're for.
+  "workers_dev": false,
+  "preview_urls": false,
   // The invite gate (#4). Only GATE: "off" opens it, so a missing or mistyped value leaves it on.
   "vars": { "GATE": "on" },
   // A deploy fails until this is set (docs/agents/local-dev.md). Never in this file.

@@ -28,6 +28,20 @@ Until publishing, only invite-link holders can see the site (G4). `astro dev` ha
 - **Try it locally:** copy `.dev.vars.example` to `.dev.vars` (git-ignored), then `pnpm build && pnpm exec wrangler dev`, and open http://localhost:8787/skill/ and http://localhost:8787/skill/?invite=local-test-secret. Without a `.dev.vars`, you only ever see the placeholder.
 - **Tests never use a real secret.** `playwright.config.ts` generates a throwaway secret on every run, locally and in CI, and it overrides any `.dev.vars`.
 
+## Deploying
+
+A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the build those checks tested, then smoke-tests the live site. Nothing else deploys, except the first deploy and a rotation, which Josh runs by hand, and the local soft-launch deploy in phase 6 (G22).
+
+- **What CI needs:** the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets, and the `CF_ANALYTICS_TOKEN` repository variable.
+- **The first deploy** has to bring the secret with it. `secrets.required` fails a deploy without it, and Wrangler 4.155 refuses `wrangler secret put` for a Worker that doesn't exist yet. Josh runs this once, signed in with `wrangler login`, after a `pnpm build`. The file only names the secret: environment values override file values (checked in Wrangler's source), so the secret never touches the disk. Process substitution (`<(...)`) doesn't work here; Wrangler fails with `EISDIR`.
+
+  ```bash
+  SECRET=$(openssl rand -hex 32); F=$(mktemp); echo 'INVITE_SECRET=' > "$F"; INVITE_SECRET=$SECRET pnpm exec wrangler deploy --secrets-file "$F"; rm "$F"; echo "https://joshua.win/skill/?invite=$SECRET"
+  ```
+
+- **Not deployed on purpose:** observability is off, because Workers Logs would record request URLs, invite links included. Use `wrangler tail` to debug. There's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
+- **HSTS** is 30 days and leaves subdomains out while the site is pre-launch. Consider raising it when publishing.
+
 ## Commands
 
 | Command | What it does |
@@ -41,7 +55,8 @@ Until publishing, only invite-link holders can see the site (G4). `astro dev` ha
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y) |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
+| `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser, no secret). CI runs it after every deploy. |
+| `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
 CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the tests, then the build, then Playwright against that build, each job only if the one before it passed. Run the same commands locally before opening a PR.
 
@@ -64,4 +79,4 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 - **Component tests** are `src/**/*.test.tsx` and run in jsdom with Testing Library and the jest-dom matchers. The example is `src/components/Greeting.test.tsx`. Test what a reader sees (roles, text), not internals. `.astro` files aren't component-tested, because Astro's Container API is still experimental (`experimental_AstroContainer` in Astro 7.4.4); Playwright covers them through the built site.
 - Under Vitest, `import.meta.env.BASE_URL` is `/`, not `/skill/`, so pass the base explicitly in unit tests.
 - **Worker unit tests** are `worker/**/*.test.ts`: the routing (`route.test.ts`), the gate (`gate.test.ts`), and the handler with a stand-in assets binding (`handler.test.ts`).
-- **Integration tests** are `tests/e2e/*.spec.ts` (Playwright). `gate.spec.ts` tests the gate from a reader's side. Other specs test what lies past it, so they take a valid cookie with `test.use({ extraHTTPHeaders: { Cookie: await memberCookie() } })`, from `tests/e2e/invite.ts`. Assert "not the placeholder" through `[data-page="placeholder"]`, not its copy, which Josh will change. They test through HTTP what a reader or a crawler gets: status, headers, redirects and the rendered page. `baseURL` ends in `/skill/`, so navigate with relative paths (`page.goto('./')`, `request.get('essays/')`). For root paths, build an absolute URL: `new URL('/', baseURL)`. To reach the `www` branch locally, send a `Host: www.joshua.win` header.
+- **Integration tests** are `tests/e2e/*.spec.ts` (Playwright). `gate.spec.ts` tests the gate from a reader's side. Other specs test what lies past it, so they take a valid cookie with `test.use({ extraHTTPHeaders: { Cookie: await memberCookie() } })`, from `tests/e2e/invite.ts`. Assert "not the placeholder" through `[data-page="placeholder"]`, not its copy, which Josh will change. They test through HTTP what a reader or a crawler gets: status, headers, redirects and the rendered page. `baseURL` ends in `/skill/`, so navigate with relative paths (`page.goto('./')`, `request.get('essays/')`). For root paths, build an absolute URL: `new URL('/', baseURL)`. `wrangler dev` sets the host the Worker sees (`dev.host` in `wrangler.jsonc`), so `www` can't be reached locally: `route.test.ts` covers its logic, and the smoke test covers the live host.

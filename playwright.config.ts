@@ -4,7 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
 // Integration tests run against the built site (dist/) served by the real Worker in local workerd,
 // so headers, redirects and (from #4) the invite gate are tested as they run in production.
 // Run `pnpm build` first. Checked against Playwright 1.64.1 on 2026-10-29.
-const port = 8787;
+// Not Wrangler's default 8787, so tests can run beside a `wrangler dev` you've left running.
+const port = 8788;
 const origin = `http://127.0.0.1:${port}`;
 
 // A throwaway invite secret, new on every run, so tests never touch the production one and failure

@@ -7,6 +7,8 @@ const SITE_ROOT = '/skill'; // BASE_PATH without its trailing slash
 // Hosts that only ever serve local dev and tests, so they keep plain http.
 const LOOPBACK = new Set(['localhost', '127.0.0.1', '[::1]']);
 
+export const isLocal = (url: URL): boolean => LOOPBACK.has(url.hostname);
+
 export type Outcome = { kind: 'redirect'; location: string } | { kind: 'asset' };
 
 export function route(url: URL): Outcome {
@@ -30,7 +32,7 @@ export function route(url: URL): Outcome {
     return { kind: 'redirect', location: secure(new URL(BASE_PATH, url)).href };
   }
 
-  if (url.protocol === 'http:' && !LOOPBACK.has(url.hostname)) {
+  if (url.protocol === 'http:' && !isLocal(url)) {
     return { kind: 'redirect', location: secure(url).href };
   }
 
@@ -40,6 +42,6 @@ export function route(url: URL): Outcome {
 // Every public host is https-only; local dev and tests stay on the origin they asked for.
 function secure(url: URL): URL {
   const target = new URL(url);
-  if (!LOOPBACK.has(target.hostname)) target.protocol = 'https:';
+  if (!isLocal(target)) target.protocol = 'https:';
   return target;
 }
