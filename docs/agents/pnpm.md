@@ -32,7 +32,19 @@
 ## Changed in pnpm 12
 
 - `--frozen-lockfile false` is gone; use `--no-frozen-lockfile`. In CI, pnpm uses a frozen lockfile automatically.
-- pnpm can manage the Node runtime itself (`pnpm runtime`; `pnpm env` is deprecated), and `globalShims` makes a global `node` follow a project's `devEngines.runtime` pin. Phase 1 decides whether we pin Node there or with `.nvmrc`, and records it here.
+- pnpm can manage the Node runtime itself (`pnpm runtime`; `pnpm env` is deprecated), and `globalShims` makes a global `node` follow a project's `devEngines.runtime` pin.
+
+## How this repo pins Node (decided in phase 1, 2026-10-29)
+
+**Node is pinned with `devEngines.runtime` in `package.json`, not `.nvmrc`** (Josh's call, phase 1 spec #1). There is deliberately no `.nvmrc`, so the pin lives in one place.
+
+- `pnpm install` resolves the range (`^26.0.0`), downloads that Node if needed (`onFail: download`), and locks the exact version and checksum in `pnpm-lock.yaml` (it shows up as a `node` dev dependency in the install output).
+- Every `pnpm <script>` and `pnpm exec` runs under the locked Node, because pnpm links it as `node_modules/.bin/node`. Checked: with Node 24 first on PATH, `pnpm exec node -v` prints v26.13.0.
+- A bare `node` typed in a shell is **not** pinned (no global shims are installed), so run project code through pnpm.
+- In CI, `pnpm/setup` reads the same pin when its `runtime` input is omitted.
+- To upgrade Node: change the range, run `pnpm install`, and commit the lockfile.
+
+**Agent shells:** they can inherit an older nvm Node on PATH with no `pnpm` on it. If `pnpm` isn't found, prepend the Node 26 bin folder first: `export PATH="$HOME/.nvm/versions/node/v26.13.0/bin:$PATH"`.
 - `sudo` with global commands fails on purpose.
 
 ## Installing and updating pnpm
@@ -45,15 +57,18 @@
 pnpm's current CI guide uses **`pnpm/setup`**, not the older `pnpm/action-setup` plus `actions/setup-node` pair:
 
 ```yaml
-- uses: actions/checkout@v6
-- uses: pnpm/setup@<commit-sha> # v3.1.2 as of 2026-10-29: pin to the commit, not the tag
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+- uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
   with:
-    runtime: node@26
     cache: true
+    require-lockfile: true
 ```
 
-It installs pnpm (version from `packageManager`), installs Node through pnpm, and runs the install. Check https://pnpm.io/continuous-integration before writing the workflow.
+It installs pnpm (version from `packageManager`), installs Node from `devEngines.runtime` (so no `runtime` input), and runs the install. `require-lockfile: true` makes a missing lockfile fail the job instead of being written. Pin actions to the commit, not the tag (the SHAs above were checked on 2026-10-29). Check https://pnpm.io/continuous-integration and the pnpm/setup README before changing the workflow. The workflow is `.github/workflows/ci.yml`.
 
-## Known local note
+## Known local notes
 
-`pnpm doctor` from an agent sandbox reported no write access to `~/Library/pnpm/store/v11`. That's probably the sandbox, not the machine. Check it on the first real `pnpm install` in phase 1.
+- `pnpm doctor` from an agent sandbox reported no write access to `~/Library/pnpm/store/v11`. The first real install (2026-10-29) used that store without trouble, so it was the sandbox.
+- `trustPolicy: no-downgrade` blocked `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. That plugin was left out rather than loosening the policy. Adding it back needs Josh's OK for an exclusion.
+- `eslint-plugin-jsx-a11y` 6.10.2 doesn't list ESLint 10 as a peer, so `pnpm install` warns. Its rules were checked to fire under ESLint 10 in both `.tsx` and `.astro` files. The plugin-astro docs name `eslint-plugin-jsx-a11y-x` as an alternative if it ever breaks.
+- A stray `node_modules` in the home folder broke `astro build`, because Node resolves packages by walking up the folder tree. Keep no `package.json` or `node_modules` above the repo.

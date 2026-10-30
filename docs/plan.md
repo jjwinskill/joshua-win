@@ -12,7 +12,7 @@
 | # | Phase | Status | At the end, you have |
 |---|---|---|---|
 | 0 | Planning | **done** | This plan, the glossary and the repo set up |
-| 1 | Pipeline | **next** | A hello page at joshua.win/skill that only invite-link holders can see, noindexed, deployed on every merge with all checks running; `@joshua.win` email working |
+| 1 | Pipeline | **in progress** | A hello page at joshua.win/skill that only invite-link holders can see, noindexed, deployed on every merge with all checks running; `@joshua.win` email working |
 | 2 | Lorem piece 1 and bake-off 1 | not started | A lorem essay with the parade, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
@@ -27,7 +27,7 @@
 
 - **Scaffold:**
   - Astro, with React for every component (G2)
-  - TypeScript strict, Prettier, pnpm 12 per [`agents/pnpm.md`](agents/pnpm.md), Node 26 LTS pinned for the project and CI (G12)
+  - TypeScript 6.0 strict, ESLint and Prettier (G15), pnpm 12 per [`agents/pnpm.md`](agents/pnpm.md), Node 26 LTS pinned for the project and CI with `devEngines.runtime` (G12, G14)
   - the folders: `src/pages/`, `src/layouts/`, `src/components/` (the shared library, free of framework APIs), `src/content/`, `content/lorem/`
 - **Tests (G3)**, set up with one example each:
   - Vitest for unit tests
@@ -35,17 +35,17 @@
   - Playwright for integration tests against the built site
   - `@axe-core/playwright` on every route
   - Lighthouse CI
-- **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. Each PR uploads a Cloudflare preview version and posts its URL on the PR. A merge to `main` runs `wrangler deploy`.
+- **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. Each PR gets a Cloudflare Worker Preview (`wrangler preview`) and its URL is posted on the PR (G17). A merge to `main` runs `wrangler deploy`.
 - **Privacy (G4):**
   - Every response carries an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7).
-  - The invite gate: a small Worker in front of the static files. A secret invite link sets a cookie; without it, visitors get a plain placeholder page. Rotating the secret locks everyone out.
-- **Routing:** `joshua.win` 301s to `/skill` (S8).
-- **Cloudflare Web Analytics** on.
+  - The invite gate: a small Worker in front of the static files. A secret invite link sets a cookie; without it, visitors get a plain placeholder page. Rotating the secret locks everyone out. Previews aren't gated (G16).
+- **Routing:** `joshua.win` and `www.joshua.win` 301 to `/skill` (S8, G19).
+- **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
 - **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(content/essays/**)`, `Edit(content/write-ups/**)` and `Edit(drafts/**)`. Lorem lives in `content/lorem/`, which never prompts.
 - **Drafts (P6, G5):** a private repo `joshua-win-drafts`, cloned into a git-ignored `drafts/` folder. The local dev server can render drafts; CI never sees them.
   - A draft's one-off components live in `drafts/` with its prose. Each documents its props and purpose at the top of its file, so a later agent can reuse it or promote it to `src/components/`. There's a promotion checklist.
   - Publishing a piece means moving its file, plus any one-off components, into the public repo in a PR.
-- **Email (P4, G9):** inbound Email Routing for the named addresses; Resend for sending; SPF, DKIM and DMARC at `p=none`; Gmail "Send mail as". Josh does it in the Cloudflare and Resend dashboards, and the agent leads him through it step by step. Check the Gmail 2027 "Send as" watch item first.
+- **Email (P4, G9):** inbound Email Routing for the named addresses (G20); Resend for sending; SPF, DKIM and DMARC at `p=none`; Gmail "Send mail as". Josh does it in the Cloudflare and Resend dashboards, and the agent leads him through it step by step. Check the Gmail 2027 "Send as" watch item first.
 - **Exit:**
   - a merged PR deploys to joshua.win/skill
   - the hello page passes every check
@@ -153,7 +153,15 @@
 | G11 | The plan is a living document (this file); CLAUDE.md points every session here. | |
 | G12 | pnpm 12 with its supply-chain defaults kept on, plus `trustPolicy: no-downgrade` (see `agents/pnpm.md`). Node 26 LTS everywhere; Josh's machine was upgraded on 2026-10-29. | |
 | G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. | Sharpens S2 |
+| G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. | Settles the phase 1 open item |
+| G15 | TypeScript 6.0, not 7: TypeScript 7.0 has no programmatic API yet, and `astro check` and typescript-eslint need 6. Lint is ESLint with typescript-eslint, the Astro plugin and jsx-a11y. Revisit TypeScript when 7.1 ships its API. | |
+| G16 | PR previews aren't behind the invite gate (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
+| G17 | PR previews use Cloudflare's Worker Previews (`wrangler preview --name pr-<n>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
+| G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
+| G19 | `www.joshua.win` 301s to `/skill` too, as a second custom domain on the same Worker. | Adds to S8 |
+| G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
 
 ## Change log
 
 - 2026-10-29: plan v1 written from the planning grill (G1–G13).
+- 2026-10-29: phase 1 spec (issue #1) added G14–G20 (the Node pin, TypeScript 6 and ESLint, ungated Worker Previews, the manual analytics beacon, the `www` redirect, the email addresses). Phase 1 marked in progress.
