@@ -14,6 +14,11 @@ describe('sitePath', () => {
     expect(sitePath('/essays/', '/skill/')).toBe('/skill/essays/');
   });
 
+  it('leaves the trailing slash to the caller, so files keep their names', () => {
+    expect(sitePath('essays', '/skill/')).toBe('/skill/essays');
+    expect(sitePath('og.png', '/skill/')).toBe('/skill/og.png');
+  });
+
   it('copes with a base written without its trailing slash', () => {
     expect(sitePath('contents/', '/skill')).toBe('/skill/contents/');
   });

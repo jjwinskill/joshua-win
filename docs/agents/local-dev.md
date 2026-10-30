@@ -1,6 +1,6 @@
 # Local development
 
-How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Later phase 1 tickets extend this file: serving through the Worker (#3), the invite gate's test secret and rotation (#4), and drafts (#9).
+How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Checked against Astro 7.4.4, Vitest 5.0.5, ESLint 10.13.0 and Prettier 3.9.10 on 2026-10-29. Later phase 1 tickets extend this file: serving through the Worker (#3), the invite gate's test secret and rotation (#4), and drafts (#9).
 
 ## The stack, briefly
 
@@ -31,11 +31,11 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 | `src/layouts/` | Page shells (`Base.astro`) |
 | `src/components/` | The shared React component library. No Astro or framework APIs, so the bake-off can reuse it in Next. |
 | `src/lib/` | Plain TypeScript helpers |
-| `src/content/` | Content collection config (later phases) |
+| `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
 | `content/lorem/` | Lorem pieces, free to edit |
 
 ## Tests
 
 - **Unit tests** are `src/**/*.test.ts` and run in Node. The example is `src/lib/paths.test.ts`.
-- **Component tests** are `src/**/*.test.tsx` and run in jsdom with Testing Library and the jest-dom matchers. The example is `src/components/Greeting.test.tsx`. Test what a reader sees (roles, text), not internals. `.astro` files aren't component-tested, because Astro's Container API is still experimental; Playwright covers them through the built site.
+- **Component tests** are `src/**/*.test.tsx` and run in jsdom with Testing Library and the jest-dom matchers. The example is `src/components/Greeting.test.tsx`. Test what a reader sees (roles, text), not internals. `.astro` files aren't component-tested, because Astro's Container API is still experimental (`experimental_AstroContainer` in Astro 7.4.4); Playwright covers them through the built site.
 - Under Vitest, `import.meta.env.BASE_URL` is `/`, not `/skill/`, so pass the base explicitly in unit tests.
