@@ -45,6 +45,7 @@
 - **Drafts (P6, G5):** a private repo `joshua-win-drafts`, cloned into a git-ignored `drafts/` folder. The local dev server can render drafts; CI never sees them.
   - A draft's one-off components live in `drafts/` with its prose. Each documents its props and purpose at the top of its file, so a later agent can reuse it or promote it to `src/components/`. There's a promotion checklist.
   - Publishing a piece means moving its file, plus any one-off components, into the public repo in a PR.
+  - **Backup (G22):** the private repo is the backup. Commit and push drafts to it often; every push is an offsite copy with full history.
 - **Email (P4, G9):** inbound Email Routing for the named addresses (G20); Resend for sending; SPF, DKIM and DMARC at `p=none`; Gmail "Send mail as". Josh does it in the Cloudflare and Resend dashboards, and the agent leads him through it step by step. Check the Gmail 2027 "Send as" watch item first.
 - **Exit:**
   - a merged PR deploys to joshua.win/skill
@@ -122,17 +123,20 @@
 - **Casts:** the write-up's cast, if it has one, is drawn. Rig automation (P3) happens here only if it's still worth it; it's second on the cut list.
 - **The about page (S23):** a LinkedIn link, a "what I've worked on" paragraph, and an invitation to ask for a tailored résumé. It depends on the LinkedIn overhaul (N6). The contact-form Worker comes with it, with Turnstile.
 - **Also:** share images rendered from each cast (PNG), RSS, and the sitemap.
-- **Exit:** both pieces sit in `content/`, their treatment checklists are done, and the about page and contact form work end to end.
+- **Exit:** both pieces are finished in `drafts/` (they stay private until publishing, G22), their treatment checklists are done, and the about page and contact form work end to end.
 
 ## Phase 6: Ship
 
 **Goal:** publish.
 
-1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback.
-2. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix. **Open question for Josh (raised in the review of the invite gate):** phase 5 puts the real pieces in `content/` in this public repo before this step, so they'd be readable on GitHub, and in CI's `dist` artifact, while the site is still gated. Settle it before phase 5.
-3. Remove the lorem pieces.
-4. Lift the invite gate and noindex. The site is now published.
-5. After publishing: the URL goes on the résumé and LinkedIn Featured, with one plain LinkedIn post per piece.
+The real pieces stay out of this public repo and out of CI until step 5 (G22).
+
+1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback. Until step 5, CI can't see the pieces, so run the automated checks on them locally against a soft-launch build.
+2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy` behind the invite gate. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so pause that deploy, or merge nothing to `main`, until step 5.
+3. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
+4. Remove the lorem pieces.
+5. The publishing PR: move the pieces and their one-off components into `content/`, and lift the invite gate and noindex, all together, so the pieces enter the public repo only as they go public. CI's checks now cover them. Merging it publishes the site.
+6. After publishing: the URL goes on the résumé and LinkedIn Featured, with one plain LinkedIn post per piece.
 
 ---
 
@@ -161,6 +165,7 @@
 | G19 | `www.joshua.win` 301s to the bare domain as a second custom domain on the same Worker, keeping its path (Josh: keep paths so missing pages reach the real 404 "instead of 301-ing everything"). `www.joshua.win/` lands on `/skill/`. Public hosts are https-only: the Worker upgrades http itself. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
 | G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
+| G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). | Changes phases 5 and 6 |
 
 ## Change log
 
@@ -169,3 +174,4 @@
 - 2026-10-29: the review of the scaffold PR made G14's pin an exact version, and added G21 (independent review on every PR, in Work tracking).
 - 2026-10-29: the Worker PR (#3) changed G19: `www` keeps its path instead of always landing on `/skill/` (Josh's call after review), and the Worker upgrades http to https on public hosts.
 - 2026-10-30: the invite gate's review (#4) raised an open question at phase 6 step 2: the public repo exposes real pieces before the gate lifts.
+- 2026-10-30: G22 answers that question: the pieces stay private until publishing, the soft-launch deploy is local, and the drafts repo is the backup. Phase 5's exit and phase 6's steps changed to match.
