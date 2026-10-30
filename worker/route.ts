@@ -1,5 +1,5 @@
 // The Worker's decisions, kept free of the Workers runtime so they're unit-tested in plain Vitest.
-// The invite gate (#4) extends this with cookies and gate settings.
+// The invite gate is separate (gate.ts): redirects run first, and it only sees the final URL.
 
 export const BASE_PATH = '/skill/';
 const SITE_ROOT = '/skill'; // BASE_PATH without its trailing slash
