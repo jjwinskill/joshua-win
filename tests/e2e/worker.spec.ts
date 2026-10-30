@@ -1,9 +1,11 @@
 import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 
 // The Worker in front of the static files (#3): noindex on every response, and redirects into /skill/.
 
 const noRedirects = { maxRedirects: 0 } as const;
+const builtAssets = fileURLToPath(new URL('../../dist/_astro', import.meta.url));
 
 test('the hello page renders under /skill/ with noindex', async ({ page }) => {
   const response = await page.goto('./');
@@ -14,7 +16,7 @@ test('the hello page renders under /skill/ with noindex', async ({ page }) => {
 
 test.describe('noindex on every kind of response', () => {
   test('a built asset', async ({ request }) => {
-    const [file] = readdirSync('dist/_astro');
+    const [file] = readdirSync(builtAssets);
     expect(file, 'the build should emit at least one file under _astro/').toBeDefined();
     const response = await request.get(`_astro/${file}`);
     expect(response.status()).toBe(200);
@@ -30,6 +32,7 @@ test.describe('noindex on every kind of response', () => {
   test("Cloudflare's own trailing-slash redirect", async ({ request }) => {
     const response = await request.get('index.html', noRedirects);
     expect(response.status()).toBe(307);
+    expect(response.headers()['location']).toBe('/skill/');
     expect(response.headers()['x-robots-tag']).toBe('noindex');
   });
 });
@@ -44,13 +47,20 @@ test.describe('redirects into /skill/', () => {
     });
   }
 
-  test('www → the bare domain over https', async ({ request, baseURL }) => {
-    const response = await request.get(new URL('/', baseURL).href, {
-      ...noRedirects,
-      headers: { Host: 'www.joshua.win' },
+  // Locally a Host header stands in for www.joshua.win.
+  const www = { Host: 'www.joshua.win' };
+  for (const [from, to] of [
+    ['/', 'https://joshua.win/skill/'],
+    ['/skill/no-such-page/', 'https://joshua.win/skill/no-such-page/'],
+  ] as const) {
+    test(`www${from} → ${to}`, async ({ request, baseURL }) => {
+      const response = await request.get(new URL(from, baseURL).href, {
+        ...noRedirects,
+        headers: www,
+      });
+      expect(response.status()).toBe(301);
+      expect(response.headers()['location']).toBe(to);
+      expect(response.headers()['x-robots-tag']).toBe('noindex');
     });
-    expect(response.status()).toBe(301);
-    expect(response.headers()['location']).toBe('https://joshua.win/skill/');
-    expect(response.headers()['x-robots-tag']).toBe('noindex');
-  });
+  }
 });

@@ -21,7 +21,8 @@ export default defineConfig({
     command: `pnpm exec wrangler dev --port ${port} --ip 127.0.0.1`,
     url: `${origin}/skill/`,
     env: { WRANGLER_SEND_METRICS: 'false' },
-    reuseExistingServer: !process.env.CI,
+    // Always a fresh server, so a stale `wrangler dev` on the port is never tested by mistake.
+    reuseExistingServer: false,
     timeout: 60_000,
   },
 });

@@ -72,4 +72,6 @@ It installs pnpm (version from `packageManager`), installs Node from `devEngines
 - `pnpm doctor` from an agent sandbox reported no write access to `~/Library/pnpm/store/v11`. The first real install (2026-10-29) used that store without trouble, so it was the sandbox.
 - `trustPolicy: no-downgrade` blocked `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. That plugin was left out rather than loosening the policy. Adding it back needs Josh's OK for an exclusion.
 - `eslint-plugin-jsx-a11y` 6.10.2 doesn't list ESLint 10 as a peer, so `pnpm install` warns. Its rules were checked to fire under ESLint 10 in both `.tsx` and `.astro` files. The plugin-astro docs name `eslint-plugin-jsx-a11y-x` as an alternative if it ever breaks.
+- Wrangler 4.155.0 pulls in a **beta** Miniflare (`miniflare@5.20261023.2-beta`) as a dependency, which is Wrangler's own choice, not ours. It runs only in local dev and tests (`wrangler dev`), never in the deployed Worker.
+- `pnpm add wrangler` gave 4.155.0, not the newest 4.156.0, because `minimumReleaseAge` waits a day. That's working as intended.
 - A stray `node_modules` in the home folder broke `astro build`, because Node resolves packages by walking up the folder tree. Keep no `package.json` or `node_modules` above the repo.

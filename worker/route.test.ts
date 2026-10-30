@@ -47,16 +47,45 @@ describe('route', () => {
       expect(at('http://www.joshua.win/')).toEqual(redirectTo('https://joshua.win/skill/'));
     });
 
-    it('keeps a path that is already on the site', () => {
+    it('keeps a path and query under /skill/, so deep links survive', () => {
       expect(at('https://www.joshua.win/skill/essays/?ref=x')).toEqual(
         redirectTo('https://joshua.win/skill/essays/?ref=x'),
       );
     });
 
-    it('sends other www paths to the home page', () => {
+    it('keeps a missing page missing: one hop to the bare domain, which then 404s', () => {
+      expect(at('https://www.joshua.win/skill/no-such-page/')).toEqual(
+        redirectTo('https://joshua.win/skill/no-such-page/'),
+      );
+    });
+
+    it('lands /skill on /skill/ in one hop, keeping the query', () => {
+      expect(at('https://www.joshua.win/skill?ref=card')).toEqual(
+        redirectTo('https://joshua.win/skill/?ref=card'),
+      );
+    });
+
+    it('sends paths outside the site where the bare domain would: the home page', () => {
       expect(at('https://www.joshua.win/old-blog/post')).toEqual(
         redirectTo('https://joshua.win/skill/'),
       );
+    });
+  });
+
+  describe('https', () => {
+    it('upgrades http on a public host, keeping the path and query', () => {
+      expect(at('http://joshua.win/skill/essays/?ref=x')).toEqual(
+        redirectTo('https://joshua.win/skill/essays/?ref=x'),
+      );
+    });
+
+    it('upgrades while redirecting the bare domain, in one hop', () => {
+      expect(at('http://joshua.win/')).toEqual(redirectTo('https://joshua.win/skill/'));
+    });
+
+    it('leaves local hosts on http', () => {
+      expect(at('http://localhost:8787/skill/')).toEqual(asset);
+      expect(at('http://[::1]:8787/skill/')).toEqual(asset);
     });
   });
 });
