@@ -7,4 +7,9 @@ blockExoticSubdeps: true
 trustPolicy: no-downgrade
 
 # Dependencies allowed to run install scripts. Add an entry only when the package truly needs it, and say why.
-allowBuilds: {}
+# `false` means reviewed and not allowed to run.
+allowBuilds:
+  # Both postinstalls only check the platform binary that pnpm already installs as an optional
+  # dependency, and download it from the npm registry if it's missing. Not needed (checked 2026-10-29).
+  esbuild: false
+  workerd: false

@@ -8,3 +8,7 @@ docs/
 # Vendored skills (skills-lock.json); never reformat.
 .claude/skills/
 skills-lock.json
+worker-configuration.d.ts
+.wrangler/
+test-results/
+playwright-report/
