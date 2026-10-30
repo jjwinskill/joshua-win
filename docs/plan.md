@@ -4,7 +4,7 @@
 
 - **Sources:** strategy v1 in [`strategy/decisions.md`](strategy/decisions.md) (the S, P and N numbers) and [`strategy/strategy.md`](strategy/strategy.md). Planning decisions are below as G1, G2…; where they differ from the strategy, they win.
 - **Vocabulary:** [`../GLOSSARY.md`](../GLOSSARY.md).
-- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Each ticket gets a PR with its own preview deploy.
+- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Each ticket gets a PR with its own preview deploy. Before merge, every PR gets an independent review: `/code-review` with fresh agents given only the diff and the ticket, told to look for what's wrong. Its findings go on the PR and are fixed or answered before Josh is asked to merge (G21).
 - **Time:** there's no hours budget; the launch bar is what matters. When Josh's "too much work, too little substance" signal shows up, apply the cut list (S26) and ship.
 
 ## Status
@@ -153,15 +153,24 @@
 | G11 | The plan is a living document (this file); CLAUDE.md points every session here. | |
 | G12 | pnpm 12 with its supply-chain defaults kept on, plus `trustPolicy: no-downgrade` (see `agents/pnpm.md`). Node 26 LTS everywhere; Josh's machine was upgraded on 2026-10-29. | |
 | G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. | Sharpens S2 |
-| G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. | Settles the phase 1 open item |
+| G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. The pin is an exact version, because CI installs Node from it rather than from the lockfile. | Settles the phase 1 open item |
 | G15 | TypeScript 6.0, not 7: TypeScript 7.0 has no programmatic API yet, and `astro check` and typescript-eslint need 6. Lint is ESLint with typescript-eslint, the Astro plugin and jsx-a11y. Revisit TypeScript when 7.1 ships its API. | |
 | G16 | PR previews aren't behind the invite gate (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
 | G17 | PR previews use Cloudflare's Worker Previews (`wrangler preview --name pr-<n>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
 | G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
 | G19 | `www.joshua.win` 301s to `/skill` too, as a second custom domain on the same Worker. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
+| G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Josh flagged that the scaffold PR merged with only its author's checks. | |
 
 ## Change log
 
 - 2026-10-29: plan v1 written from the planning grill (G1–G13).
-- 2026-10-29: phase 1 spec (issue #1) added G14–G20 (the Node pin, TypeScript 6 and ESLint, ungated Worker Previews, the manual analytics beacon, the `www` redirect, the email addresses). Phase 1 marked in progress.
+- 2026-10-29: phase 1 spec (issue #1) marked phase 1 in progress and added:
+  - G14: Node pinned with `devEngines.runtime` (phase 1 scaffold line)
+  - G15: TypeScript 6.0 and ESLint (phase 1 scaffold line)
+  - G16: PR previews not gated (phase 1 privacy)
+  - G17: PR previews via Worker Previews (phase 1 CI/CD)
+  - G18: Web Analytics through the manual beacon on production (phase 1)
+  - G19: `www` redirects like the bare domain (phase 1 routing)
+  - G20: the four email addresses, and lorem copy until Josh writes it (phase 1 email)
+- 2026-10-29: the review of the scaffold PR made G14's pin an exact version, and added G21 (independent review on every PR, in Work tracking).

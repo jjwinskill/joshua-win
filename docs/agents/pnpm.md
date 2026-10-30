@@ -33,19 +33,20 @@
 
 - `--frozen-lockfile false` is gone; use `--no-frozen-lockfile`. In CI, pnpm uses a frozen lockfile automatically.
 - pnpm can manage the Node runtime itself (`pnpm runtime`; `pnpm env` is deprecated), and `globalShims` makes a global `node` follow a project's `devEngines.runtime` pin.
+- `sudo` with global commands fails on purpose.
 
 ## How this repo pins Node (decided in phase 1, 2026-10-29)
 
 **Node is pinned with `devEngines.runtime` in `package.json`, not `.nvmrc`** (Josh's call, phase 1 spec #1). There is deliberately no `.nvmrc`, so the pin lives in one place.
 
-- `pnpm install` resolves the range (`^26.0.0`), downloads that Node if needed (`onFail: download`), and locks the exact version and checksum in `pnpm-lock.yaml` (it shows up as a `node` dev dependency in the install output).
+- The pin is an **exact version** (`26.13.0`), not a range. CI's `pnpm/setup` installs Node from the `devEngines.runtime` value and then runs `pnpm install --no-runtime`, so it does **not** use the lockfile's Node. With a range, CI could run a newer Node than the lockfile records (seen in the CI logs on 2026-10-29: `Installing runtime node@^26.0.0`).
+- `pnpm install` downloads that Node if needed (`onFail: download`) and locks its checksum in `pnpm-lock.yaml` (it shows up as a `node` dev dependency in the install output).
 - Every `pnpm <script>` and `pnpm exec` runs under the locked Node, because pnpm links it as `node_modules/.bin/node`. Checked: with Node 24 first on PATH, `pnpm exec node -v` prints v26.13.0.
 - A bare `node` typed in a shell is **not** pinned (no global shims are installed), so run project code through pnpm.
 - In CI, `pnpm/setup` reads the same pin when its `runtime` input is omitted.
-- To upgrade Node: change the range, run `pnpm install`, and commit the lockfile.
+- To upgrade Node: change the version in `devEngines.runtime`, run `pnpm install`, and commit both files. Update the agent-shell path below too.
 
 **Agent shells:** they can inherit an older nvm Node on PATH with no `pnpm` on it. If `pnpm` isn't found, prepend the Node 26 bin folder first: `export PATH="$HOME/.nvm/versions/node/v26.13.0/bin:$PATH"`.
-- `sudo` with global commands fails on purpose.
 
 ## Installing and updating pnpm
 
