@@ -1,0 +1,10 @@
+dist/
+.astro/
+drafts/
+pnpm-lock.yaml
+# Josh's prose and the planning docs are formatted by hand; never reflow them.
+*.md
+docs/
+# Vendored skills (skills-lock.json); never reformat.
+.claude/skills/
+skills-lock.json
