@@ -3,7 +3,7 @@ import { inviteToken } from './gate';
 import { handle, type Assets } from './handler';
 
 const SECRET = 'correct-horse';
-const on = { mode: 'on', secret: SECRET };
+const on = { gate: 'on', secret: SECRET };
 const home = 'https://joshua.win/skill/';
 
 // A stand-in for the ASSETS binding: the placeholder page, or a page with its own headers.
@@ -45,6 +45,18 @@ describe('handle', () => {
       expect(response.headers.get('Location')).toBe('https://joshua.win/skill/');
       expect(response.headers.get('X-Robots-Tag')).toBe('noindex');
       expect(assets.requested).toEqual([]);
+    });
+
+    it('keeps a redirect that carries an invite out of every cache', async () => {
+      const assets = fakeAssets();
+      const response = await handle(
+        new Request(`https://www.joshua.win/skill/?invite=${SECRET}`),
+        assets,
+        on,
+      );
+      expect(response.status).toBe(301);
+      expect(response.headers.get('Location')).toBe(`https://joshua.win/skill/?invite=${SECRET}`);
+      expect(response.headers.get('Cache-Control')).toBe('no-store');
     });
 
     it('turns a failure into a 500 that still carries noindex', async () => {
@@ -90,7 +102,7 @@ describe('handle', () => {
     });
 
     it('serves the placeholder to everyone when the secret is missing', async () => {
-      const response = await handle(await memberRequest(), fakeAssets(), { mode: 'on' });
+      const response = await handle(await memberRequest(), fakeAssets(), { gate: 'on' });
       expect(await response.text()).toBe('placeholder');
     });
   });
@@ -117,7 +129,7 @@ describe('handle', () => {
 
   describe('gate off', () => {
     it('serves the page with its own cache headers, and no cookie needed', async () => {
-      const response = await handle(new Request(home), fakeAssets(), { mode: 'off' });
+      const response = await handle(new Request(home), fakeAssets(), { gate: 'off' });
       expect(await response.text()).toBe('page');
       expect(response.headers.get('Cache-Control')).toBe('public');
       expect(response.headers.get('X-Robots-Tag')).toBe('noindex');

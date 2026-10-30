@@ -30,15 +30,21 @@ async function respond(
   const url = new URL(request.url);
 
   // Redirects run before the gate: they reveal nothing, and the gate only ever sees the final URL.
+  // no-store, because a redirect can carry an invite through (www, http, /skill) and a browser
+  // would otherwise remember a 301, secret included.
   const outcome = route(url);
-  if (outcome.kind === 'redirect') return Response.redirect(outcome.location, 301);
+  if (outcome.kind === 'redirect') {
+    return withHeader(Response.redirect(outcome.location, 301), 'Cache-Control', 'no-store');
+  }
 
   const decision = await decideGate(url, request.headers.get('Cookie'), settings);
   switch (decision.kind) {
     case 'open':
       return assets.fetch(request);
     case 'member':
-      return withCacheControl(await assets.fetch(request), 'private, no-cache');
+      // While the gate is on, no shared cache may keep a page. Costs nothing: Cloudflare's default
+      // for assets already revalidates on every load.
+      return withHeader(await assets.fetch(request), 'Cache-Control', 'private, no-cache');
     case 'admit':
       // A 302, not a 301: a browser must never remember this redirect.
       return new Response(null, {
@@ -62,22 +68,19 @@ async function placeholder(request: Request, url: URL, assets: Assets): Promise<
     }),
   );
   if (!page.ok) throw new Error(`The placeholder page is missing: ${page.status}`);
-  const response = withCacheControl(page, 'no-store');
+  const response = withHeader(page, 'Cache-Control', 'no-store');
   response.headers.delete('ETag');
   return response;
-}
-
-// While the gate is on, no shared cache may keep a page or serve the placeholder in its place.
-function withCacheControl(response: Response, value: string): Response {
-  const headed = new Response(response.body, response);
-  headed.headers.set('Cache-Control', value);
-  return headed;
 }
 
 // Nothing is indexed before publishing (S18, P7): every response the Worker returns carries the
 // header, errors included. Responses the platform itself returns (limits, crashes) can't; see #6.
 function withNoindex(response: Response): Response {
+  return withHeader(response, 'X-Robots-Tag', 'noindex');
+}
+
+function withHeader(response: Response, name: string, value: string): Response {
   const headed = new Response(response.body, response);
-  headed.headers.set('X-Robots-Tag', 'noindex');
+  headed.headers.set(name, value);
   return headed;
 }

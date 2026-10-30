@@ -7,7 +7,7 @@
   "main": "./worker/index.ts",
   // The invite gate (#4). Only GATE: "off" opens it, so a missing or mistyped value leaves it on.
   "vars": { "GATE": "on" },
-  // A deploy fails if this isn't set (`wrangler secret put INVITE_SECRET`). Never in this file.
+  // A deploy fails until this is set (docs/agents/local-dev.md). Never in this file.
   "secrets": { "required": ["INVITE_SECRET"] },
   "assets": {
     // Astro writes to dist/ root; base_path serves it under /skill/ (wrangler 4.148+).

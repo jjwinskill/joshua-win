@@ -1,8 +1,10 @@
 // The invite gate (G4): who gets past the placeholder before publishing. Like route.ts it's free of
 // the Workers runtime; crypto.subtle exists in both workerd and Node, so it's unit-tested in Vitest.
 
-export const INVITE_PARAM = 'invite';
-export const COOKIE_NAME = 'invite';
+import { BASE_PATH } from './route';
+
+const INVITE_PARAM = 'invite';
+const COOKIE_NAME = 'invite';
 const ONE_YEAR_IN_SECONDS = 31_536_000;
 
 // What the cookie's token is derived from. Changing it would lock everyone out, like a rotation.
@@ -10,7 +12,7 @@ const TOKEN_LABEL = 'joshua-win invite v1';
 
 export interface GateSettings {
   // Only the exact value 'off' opens the gate (previews, #7). Anything else, or nothing, keeps it on.
-  mode?: string;
+  gate?: string;
   secret?: string;
 }
 
@@ -23,9 +25,9 @@ export type GateDecision =
 export async function decideGate(
   url: URL,
   cookieHeader: string | null,
-  { mode, secret }: GateSettings,
+  { gate, secret }: GateSettings,
 ): Promise<GateDecision> {
-  if (mode === 'off') return { kind: 'open' };
+  if (gate === 'off') return { kind: 'open' };
 
   // Fails closed: with no usable secret, nothing can match, including an empty `?invite=`.
   if (!secret?.trim()) return { kind: 'placeholder' };
@@ -62,7 +64,7 @@ export async function inviteToken(secret: string): Promise<string> {
 }
 
 function inviteCookie(token: string): string {
-  return `${COOKIE_NAME}=${token}; Max-Age=${ONE_YEAR_IN_SECONDS}; Path=/skill/; HttpOnly; Secure; SameSite=Lax`;
+  return `${COOKIE_NAME}=${token}; Max-Age=${ONE_YEAR_IN_SECONDS}; Path=${BASE_PATH}; HttpOnly; Secure; SameSite=Lax`;
 }
 
 function readCookie(header: string | null, name: string): string | undefined {

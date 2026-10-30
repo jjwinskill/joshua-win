@@ -129,7 +129,7 @@
 **Goal:** publish.
 
 1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback.
-2. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
+2. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix. **Open question for Josh (raised in the review of the invite gate):** phase 5 puts the real pieces in `content/` in this public repo before this step, so they'd be readable on GitHub, and in CI's `dist` artifact, while the site is still gated. Settle it before phase 5.
 3. Remove the lorem pieces.
 4. Lift the invite gate and noindex. The site is now published.
 5. After publishing: the URL goes on the résumé and LinkedIn Featured, with one plain LinkedIn post per piece.
@@ -168,3 +168,4 @@
 - 2026-10-29: phase 1 spec (issue #1) added G14–G20 (the Node pin, TypeScript 6 and ESLint, ungated Worker Previews, the manual analytics beacon, the `www` redirect, the email addresses). Phase 1 marked in progress.
 - 2026-10-29: the review of the scaffold PR made G14's pin an exact version, and added G21 (independent review on every PR, in Work tracking).
 - 2026-10-29: the Worker PR (#3) changed G19: `www` keeps its path instead of always landing on `/skill/` (Josh's call after review), and the Worker upgrades http to https on public hosts.
+- 2026-10-30: the invite gate's review (#4) raised an open question at phase 6 step 2: the public repo exposes real pieces before the gate lifts.

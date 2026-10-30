@@ -1,4 +1,4 @@
 # Copy to .dev.vars to try the invite gate with `wrangler dev`:
 #   http://localhost:8787/skill/?invite=local-test-secret
-# A throwaway for your machine only. The production secret never goes in a file.
+# A throwaway for your machine only. The production secret is never committed.
 INVITE_SECRET="local-test-secret"

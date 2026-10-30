@@ -38,7 +38,14 @@ test.describe('without the invite cookie', () => {
   test('the placeholder loads nothing from behind the gate', async ({ request }) => {
     const html = await (await request.get('./')).text();
     expect(html).toContain('data-page="placeholder"');
-    expect(html).not.toContain('_astro/');
+    expect(html).not.toMatch(/<(script|link|img|iframe|video|source)\b|url\(/i);
+  });
+
+  test('a HEAD request gets the placeholder too, with no body', async ({ request }) => {
+    const response = await request.head('./');
+    expect(response.status()).toBe(200);
+    expect(response.headers()['cache-control']).toBe('no-store');
+    expect(await response.text()).toBe('');
   });
 
   test('a made-up cookie is refused', async ({ browser }) => {
@@ -90,6 +97,15 @@ test.describe('the invite link', () => {
 });
 
 test.describe('redirects run before the gate', () => {
+  test('a redirect carrying an invite is kept out of every cache', async ({ request, baseURL }) => {
+    const response = await request.get(
+      new URL(`/skill?invite=${testSecret()}`, baseURL).href,
+      noRedirects,
+    );
+    expect(response.status()).toBe(301);
+    expect(response.headers()['cache-control']).toBe('no-store');
+  });
+
   test('the bare domain still redirects with no cookie', async ({ request, baseURL }) => {
     const response = await request.get(new URL('/', baseURL).href, noRedirects);
     expect(response.status()).toBe(301);

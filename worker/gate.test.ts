@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { decideGate, inviteToken } from './gate';
 
 const SECRET = 'correct-horse';
-const on = { mode: 'on', secret: SECRET };
+const on = { gate: 'on', secret: SECRET };
 const home = new URL('https://joshua.win/skill/');
 const withInvite = (invite: string, path = '/skill/') =>
   new URL(`https://joshua.win${path}?invite=${encodeURIComponent(invite)}`);
@@ -95,7 +95,7 @@ describe('decideGate', () => {
   });
 
   describe('rotating the secret', () => {
-    const rotated = { mode: 'on', secret: 'new-secret' };
+    const rotated = { gate: 'on', secret: 'new-secret' };
 
     it('locks out every cookie made with the old secret', async () => {
       const cookie = `invite=${await inviteToken(SECRET)}`;
@@ -117,30 +117,30 @@ describe('decideGate', () => {
     const noSecrets = [undefined, '', '   '];
 
     it.each(noSecrets)('shows everyone the placeholder when the secret is %j', async (secret) => {
-      const settings = { mode: 'on', secret };
+      const settings = { gate: 'on', secret };
       expect(await decideGate(home, null, settings)).toEqual(placeholder);
       expect(await decideGate(withInvite(''), null, settings)).toEqual(placeholder);
       expect(await decideGate(withInvite('anything'), 'invite=abc', settings)).toEqual(placeholder);
     });
 
-    it('stays on when the mode is missing', async () => {
+    it('stays on when the gate setting is missing', async () => {
       expect(await decideGate(home, null, { secret: SECRET })).toEqual(placeholder);
     });
 
-    it.each(['OFF', 'Off', 'false', '0', ' off', ''])('stays on for mode %j', async (mode) => {
-      expect(await decideGate(home, null, { mode, secret: SECRET })).toEqual(placeholder);
+    it.each(['OFF', 'Off', 'false', '0', ' off', ''])('stays on for gate %j', async (gate) => {
+      expect(await decideGate(home, null, { gate, secret: SECRET })).toEqual(placeholder);
     });
   });
 
   describe('gate off', () => {
     it('opens for everyone, with or without a secret', async () => {
       const open = { kind: 'open' };
-      expect(await decideGate(home, null, { mode: 'off' })).toEqual(open);
-      expect(await decideGate(home, null, { mode: 'off', secret: SECRET })).toEqual(open);
+      expect(await decideGate(home, null, { gate: 'off' })).toEqual(open);
+      expect(await decideGate(home, null, { gate: 'off', secret: SECRET })).toEqual(open);
     });
 
     it('ignores an invite in the URL', async () => {
-      expect(await decideGate(withInvite(SECRET), null, { mode: 'off', secret: SECRET })).toEqual({
+      expect(await decideGate(withInvite(SECRET), null, { gate: 'off', secret: SECRET })).toEqual({
         kind: 'open',
       });
     });

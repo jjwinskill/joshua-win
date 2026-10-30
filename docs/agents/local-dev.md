@@ -17,11 +17,13 @@ Until publishing, only invite-link holders can see the site (G4). `astro dev` ha
 - **Without a valid cookie:** every `/skill/` path, assets included, is the placeholder page (`src/pages/placeholder.astro`), a plain 200. It must stay self-contained: anything it loaded from `_astro/` would be gated too.
 - **The cookie** holds an HMAC of the secret, never the secret, so it's valid only for the current secret.
 - **Fails closed:** only `GATE: "off"` opens it (previews set that in #7). With the gate on and no secret, everyone gets the placeholder, and `wrangler deploy` refuses to run until the secret exists (`secrets.required`).
-- **Rotate the secret, which locks everyone out at once.** It's one command, which prompts for the new value and deploys immediately. Josh runs it, then sends out the new link:
+- **Rotate the secret, which locks everyone out at once:** every cookie and the old link stop working. Josh runs this, which sets a new random secret, deploys immediately and prints the new link to send out. Use a long random value like this one, not a memorable phrase: a member holds a token that a weak secret could be guessed from offline, and hex needs no URL escaping (a `+` or `&` would break the link).
 
   ```bash
-  pnpm exec wrangler secret put INVITE_SECRET
+  SECRET=$(openssl rand -hex 32); echo "$SECRET" | pnpm exec wrangler secret put INVITE_SECRET; echo "https://joshua.win/skill/?invite=$SECRET"
   ```
+
+- **Sharing the link:** the link is the key, so treat it like one. Chat apps that preview links (Slack, iMessage) send it to their servers, and a preview bot can read the page. Send it some way that doesn't unfurl, or turn the preview off.
 
 - **Try it locally:** copy `.dev.vars.example` to `.dev.vars` (git-ignored), then `pnpm build && pnpm exec wrangler dev`, and open http://localhost:8787/skill/ and http://localhost:8787/skill/?invite=local-test-secret. Without a `.dev.vars`, you only ever see the placeholder.
 - **Tests never use a real secret.** `playwright.config.ts` generates a throwaway secret on every run, locally and in CI, and it overrides any `.dev.vars`.
