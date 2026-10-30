@@ -22,6 +22,8 @@ export default defineConfig({
     // Ends in /skill/, so tests navigate with relative paths ('./', 'essays/'): a leading `/` drops the base.
     baseURL: `${origin}/skill/`,
     trace: 'retain-on-failure',
+    // main's build carries the analytics beacon, and test runs mustn't count as readers.
+    launchOptions: { args: ['--host-resolver-rules=MAP static.cloudflareinsights.com ~NOTFOUND'] },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {

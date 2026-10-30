@@ -132,7 +132,7 @@
 The real pieces stay out of this public repo and out of CI until step 5 (G22).
 
 1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback. Until step 5, CI can't see the pieces, so run the automated checks on them locally against a soft-launch build.
-2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy` behind the invite gate. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so pause that deploy, or merge nothing to `main`, until step 5.
+2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy` behind the invite gate. Build it with `PUBLIC_CF_ANALYTICS_TOKEN` set, or invited readers won't be counted. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so add a pause (a repository variable in the deploy job's `if`), or merge nothing to `main`, until step 5.
 3. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
 4. Remove the lorem pieces.
 5. The publishing PR: move the pieces and their one-off components into `content/`, and lift the invite gate and noindex, all together (and consider raising HSTS, G23), so the pieces enter the public repo only as they go public. CI's checks now cover them. Merging it publishes the site.
@@ -166,7 +166,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
 | G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
 | G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). | Changes phases 5 and 6 |
-| G23 | HSTS is set by the Worker at 30 days, without subdomains, so an http invite link can't send the secret in the clear. Raise it at publishing if nothing has gone wrong. No zone-level noindex rule (it would outlive publishing) and no Workers Logs (they'd record invite links). | |
+| G23 | HSTS is set by the Worker at 30 days, without subdomains, so a browser that has visited can't send an invite over http. Always send https links. Workers Logs are explicitly off. Raise it at publishing if nothing has gone wrong. No zone-level noindex rule (it would outlive publishing) | |
 
 ## Change log
 

@@ -6,6 +6,7 @@ const noRedirects = { maxRedirects: 0 } as const;
 const placeholder = 'data-page="placeholder"';
 
 test.describe('without the invite cookie', () => {
+  // A path under _astro/ stands in for the assets; tests/e2e/gate.spec.ts uses a real one.
   for (const path of ['./', 'essays/', 'no-such-page/', '_astro/anything.js']) {
     test(`${path} is only the placeholder, with noindex`, async ({ request }) => {
       const response = await request.get(path);

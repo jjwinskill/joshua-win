@@ -32,14 +32,18 @@ Until publishing, only invite-link holders can see the site (G4). `astro dev` ha
 
 A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the build those checks tested, then smoke-tests the live site. Nothing else deploys, except the first deploy and a rotation, which Josh runs by hand, and the local soft-launch deploy in phase 6 (G22).
 
-- **What CI needs:** the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets, and the `CF_ANALYTICS_TOKEN` repository variable.
+- **What CI needs:** the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets on the `production` GitHub environment, which only `main` can deploy to, so a PR branch can't reach them; and the `CF_ANALYTICS_TOKEN` repository variable. The build fails on `main` if the variable is unset.
+- **The token** starts from Cloudflare's "Edit Cloudflare Workers" template, scoped to this account and the `joshua.win` zone. The docs don't say what custom domains need, so it was tested with a local `wrangler deploy` before CI used it.
+- **A failed deploy can still change the site.** Wrangler puts the new version live before it updates the custom domains, so a red deploy job doesn't mean the old version is still up.
 - **The first deploy** has to bring the secret with it. `secrets.required` fails a deploy without it, and Wrangler 4.155 refuses `wrangler secret put` for a Worker that doesn't exist yet. Josh runs this once, signed in with `wrangler login`, after a `pnpm build`. The file only names the secret: environment values override file values (checked in Wrangler's source), so the secret never touches the disk. Process substitution (`<(...)`) doesn't work here; Wrangler fails with `EISDIR`.
 
   ```bash
-  SECRET=$(openssl rand -hex 32); F=$(mktemp); echo 'INVITE_SECRET=' > "$F"; INVITE_SECRET=$SECRET pnpm exec wrangler deploy --secrets-file "$F"; rm "$F"; echo "https://joshua.win/skill/?invite=$SECRET"
+  SECRET=$(openssl rand -hex 32); F=$(mktemp); echo 'INVITE_SECRET=' > "$F"; INVITE_SECRET=$SECRET pnpm exec wrangler deploy --secrets-file "$F" && echo "https://joshua.win/skill/?invite=$SECRET"; rm "$F"
   ```
 
-- **Not deployed on purpose:** observability is off, because Workers Logs would record request URLs, invite links included. Use `wrangler tail` to debug. There's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
+  This deploys the local tree and has no analytics beacon, so it's for that first time only. Rotate with the command under The invite gate, which leaves the deployed code alone.
+- **Zone settings to leave alone:** **Always Use HTTPS** and **Bot Fight Mode** stay off. The Worker already upgrades http, and the edge's redirect would be cacheable with an invite in it and without noindex. A bot challenge would fail the smoke tests. Web Analytics must be set to the manual JS snippet: automatic setup could inject a script into the placeholder.
+- **Not deployed on purpose:** observability is off in `wrangler.jsonc`, because it's on by default for new Workers and its logs record request URLs, invite links included. Use `wrangler tail` to debug. There's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
 - **HSTS** is 30 days and leaves subdomains out while the site is pre-launch. Consider raising it when publishing.
 
 ## Commands

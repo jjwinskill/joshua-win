@@ -12,7 +12,10 @@
   ],
   // Without this, `wrangler dev` tells the Worker each request is for the first route, over http.
   // The Worker would upgrade it to https, and Wrangler would rewrite that back: a redirect loop.
-  "dev": { "host": "localhost", "upstream_protocol": "http" },
+  "dev": { "host": "localhost" },
+  // On by default for new Workers, and its logs record request URLs, invite links included. Use
+  // `wrangler tail` to debug.
+  "observability": { "enabled": false },
   // No workers.dev URLs until #7 decides what they're for.
   "workers_dev": false,
   "preview_urls": false,
