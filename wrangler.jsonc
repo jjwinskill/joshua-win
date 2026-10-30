@@ -1,0 +1,16 @@
+// The Worker in front of the static site. Checked against wrangler 4.155.0 and the Workers
+// static-assets docs on 2026-10-29. Custom domains and previews come in #6 and #7.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "joshua-win",
+  "compatibility_date": "2026-10-29",
+  "main": "./worker/index.ts",
+  "assets": {
+    // Astro writes to dist/ root; base_path serves it under /skill/ (wrangler 4.148+).
+    "directory": "./dist",
+    "base_path": "/skill",
+    "binding": "ASSETS",
+    // Every request, assets included, passes through the Worker, so every response gets noindex.
+    "run_worker_first": true,
+  },
+}

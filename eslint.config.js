@@ -7,7 +7,19 @@ import globals from 'globals';
 
 export default defineConfig(
   // .claude/skills is vendored (skills-lock.json), so it's not ours to lint.
-  { ignores: ['dist/', '.astro/', 'drafts/', 'node_modules/', '.claude/skills/'] },
+  {
+    ignores: [
+      'dist/',
+      '.astro/',
+      '.wrangler/',
+      'drafts/',
+      'node_modules/',
+      '.claude/skills/',
+      'worker-configuration.d.ts',
+      'test-results/',
+      'playwright-report/',
+    ],
+  },
   js.configs.recommended,
   tseslint.configs.strict,
   astro.configs.recommended,

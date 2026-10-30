@@ -39,7 +39,7 @@
 - **Privacy (G4):**
   - Every response carries an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7).
   - The invite gate: a small Worker in front of the static files. A secret invite link sets a cookie; without it, visitors get a plain placeholder page. Rotating the secret locks everyone out. Previews aren't gated (G16).
-- **Routing:** `joshua.win` and `www.joshua.win` 301 to `/skill` (S8, G19).
+- **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
 - **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
 - **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(content/essays/**)`, `Edit(content/write-ups/**)` and `Edit(drafts/**)`. Lorem lives in `content/lorem/`, which never prompts.
 - **Drafts (P6, G5):** a private repo `joshua-win-drafts`, cloned into a git-ignored `drafts/` folder. The local dev server can render drafts; CI never sees them.
@@ -158,7 +158,7 @@
 | G16 | PR previews aren't behind the invite gate (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
 | G17 | PR previews use Cloudflare's Worker Previews (`wrangler preview --name pr-<n>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
 | G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
-| G19 | `www.joshua.win` 301s to `/skill` too, as a second custom domain on the same Worker. | Adds to S8 |
+| G19 | `www.joshua.win` 301s to the bare domain as a second custom domain on the same Worker, keeping its path (Josh: keep paths so missing pages reach the real 404 "instead of 301-ing everything"). `www.joshua.win/` lands on `/skill/`. Public hosts are https-only: the Worker upgrades http itself. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
 | G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
 
@@ -167,3 +167,4 @@
 - 2026-10-29: plan v1 written from the planning grill (G1–G13).
 - 2026-10-29: phase 1 spec (issue #1) added G14–G20 (the Node pin, TypeScript 6 and ESLint, ungated Worker Previews, the manual analytics beacon, the `www` redirect, the email addresses). Phase 1 marked in progress.
 - 2026-10-29: the review of the scaffold PR made G14's pin an exact version, and added G21 (independent review on every PR, in Work tracking).
+- 2026-10-29: the Worker PR (#3) changed G19: `www` keeps its path instead of always landing on `/skill/` (Josh's call after review), and the Worker upgrades http to https on public hosts.
