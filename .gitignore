@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.DS_Store
+# private drafts repo is cloned here (G5)
+drafts/
