@@ -1,0 +1,10 @@
+# pnpm settings live here, not in .npmrc. See docs/agents/pnpm.md before changing anything.
+
+# Supply-chain settings (G12). Never weaken these without asking Josh.
+strictDepBuilds: true
+minimumReleaseAge: 1440
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
+
+# Dependencies allowed to run install scripts. Add an entry only when the package truly needs it, and say why.
+allowBuilds: {}
