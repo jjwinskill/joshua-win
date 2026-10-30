@@ -216,7 +216,7 @@ importers:
         specifier: ^30.1.3
         version: 30.1.3
       node:
-        specifier: runtime:^26.0.0
+        specifier: runtime:26.13.0
         version: runtime:26.13.0
       prettier:
         specifier: ^3.9.10
