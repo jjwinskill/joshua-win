@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parade demo, v2</title>
+<meta name="description" content="Reading-progress parade, v2: a cast drawn from one cited book joins the bar as you read, then takes a bow and walks off.">
+<style>
+  :root {
+    --paper: #f6f1e7; --paper-2: #efe8da; --ink: #1f1c18; --ink-soft: #5b544a;
+    --rule: #d9cfbd; --accent: #c2410c; --bar-bg: rgba(246, 241, 231, 0.85);
+    --shadow: 0 -8px 24px rgba(31, 28, 24, 0.08);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --bar-h: 96px; --char-w: 44px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #17150f; --paper-2: #201d16; --ink: #efe9dc; --ink-soft: #a89f8f;
+      --rule: #3a342a; --accent: #fb923c; --bar-bg: rgba(23, 21, 15, 0.85); --shadow: 0 -8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #17150f; --paper-2: #201d16; --ink: #efe9dc; --ink-soft: #a89f8f;
+    --rule: #3a342a; --accent: #fb923c; --bar-bg: rgba(23, 21, 15, 0.85); --shadow: 0 -8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 1.125rem; line-height: 1.65; padding-bottom: calc(var(--bar-h) + 2rem); }
+  .demo-note { font-family: var(--sans); font-size: .85rem; line-height: 1.45; background: var(--paper-2); border-bottom: 1px solid var(--rule); padding: .75rem 16px; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: center; color: var(--ink-soft); }
+  .demo-note label { display: inline-flex; gap: .4rem; align-items: center; cursor: pointer; }
+  article, .cast-section { max-width: 40rem; margin: 0 auto; padding: 0 16px; }
+  header.essay-head { padding: 4.5rem 0 2rem; }
+  .kicker { font-family: var(--sans); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 1rem; }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.3rem); line-height: 1.08; margin: 0 0 1rem; font-weight: 600; letter-spacing: -.01em; }
+  .dek { font-size: 1.25rem; color: var(--ink-soft); margin: 0; font-style: italic; }
+  h2 { font-family: var(--sans); font-size: 1rem; letter-spacing: .08em; text-transform: uppercase; margin: 3rem 0 .75rem; color: var(--ink-soft); }
+  p { margin: 0 0 1.25rem; }
+  .cast-ref { text-decoration: underline; text-decoration-color: var(--rule); text-decoration-thickness: 2px; text-underline-offset: 3px; scroll-margin: 30vh; transition: background-color 600ms ease; border-radius: 3px; }
+  .cast-ref.flash { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+  .end-mark { text-align: center; color: var(--ink-soft); letter-spacing: .4em; margin: 3rem 0; }
+
+  /* closing cast: the accessible, crawlable version; each card is one link */
+  .cast-section h2 { margin-top: 1rem; }
+  .cast-sub { font-family: var(--sans); font-size: .9rem; color: var(--ink-soft); margin: -.25rem 0 1rem; }
+  .cast-list { list-style: none; padding: 0; margin: 0 0 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 1rem; }
+  .cast-list a { display: grid; justify-items: center; text-align: center; gap: .35rem; padding: 1rem .5rem .9rem; border: 1px solid var(--rule); border-radius: 14px; background: var(--paper-2); color: var(--ink); text-decoration: none; font-family: var(--sans); font-size: .92rem; line-height: 1.3; transition: transform 200ms ease, box-shadow 200ms ease; }
+  .cast-list a:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.12); }
+  .cast-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .cast-list a:hover svg, .cast-list a:focus-visible svg { animation: lookAtMe 900ms ease-out; }
+  .cast-list svg { width: 52px; height: 61px; overflow: visible; transform-origin: 50% 100%; }
+  .cast-list .legs line { stroke: #231f1a; }
+  .cast-list .role { color: var(--ink-soft); font-size: .78rem; }
+  .replay { font-family: var(--sans); font-size: .9rem; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); border-radius: 999px; padding: .5rem 1rem; cursor: pointer; }
+
+  /* the bar */
+  .parade { position: fixed; left: 0; right: 0; bottom: 0; height: var(--bar-h); z-index: 10; background: var(--bar-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .stage { position: absolute; inset: 0 24px; }
+  .track, .fill { position: absolute; left: 0; bottom: 18px; height: 2px; border-radius: 2px; }
+  .track { right: 0; background: var(--rule); }
+  .fill { width: 100%; background: var(--accent); transform-origin: left center; transform: scaleX(0); will-change: transform; }
+
+  /* one slot per cast member: a clickable dot on the line, with its character standing on it */
+  .slot { position: absolute; left: 0; bottom: 13px; width: var(--char-w); height: calc(var(--char-w) * 1.18 + 20px); margin-left: calc(var(--char-w) / -2);
+    padding: 0; border: 0; background: none; cursor: pointer; color: var(--ink);
+    transform: translateX(var(--x, -80px)); transition: transform var(--move, 0ms) linear; will-change: transform; }
+  .slot:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+  .dot { position: absolute; left: 50%; bottom: 0; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; border: 2px solid var(--rule); background: var(--paper); transition: border-color 300ms, background 300ms, transform 200ms, opacity 300ms; }
+  .slot:hover .dot, .slot:focus-visible .dot { transform: scale(1.25); border-color: var(--accent); }
+  .slot.passed .dot { border-color: var(--accent); background: var(--accent); }
+  .slot.offstage .dot { opacity: 0; }
+  .hop { position: absolute; left: 0; right: 0; bottom: 10px; height: calc(var(--char-w) * 1.18); transform: translateY(70%) scale(.6); opacity: 0;
+    transition: transform var(--hop-dur, 460ms) cubic-bezier(.28, 1.6, .5, 1), opacity 180ms ease; pointer-events: none; }
+  .slot.in .hop, .slot:hover .hop, .slot:focus-visible .hop { transform: none; opacity: 1; }
+  .slot:not(.in):hover .hop, .slot:not(.in):focus-visible .hop { opacity: .85; }
+  .art { display: block; width: 100%; height: 100%; }
+  .art.facing-left { transform: scaleX(-1); }
+  .slot:hover .art svg, .slot:focus-visible .art svg { animation: lookAtMe 900ms ease-out; }
+  @keyframes lookAtMe {
+    0% { transform: none; }
+    18% { transform: translateY(-9px) rotate(-7deg); }
+    36% { transform: translateY(0) scale(1.06, .9); }
+    52% { transform: translateY(-5px) rotate(7deg); }
+    68% { transform: translateY(0) scale(1.03, .96); }
+    100% { transform: none; }
+  }
+  .label { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); font-family: var(--sans); font-size: .75rem; white-space: nowrap; color: var(--paper); background: var(--ink); padding: .25rem .55rem; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity 150ms ease; }
+  .slot:hover .label, .slot:focus-visible .label { opacity: 1; }
+
+  /* the rig: torso above the hips, two legs with thigh, shin and foot */
+  .art svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 1.5px rgba(0,0,0,.2)); transform-origin: 50% 100%; }
+  .torso, .thigh, .shin { transform-box: view-box; }
+  .torso { transition: transform 420ms cubic-bezier(.4, 0, .2, 1); }
+  .thigh, .shin { transition: transform 300ms ease; }
+  .legs line { stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; }
+  .walking .thigh { animation: thigh 620ms ease-in-out infinite; }
+  .walking .shin { animation: shin 620ms ease-in-out infinite; }
+  .walking .leg-back .thigh, .walking .leg-back .shin { animation-delay: -310ms; }
+  .walking .torso { animation: stride 310ms ease-in-out infinite alternate; }
+  @keyframes thigh { 0% { transform: rotate(-26deg); } 50% { transform: rotate(22deg); } 100% { transform: rotate(-26deg); } }
+  @keyframes shin { 0% { transform: rotate(3deg); } 45% { transform: rotate(8deg); } 62% { transform: rotate(52deg); } 82% { transform: rotate(22deg); } 100% { transform: rotate(3deg); } }
+  @keyframes stride { from { transform: translateY(0); } to { transform: translateY(-1.4px); } }
+  /* the bow bends at the hips; the legs stay planted with a little give at the knees */
+  .bow .torso { transform: rotate(40deg); }
+  .bow .thigh { transform: rotate(-9deg); }
+  .bow .shin { transform: rotate(16deg); }
+
+  /* reduced motion: fades only */
+  :root.rm .slot, :root.rm .hop, :root.rm .torso, :root.rm .thigh, :root.rm .shin { transition: opacity 250ms ease !important; }
+  :root.rm .hop { transform: none !important; }
+  :root.rm .bow .torso, :root.rm .bow .thigh, :root.rm .bow .shin { transform: none; }
+  :root.rm .art svg, :root.rm .walking .thigh, :root.rm .walking .shin, :root.rm .walking .torso, :root.rm .cast-list a svg { animation: none !important; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  @media (max-width: 560px) { :root { --bar-h: 80px; --char-w: 34px; } body { font-size: 1.05rem; } .stage { inset: 0 18px; } }
+</style>
+</head>
+<body>
+
+<div class="demo-note" role="note">
+  <span><strong>Parade demo, v2.</strong> Placeholder essay citing one book. Scroll to meet its cast; hover or tap a dot to peek or jump.</span>
+  <label><input type="checkbox" id="rm-toggle"> Simulate reduced motion</label>
+  <label><input type="checkbox" id="theme-toggle"> Dark</label>
+</div>
+
+<article>
+  <header class="essay-head">
+    <p class="kicker">Essay · placeholder text</p>
+    <h1>Down the Feed</h1>
+    <p class="dek">Every app wants to be a rabbit hole. It helps to remember how the first one worked.</p>
+  </header>
+
+  <p>Product teams say it without irony: we want users to fall in. It is worth remembering how the original fall began, because Lewis Carroll got the mechanics right a century and a half before anyone wrote a growth strategy.</p>
+
+  <p>It began with urgency. <span class="cast-ref" id="ref-rabbit" data-cast="rabbit">The White Rabbit</span> does not invite Alice anywhere. He simply runs past, late, checking his watch, and that is enough. Nobody has ever been persuaded by a rabbit. They have been hurried by one.</p>
+
+  <p>The notification is the rabbit's modern descendant. It does not argue that something matters. It implies that something is already happening without you, and that you are, like the rabbit, late. The design work is in the implication, never in the claim.</p>
+
+  <h2>The label</h2>
+
+  <p>Then comes a small bottle on a glass table, with a paper label that says <span class="cast-ref" id="ref-bottle" data-cast="bottle">“DRINK ME”</span>. It is the most honest onboarding flow in literature: one instruction, no explanation, and a change of scale on the other side.</p>
+
+  <p>Alice, to her credit, checks whether it is marked poison first. Most of us skip that step now. The terms are long, the button is bright, and the bottle has already been drunk by everyone we know.</p>
+
+  <p>What the label promises is not a destination but a size. You will be small enough to fit through the door, or large enough to see over the garden wall, and either way the room will no longer be the room you were standing in. Software is very good at that kind of promise.</p>
+
+  <h2>The grin</h2>
+
+  <p>The interface that stays behind after the product has gone has a patron saint, and it is <span class="cast-ref" id="ref-cat" data-cast="cat">the Cheshire Cat</span>, who fades away until only the grin is left.</p>
+
+  <p>Think of the features that outlive their reasons: the streak that persists after the habit, the badge that remains after the community, the cheerful empty state that greets you in an app nobody maintains. The cat is gone. The grin is still on the screen.</p>
+
+  <p>It is tempting to treat that as a bug. It is closer to a business model. A grin is cheap to keep running, and it reassures you that someone, somewhere, is still in a good mood about all this.</p>
+
+  <h2>The verdict</h2>
+
+  <p>And at the end of every rabbit hole there is a court. <span class="cast-ref" id="ref-queen" data-cast="queen">The Queen of Hearts</span> settles every difficulty the same way, by calling for heads, and the joke is that nobody is ever actually executed. The sentence is the spectacle. The verdict is the engagement.</p>
+
+  <p>Moderation on large platforms often feels like that court: loud, arbitrary, and somehow both everywhere and nowhere. The pronouncements are constant. The consequences are hard to locate. Everyone is a little afraid and nobody is quite sure of what.</p>
+
+  <p>Carroll's way out is the best one available. Alice grows to her full size and says what everyone in the room has been too small to say: they are nothing but a pack of cards. It is not a technical fix. It is a change of scale, which, it turns out, is what the bottle was offering all along.</p>
+
+  <p class="end-mark" id="end" aria-hidden="true">· · ·</p>
+</article>
+
+<section class="cast-section" aria-labelledby="cast-h">
+  <h2 id="cast-h">Cast, in order of appearance</h2>
+  <p class="cast-sub">From <cite>Alice's Adventures in Wonderland</cite>, Lewis Carroll</p>
+  <ol class="cast-list" id="cast-list"></ol>
+  <p><button class="replay" id="replay" type="button">Replay the curtain call</button></p>
+</section>
+
+<nav class="parade" aria-label="Reading progress: this essay's cast">
+  <div class="stage" id="stage">
+    <div class="track" aria-hidden="true"></div>
+    <div class="fill" id="fill" aria-hidden="true"></div>
+  </div>
+</nav>
+
+<script>
+(() => {
+  // Stand-in art. The real cast is hand-drawn, vectorized and rigged; only the torso art changes per character.
+  const eyes = (cx, cy, gap = 3.2, r = 1.4) => `<circle cx="${cx - gap}" cy="${cy}" r="${r}" fill="#231f1a" stroke="none"/><circle cx="${cx + gap}" cy="${cy}" r="${r}" fill="#231f1a" stroke="none"/>`;
+  const TORSOS = {
+    rabbit: `<ellipse cx="16" cy="10" rx="2.8" ry="8.5" transform="rotate(-10 16 10)" fill="#f3f0ea"/><ellipse cx="16" cy="10.5" rx="1.1" ry="5.5" transform="rotate(-10 16 10.5)" fill="#f6b6c3" stroke="none"/>
+             <ellipse cx="24" cy="10" rx="2.8" ry="8.5" transform="rotate(10 24 10)" fill="#f3f0ea"/><ellipse cx="24" cy="10.5" rx="1.1" ry="5.5" transform="rotate(10 24 10.5)" fill="#f6b6c3" stroke="none"/>
+             <ellipse cx="20" cy="24" rx="10" ry="9" fill="#f3f0ea"/>${eyes(20, 22)}<path d="M18.6 26 h2.8 l-1.4 1.6z" fill="#f08aa0" stroke="none"/>
+             <circle cx="29" cy="28" r="3.2" fill="#f4c430"/><line x1="29" y1="28" x2="29" y2="26.2" stroke-width="1.2"/>`,
+    bottle: `<rect x="16.5" y="1.5" width="7" height="3.5" rx="1" fill="#a47148"/><rect x="17" y="5" width="6" height="5.5" fill="#bfe3da"/>
+             <rect x="10" y="10" width="20" height="23" rx="6" fill="#9bd1c5"/><rect x="12.5" y="16" width="15" height="9.5" rx="1.2" fill="#fffaf3"/>
+             ${eyes(20, 19.6, 3, 1.2)}<line x1="15" y1="23" x2="25" y2="23" stroke-width="1"/>`,
+    cat: `<path d="M10 17 L11.5 7 L17 13 M30 17 L28.5 7 L23 13" fill="#c084fc"/>
+          <ellipse cx="20" cy="23" rx="11" ry="9.5" fill="#c084fc"/><path d="M12 19 l3 1.2 M28 19 l-3 1.2 M20 14 v3" stroke="#7e3fb8" stroke-width="1.4"/>
+          <path d="M14 20.5 q1.6-1.6 3.2 0 M22.8 20.5 q1.6-1.6 3.2 0" stroke-width="1.6"/>
+          <path d="M12.5 25 Q20 32.5 27.5 25 Z" fill="#fffaf3"/><path d="M16 26.4 v2.6 M20 27 v3.4 M24 26.4 v2.6" stroke-width="1"/>`,
+    queen: `<path d="M12.5 8 L14.5 2.5 L17.5 6 L20 1.5 L22.5 6 L25.5 2.5 L27.5 8 Z" fill="#f4c430"/>
+            <rect x="9.5" y="8" width="21" height="25" rx="2.5" fill="#fffaf3"/>
+            <path d="M20 31 C 12 25.5, 11 21, 13 18 C 15 15.5, 18.5 16, 20 18.5 C 21.5 16, 25 15.5, 27 18 C 29 21, 28 25.5, 20 31 Z" fill="#e63946"/>
+            ${eyes(20, 22.5, 3, 1.3)}<path d="M18 26.2 q2 1.2 4 0" stroke-width="1.3"/>
+            <text x="11.5" y="14" font-size="5" font-family="Georgia, serif" fill="#e63946" stroke="none">Q</text>`,
+  };
+  // Legs are shared rig code: hip at y=33, knee at y=39.5, ankle at y=45.5, foot pointing the way they walk.
+  const leg = (x, cls) => `<g class="${cls}"><g class="thigh" style="transform-origin:${x}px 33px"><line x1="${x}" y1="33" x2="${x}" y2="39.5"/><g class="shin" style="transform-origin:${x}px 39.5px"><line x1="${x}" y1="39.5" x2="${x}" y2="45.5"/><line x1="${x}" y1="45.5" x2="${x + 3.4}" y2="45.5"/></g></g></g>`;
+  const CAST = {
+    rabbit: { name: "The White Rabbit", role: "Character" },
+    bottle: { name: "The “Drink Me” bottle", role: "Object" },
+    cat:    { name: "The Cheshire Cat", role: "Character" },
+    queen:  { name: "The Queen of Hearts", role: "Character" },
+  };
+  const svgFor = (key) => `<svg viewBox="0 0 40 47" aria-hidden="true" focusable="false" fill="none" stroke="#231f1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <g class="legs">${leg(23, "leg-back")}${leg(17, "leg-front")}</g>
+      <g class="torso" style="transform-origin:20px 33px">${TORSOS[key]}</g></svg>`;
+
+  const root = document.documentElement;
+  const rmQuery = matchMedia("(prefers-reduced-motion: reduce)");
+  const rmToggle = document.getElementById("rm-toggle");
+  const syncRM = () => root.classList.toggle("rm", rmQuery.matches || rmToggle.checked);
+  rmToggle.checked = rmQuery.matches; rmQuery.addEventListener("change", syncRM); rmToggle.addEventListener("change", syncRM); syncRM();
+  const rm = () => root.classList.contains("rm");
+  const themeToggle = document.getElementById("theme-toggle");
+  themeToggle.checked = matchMedia("(prefers-color-scheme: dark)").matches;
+  themeToggle.addEventListener("change", () => { root.dataset.theme = themeToggle.checked ? "dark" : "light"; });
+
+  const stage = document.getElementById("stage");
+  const fill = document.getElementById("fill");
+  const end = document.getElementById("end");
+  const refs = [...document.querySelectorAll(".cast-ref")];
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const flash = (ref) => { ref.classList.add("flash"); setTimeout(() => ref.classList.remove("flash"), 1400); };
+
+  const castList = document.getElementById("cast-list");
+  const actors = refs.map((ref) => {
+    const key = ref.dataset.cast, info = CAST[key];
+    const slot = document.createElement("button");
+    slot.type = "button"; slot.className = "slot";
+    slot.setAttribute("aria-label", `${info.name}: jump to their first appearance`);
+    slot.innerHTML = `<span class="hop"><span class="art">${svgFor(key)}</span></span><span class="dot" aria-hidden="true"></span><span class="label" aria-hidden="true">${info.name}</span>`;
+    slot.style.setProperty("--hop-dur", `${Math.round(rand(380, 560))}ms`);
+    slot.addEventListener("click", () => { ref.scrollIntoView({ block: "center" }); flash(ref); });
+    stage.append(slot);
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#${ref.id}">${svgFor(key)}<strong>${info.name}</strong><span class="role">${info.role}</span></a>`;
+    li.querySelector("a").addEventListener("click", () => setTimeout(() => flash(ref), 300));
+    castList.append(li);
+    return { ref, slot, art: slot.querySelector(".art"), x: 0, home: 0, passed: false };
+  });
+
+  let maxScroll = 1, stageW = 1, trigger = 0, finale = false, timers = [];
+  const charW = () => parseFloat(getComputedStyle(root).getPropertyValue("--char-w")) || 44;
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const place = (a, x, ms = 0) => {
+    a.slot.style.setProperty("--move", `${rm() ? 0 : ms}ms`);
+    a.art.classList.toggle("facing-left", ms > 0 && x < a.x);
+    a.slot.style.setProperty("--x", `${x}px`); a.x = x;
+  };
+
+  function layout() {
+    maxScroll = Math.max(1, root.scrollHeight - innerHeight);
+    stageW = stage.clientWidth; trigger = innerHeight * 0.6;
+    const w = charW(), gap = w * 1.2;
+    // Each slot sits where the progress line will be when the reader passes that first mention.
+    const xs = actors.map((a) => Math.min(1, Math.max(0, (a.ref.getBoundingClientRect().top + scrollY - trigger) / maxScroll)) * stageW);
+    for (let i = 0; i < xs.length; i++) xs[i] = Math.max(xs[i], i ? xs[i - 1] + gap : w / 2);
+    for (let i = xs.length - 1; i >= 0; i--) xs[i] = Math.min(xs[i], i < xs.length - 1 ? xs[i + 1] - gap : stageW - w / 2);
+    actors.forEach((a, i) => { a.home = xs[i]; if (!finale) place(a, a.home); });
+  }
+
+  function update() {
+    fill.style.transform = `scaleX(${Math.min(1, scrollY / maxScroll)})`;
+    if (finale) { if (end.getBoundingClientRect().top > innerHeight * 0.95) resetFinale(); return; }
+    actors.forEach((a) => {
+      const passed = a.ref.getBoundingClientRect().top < trigger;
+      if (passed !== a.passed) { a.passed = passed; a.slot.classList.toggle("passed", passed); a.slot.classList.toggle("in", passed); }
+    });
+    if (end.getBoundingClientRect().top < innerHeight * 0.7) curtainCall();
+  }
+
+  function walk(a, x, speed = rand(0.15, 0.18)) {
+    const ms = Math.max(400, Math.abs(x - a.x) / speed);
+    a.slot.classList.add("walking"); place(a, x, ms);
+    later(() => { a.slot.classList.remove("walking"); a.art.classList.remove("facing-left"); }, ms);
+    return ms;
+  }
+
+  function curtainCall() {
+    finale = true;
+    actors.forEach((a) => { a.passed = true; a.slot.classList.add("passed", "in"); });
+    if (rm()) return;
+    // 1. Gather centre stage; the dots fade, since the line no longer maps to the text.
+    actors.forEach((a) => a.slot.classList.add("offstage"));
+    const gap = charW() * 1.7, start = stageW / 2 - ((actors.length - 1) * gap) / 2;
+    const gathered = Math.max(...actors.map((a, i) => walk(a, start + i * gap)));
+    // 2. Bow from the hips, a little out of step, like real actors.
+    const bowAt = gathered + 250;
+    actors.forEach((a, i) => later(() => a.slot.classList.add("bow"), bowAt + i * 90 + rand(0, 70)));
+    later(() => actors.forEach((a) => a.slot.classList.remove("bow")), bowAt + 1300);
+    // 3. Walk off stage right, the one nearest the wing first.
+    later(() => [...actors].reverse().forEach((a, i) => later(() => walk(a, stageW + 80 + i * 6), i * 180)), bowAt + 1800);
+  }
+
+  function resetFinale() {
+    timers.forEach(clearTimeout); timers = []; finale = false;
+    actors.forEach((a) => { a.slot.classList.remove("walking", "bow", "in", "passed", "offstage"); a.art.classList.remove("facing-left"); a.passed = false; place(a, a.home); });
+    update();
+  }
+
+  document.getElementById("replay").addEventListener("click", () => { resetFinale(); curtainCall(); });
+  let queued = false;
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } }, { passive: true });
+  addEventListener("resize", () => { layout(); update(); });
+  layout(); update();
+})();
+</script>
+</body>
+</html>
