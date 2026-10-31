@@ -35,6 +35,7 @@ export default defineConfig(
       '.wrangler/',
       'drafts/',
       '.drafts-test/',
+      '.cast-test/',
       'node_modules/',
       '.claude/skills/',
       'worker-configuration.d.ts',

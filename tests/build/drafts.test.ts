@@ -14,7 +14,7 @@ const marker = 'lorem-draft-marker';
 beforeAll(async () => {
   await rm(root, { recursive: true, force: true });
   await mkdir(join(root, 'drafts'), { recursive: true });
-  for (const file of ['astro.config.mjs', 'tsconfig.json', 'package.json', 'src']) {
+  for (const file of ['astro.config.mjs', 'tsconfig.json', 'package.json', 'src', 'content']) {
     await cp(file, join(root, file), { recursive: true });
   }
   await writeFile(join(root, 'drafts', 'lorem.md'), `---\ntitle: Lorem\n---\n\n${marker}\n`);

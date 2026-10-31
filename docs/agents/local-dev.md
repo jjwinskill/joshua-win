@@ -4,7 +4,7 @@ How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Ch
 
 ## The stack, briefly
 
-- **Astro 7**, static output, with React for every component. Astro renders `.astro` pages and React components to plain HTML at build time. A React component ships JavaScript only when a page opts in with a `client:*` directive, and the hello page has none.
+- **Astro 7**, static output, with React for every component. Astro renders `.astro` pages and React components to plain HTML at build time. A React component ships JavaScript only when a page opts in with a `client:*` directive, and most pages have none.
 - The site lives under **`base: '/skill'`** with trailing slashes always on. Never hard-code a leading `/` in a link; use `sitePath()` from `src/lib/paths.ts` (or `import.meta.env.BASE_URL`), or the link escapes `/skill/`.
 - There's **no Cloudflare adapter**. A hand-written Worker (`worker/`) sits in front of the built files. Wrangler (`wrangler.jsonc`) serves `dist/` as static assets, and Astro builds into `dist/skill/`, so the files are under `/skill/`. It runs the Worker first on every request (`run_worker_first`), so it can add `X-Robots-Tag: noindex` to every response and 301 anything outside `/skill/` (the bare domain, `www`, stray root paths) into it.
 - The Worker's decisions live in `worker/route.ts` (redirects: a pure function from a URL to an outcome), which uses no Workers APIs. `worker/handler.ts` applies the outcomes, adds the header and turns failures into a 500, and takes the assets binding as a parameter. Both are unit-tested in plain Vitest, and `worker/index.ts` just wires the handler to `env.ASSETS`. Public hosts are https-only (the Worker upgrades http); `localhost`, `127.0.0.1` and `[::1]` stay on http. (`@cloudflare/vitest-pool-workers` supports only Vitest 4, so tests don't run inside workerd.)
@@ -61,7 +61,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y, React hooks and leak rules), failing on any warning |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It only measures the home page for now. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home page and the essay page. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
@@ -74,6 +74,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 | `src/pages/` | Routes. `index.astro` is `/skill/`. |
 | `src/layouts/` | Page shells (`Base.astro`) |
 | `src/dev/` | Pages that only exist under `astro dev`, injected from `astro.config.mjs` |
+| `src/styles/` | The site's plain CSS, until phase 4 chooses the house style |
 | `src/components/` | The shared React component library. No Astro or framework APIs, so the bake-off can reuse it in Next. |
 | `src/lib/` | Plain TypeScript helpers |
 | `worker/` | The Worker in front of the static files, with its own `tsconfig.json` |
