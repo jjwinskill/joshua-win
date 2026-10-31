@@ -25,19 +25,19 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 
 ## Previews
 
-Previews are on demand from Josh's machine, signed in with `wrangler login` (G26). CI has no preview credential on purpose: a token PR branches can reach could also overwrite production. Checked against the [Worker Previews docs](https://developers.cloudflare.com/workers/previews/) (updated 2026-09-24) and Wrangler 4.155.0; the command is in open beta.
+Previews are on demand from Josh's machine, signed in with `wrangler login` (G26). CI has no preview credential on purpose: a token PR branches can reach could also overwrite production. Checked against the [Worker Previews docs](https://developers.cloudflare.com/workers/previews/) (updated 2026-09-24) and Wrangler 4.155.0, whose help calls the command an open beta.
 
 ```bash
 pnpm build && pnpm exec wrangler preview --name my-test
 ```
 
-It prints a URL, which always shows that name's latest upload. Anyone with the URL can read it, and it carries noindex. It doesn't affect production, and it serves whatever is in your local `dist/`, so don't build with `drafts/` content for one. Delete it when you're done; past the plan's limit, Cloudflare deletes the least recently used:
+It prints a URL, which always shows that name's latest upload. Anyone with the URL can read it, and it carries noindex from the Worker, as well as Cloudflare's own on `workers.dev`. It doesn't affect production, and it serves whatever is in your local `dist/`. Delete it when you're done; past the plan's limit, Cloudflare deletes the least recently used:
 
 ```bash
 pnpm exec wrangler preview delete --name my-test --skip-confirmation
 ```
 
-Don't run these in CI or paste `--json` output anywhere public: it includes the account's email.
+Don't run these in CI or paste `--json` output anywhere public: when tested, it included the account's email.
 
 ## Rolling back
 
