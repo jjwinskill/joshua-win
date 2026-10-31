@@ -28,19 +28,23 @@ export interface ParadeController {
   destroy(): void;
 }
 
+type Timers = Set<ReturnType<typeof setTimeout>>;
+
 const between = (low: number, high: number) => low + Math.random() * (high - low);
 
 export function createParade({ root, stage, fill, actors, end }: ParadeOptions): ParadeController {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const state = actors.map(() => ({ x: 0, home: 0, passed: false }));
-  const timers = new Set<ReturnType<typeof setTimeout>>();
+  // The curtain call's timers are cancelled when it resets. A flash outlives that.
+  const curtainTimers: Timers = new Set();
+  const flashTimers: Timers = new Set();
   let maxScroll = 1;
   let stageWidth = 1;
   let trigger = 0;
-  let finale = false;
+  let phase: 'reading' | 'gathered' | 'gone' = 'reading';
   let frame = 0;
 
-  const later = (run: () => void, ms: number) => {
+  const later = (run: () => void, ms: number, timers = curtainTimers) => {
     const timer = setTimeout(() => {
       timers.delete(timer);
       run();
@@ -64,20 +68,30 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
     maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     stageWidth = stage.clientWidth;
     trigger = innerHeight * 0.6;
+    const width = castWidth();
     const fractions = actors.map(({ mention }) =>
       lineFraction(mention.getBoundingClientRect().top + scrollY, trigger, maxScroll),
     );
-    slotPositions(fractions, stageWidth, castWidth()).forEach((x, i) => {
+    slotPositions(fractions, stageWidth, width).forEach((x, i) => {
       const now = state[i];
       if (now) now.home = x;
-      if (!finale) place(i, x);
+      if (phase === 'reading') place(i, x);
     });
+    // A resize mid-finale keeps the cast where the finale has them.
+    if (phase === 'gathered' && !motion.matches) {
+      gatheredPositions(actors.length, stageWidth, width).forEach((x, i) => place(i, x));
+    } else if (phase === 'gone') {
+      exitPositions(actors.length, stageWidth).forEach((x, i) => place(i, x));
+    }
   }
 
   function update() {
     fill.style.transform = `scaleX(${Math.min(1, scrollY / maxScroll)})`;
-    if (finale) {
-      if (end.getBoundingClientRect().top > innerHeight * 0.95) resetFinale();
+    if (phase !== 'reading') {
+      if (end.getBoundingClientRect().top > innerHeight * 0.95) {
+        resetFinale();
+        update();
+      }
       return;
     }
     actors.forEach(({ slot, mention }, i) => {
@@ -106,16 +120,13 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
   }
 
   function curtainCall() {
-    finale = true;
+    phase = 'gathered';
     actors.forEach(({ slot }, i) => {
       const now = state[i];
       if (now) now.passed = true;
       slot.classList.add('passed', 'in');
     });
-    if (motion.matches) {
-      root.classList.add('curtain-done');
-      return;
-    }
+    if (motion.matches) return;
 
     // 1. Gather centre stage. The dots fade, since the line no longer maps to the text.
     actors.forEach(({ slot }) => slot.classList.add('offstage'));
@@ -129,35 +140,38 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
     });
     later(() => actors.forEach(({ slot }) => slot.classList.remove('bow')), bowAt + 1300);
 
-    // 3. Walk off stage right, the one nearest the wing first.
-    const exits = exitPositions(actors.length, stageWidth);
+    // 3. Walk off stage right, the one nearest the wing first. Once off stage they can't take focus.
     later(() => {
+      phase = 'gone';
+      const exits = exitPositions(actors.length, stageWidth);
       for (let i = actors.length - 1, order = 0; i >= 0; i--, order++) {
         const actor = i;
         later(() => {
-          const ms = walk(actor, exits[actors.length - 1 - actor] ?? stageWidth);
-          // The replay button waits for the last one off, so it never covers the cast.
-          if (actor === 0) later(() => root.classList.add('curtain-done'), ms);
+          const ms = walk(actor, exits[actor] ?? stageWidth);
+          later(() => {
+            const slot = actors[actor]?.slot;
+            if (slot) slot.inert = true;
+          }, ms);
         }, order * 180);
       }
     }, bowAt + 1800);
   }
 
+  // Puts the cast back where reading left them, with nothing running.
   function resetFinale() {
-    timers.forEach(clearTimeout);
-    timers.clear();
-    finale = false;
-    root.classList.remove('curtain-done');
+    curtainTimers.forEach(clearTimeout);
+    curtainTimers.clear();
+    phase = 'reading';
     actors.forEach(({ slot, art }, i) => {
       const now = state[i];
       slot.classList.remove('walking', 'bow', 'in', 'passed', 'offstage');
+      slot.inert = false;
       art.classList.remove('facing-left');
       if (now) {
         now.passed = false;
         place(i, now.home);
       }
     });
-    update();
   }
 
   const onScroll = () => {
@@ -167,13 +181,20 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
       update();
     });
   };
-  const onResize = () => {
+  const onLayoutChange = () => {
     layout();
     update();
   };
 
+  actors.forEach(({ slot }) => {
+    slot.style.setProperty('--hop-duration', `${Math.round(between(380, 560))}ms`);
+  });
   addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', onResize);
+  addEventListener('resize', onLayoutChange);
+  // A page can change height with no resize, such as lazy content loading or a return from bfcache.
+  addEventListener('pageshow', onLayoutChange);
+  const pageSize = new ResizeObserver(onLayoutChange);
+  pageSize.observe(document.documentElement);
   layout();
   update();
 
@@ -182,19 +203,28 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
       const mention = actors[index]?.mention;
       if (!mention) return;
       mention.scrollIntoView({ block: 'center' });
+      // Move focus too, so a keyboard or screen-reader user's position follows the jump.
+      mention.tabIndex = -1;
+      mention.focus({ preventScroll: true });
       mention.classList.add('flash');
-      later(() => mention.classList.remove('flash'), 1400);
+      later(() => mention.classList.remove('flash'), 1400, flashTimers);
     },
     replay() {
       resetFinale();
+      // Commit the reset, so the cast walks from where it was placed, facing the right way.
+      void stage.offsetWidth;
       curtainCall();
     },
     destroy() {
       removeEventListener('scroll', onScroll);
-      removeEventListener('resize', onResize);
+      removeEventListener('resize', onLayoutChange);
+      removeEventListener('pageshow', onLayoutChange);
+      pageSize.disconnect();
       cancelAnimationFrame(frame);
-      timers.forEach(clearTimeout);
-      timers.clear();
+      [curtainTimers, flashTimers].forEach((timers) => {
+        timers.forEach(clearTimeout);
+        timers.clear();
+      });
     },
   };
 }

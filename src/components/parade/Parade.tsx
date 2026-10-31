@@ -39,34 +39,39 @@ export function Parade({ cast, endId }: ParadeProps) {
     return () => parade.destroy();
   }, [cast, endId]);
 
+  // The replay button sits straight after the cast list, as in the demo, where it never covers the cast.
   return (
-    <nav className="parade" ref={root} aria-label="Reading progress: this essay’s cast">
-      <div className="stage" ref={stage}>
-        <div className="track" aria-hidden="true" />
-        <div className="fill" ref={fill} aria-hidden="true" />
-        {cast.map((key, i) => (
-          <button
-            key={key}
-            type="button"
-            className="slot"
-            aria-label={`${castRegistry[key].name}: jump to their first appearance`}
-            onClick={() => controller.current?.jumpTo(i)}
-          >
-            <span className="hop">
-              <span className="art">
-                <CastFigure castKey={key} />
+    <>
+      <p className="replay-row">
+        <button type="button" className="replay" onClick={() => controller.current?.replay()}>
+          Replay the curtain call
+        </button>
+      </p>
+      <nav className="parade" ref={root} aria-label="Reading progress: this essay’s cast">
+        <div className="stage" ref={stage}>
+          <div className="track" aria-hidden="true" />
+          <div className="fill" ref={fill} aria-hidden="true" />
+          {cast.map((key, i) => (
+            <button
+              key={key}
+              type="button"
+              className="slot"
+              aria-label={`${castRegistry[key].name}: jump to their first appearance`}
+              onClick={() => controller.current?.jumpTo(i)}
+            >
+              <span className="hop">
+                <span className="art">
+                  <CastFigure castKey={key} />
+                </span>
               </span>
-            </span>
-            <span className="dot" aria-hidden="true" />
-            <span className="label" aria-hidden="true">
-              {castRegistry[key].name}
-            </span>
-          </button>
-        ))}
-      </div>
-      <button type="button" className="replay" onClick={() => controller.current?.replay()}>
-        Replay the curtain call
-      </button>
-    </nav>
+              <span className="dot" aria-hidden="true" />
+              <span className="label" aria-hidden="true">
+                {castRegistry[key].name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
+    </>
   );
 }

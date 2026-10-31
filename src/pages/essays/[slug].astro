@@ -46,7 +46,8 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
   <Parade client:idle cast={cast} endId="parade-end" />
   <noscript slot="head">
     <style>
-      .parade {
+      .parade,
+      .replay-row {
         display: none;
       }
     </style>
