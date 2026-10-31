@@ -1,5 +1,7 @@
 # Route transitions in Astro and Next (as of 2026-10-31)
 
+> **Changed by G34:** the Astro build now uses `<ClientRouter />`, after phone tests found a jump in Chrome on iOS that this page didn't know about. See `ios-chrome-view-transitions.md`. The rest is kept as the record of the first decision.
+
 Best practice for the card that expands into its piece (N1), written before any transition code (#28). Sources are linked per claim. "Tested" means the two throwaway probes described below, which were not kept.
 
 ## Recommendation
