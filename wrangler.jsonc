@@ -19,9 +19,9 @@
   "workers_dev": false,
   "preview_urls": false,
   "assets": {
-    // Astro writes to dist/ root; base_path serves it under /skill/ (wrangler 4.148+).
+    // Astro writes to dist/skill/, so files are served under /skill/. Not `base_path`: on 2026-10-30
+    // Cloudflare's API refused it for this account (code 100343), though the docs list no limit.
     "directory": "./dist",
-    "base_path": "/skill",
     "binding": "ASSETS",
     // Every request, assets included, passes through the Worker, so every response gets noindex.
     "run_worker_first": true,

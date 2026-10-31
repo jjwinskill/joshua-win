@@ -76,8 +76,8 @@ jobs:
           ON_MAIN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           if [ "$ON_MAIN" = "true" ]; then
-            grep -q cloudflareinsights dist/index.html || { echo "main's build has no beacon"; exit 1; }
-          elif grep -q cloudflareinsights dist/index.html; then
+            grep -q cloudflareinsights dist/skill/index.html || { echo "main's build has no beacon"; exit 1; }
+          elif grep -q cloudflareinsights dist/skill/index.html; then
             echo "A non-main build has the beacon"; exit 1
           fi
       # Later jobs (Playwright, Lighthouse, deploy) test and ship this exact build.
