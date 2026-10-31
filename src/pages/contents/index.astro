@@ -1,0 +1,22 @@
+---
+// The plain list of every piece (S9).
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { sitePath } from '../../lib/paths';
+import { essayPath, newestFirst } from '../../lib/pieces';
+
+const pieces = newestFirst(await getCollection('lorem'));
+---
+
+<Base title="Contents">
+  <div class="contents">
+    <h1>Contents</h1>
+    <ul>
+      {pieces.map((piece) => (
+        <li>
+          <a href={sitePath(essayPath(piece.id))}>{piece.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
