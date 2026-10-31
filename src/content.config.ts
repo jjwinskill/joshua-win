@@ -18,9 +18,12 @@ const lorem = defineCollection({
   schema: z.object({
     title: z.string(),
     dek: z.string(),
-    date: z.coerce.date(),
+    date: z.date(),
     citedWork: z.object({ title: z.string(), author: z.string() }),
-    cast: z.array(z.enum(castKeys)).max(4),
+    cast: z
+      .array(z.enum(castKeys))
+      .max(4)
+      .refine((cast) => new Set(cast).size === cast.length, 'A cast member is listed twice.'),
   }),
 });
 

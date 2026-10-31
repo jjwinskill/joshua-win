@@ -12,8 +12,8 @@ export async function getStaticPaths() {
 
 const { piece } = Astro.props;
 const { Content } = await render(piece);
-const { title, dek, citedWork } = piece.data;
-const cast = castInOrderOfAppearance(piece.body ?? '', piece.data.cast);
+const { title, dek, date, citedWork } = piece.data;
+const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast);
 ---
 
 <Base title={title}>
@@ -22,6 +22,11 @@ const cast = castInOrderOfAppearance(piece.body ?? '', piece.data.cast);
       <p class="kicker">Essay · placeholder text</p>
       <h1>{title}</h1>
       <p class="dek">{dek}</p>
+      <p class="essay-date">
+        <time datetime={date.toISOString().slice(0, 10)}>
+          {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
+        </time>
+      </p>
     </header>
     <div class="essay-body">
       <Content />

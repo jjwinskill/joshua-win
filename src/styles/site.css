@@ -1,5 +1,6 @@
 /* Plain styling carried over from docs/demo/parade.html until phase 4 chooses the house style. */
 :root {
+  color-scheme: light dark;
   --paper: #f6f1e7;
   --paper-2: #efe8da;
   --ink: #1f1c18;
@@ -74,10 +75,6 @@ p {
   margin-inline: auto;
 }
 
-.essay-head > :not(:last-child) {
-  margin-block-end: 1rem;
-}
-
 .essay-body,
 .cast-section {
   padding-inline: 16px;
@@ -93,8 +90,15 @@ p {
   color: var(--ink-soft);
 }
 
+.essay-date {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 1rem 0 0;
+}
+
 /* A first mention. A cast card links here, and :target highlights it with no JavaScript. */
-[id^='cast-'] {
+span[id^='cast-'] {
   text-decoration: underline;
   text-decoration-color: var(--rule);
   text-decoration-thickness: 2px;
@@ -103,8 +107,8 @@ p {
   border-radius: 3px;
 }
 
-[id^='cast-']:target {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
+span[id^='cast-']:target {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 /* The cast list */
@@ -156,6 +160,11 @@ p {
 .cast-list .role {
   color: var(--ink-soft);
   font-size: 0.78rem;
+}
+
+/* The shared legs follow the page's ink, or they vanish on a dark background. */
+.legs line {
+  stroke: var(--ink);
 }
 
 .torso,

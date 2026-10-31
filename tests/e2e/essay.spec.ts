@@ -12,6 +12,9 @@ test('the essay is a complete article with its cast in order of appearance', asy
   await expect(cards).toHaveCount(4);
   await expect(cards.first()).toContainText('The White Rabbit');
   await expect(cards.last()).toContainText('The Queen of Hearts');
+  for (const key of ['rabbit', 'bottle', 'cat', 'queen']) {
+    await expect(page.locator(`article span#cast-${key}`)).toHaveCount(1);
+  }
 });
 
 test.describe('without JavaScript', () => {
