@@ -29,11 +29,15 @@ const cast = castInOrderOfAppearance(html, piece.data.cast);
 <Base title={title}>
   <article>
     <header class="essay-head" data-morph style={{ viewTransitionName: names.box }}>
-      <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>{essayKicker}</p>
+      <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
+        {essayKicker}
+      </p>
       <h1 data-morph style={{ viewTransitionName: names.title }}>
         {title}
       </h1>
-      <p class="dek" data-morph style={{ viewTransitionName: names.dek }}>{dek}</p>
+      <p class="dek" data-morph style={{ viewTransitionName: names.dek }}>
+        {dek}
+      </p>
       <p class="essay-date">
         <time datetime={date.toISOString().slice(0, 10)}>
           {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
