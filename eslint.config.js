@@ -31,6 +31,7 @@ export default defineConfig(
       'dist/',
       '.lighthouseci/',
       'lighthouse-reports/',
+      'perf-results/',
       '.astro/',
       '.wrangler/',
       'drafts/',
