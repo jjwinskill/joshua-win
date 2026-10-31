@@ -1,0 +1,36 @@
+---
+// The essay template: complete and semantic, with no treatment.
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { CastList } from '../../components/cast/CastList';
+import { castInOrderOfAppearance } from '../../components/cast/mentions';
+
+export async function getStaticPaths() {
+  const pieces = await getCollection('lorem');
+  return pieces.map((piece) => ({ params: { slug: piece.id }, props: { piece } }));
+}
+
+const { piece } = Astro.props;
+const { Content } = await render(piece);
+const { title, dek, date, citedWork } = piece.data;
+const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast);
+---
+
+<Base title={title}>
+  <article>
+    <header class="essay-head">
+      <p class="kicker">Essay · placeholder text</p>
+      <h1>{title}</h1>
+      <p class="dek">{dek}</p>
+      <p class="essay-date">
+        <time datetime={date.toISOString().slice(0, 10)}>
+          {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
+        </time>
+      </p>
+    </header>
+    <div class="essay-body">
+      <Content />
+    </div>
+  </article>
+  <CastList cast={cast} citedWork={citedWork} />
+</Base>

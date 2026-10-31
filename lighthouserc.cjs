@@ -9,7 +9,10 @@ module.exports = {
     collect: {
       startServerCommand: `WRANGLER_SEND_METRICS=false pnpm exec wrangler dev --port ${port} --ip 127.0.0.1`,
       startServerReadyPattern: 'Ready on',
-      url: [`http://127.0.0.1:${port}/skill/`],
+      url: [
+        `http://127.0.0.1:${port}/skill/`,
+        `http://127.0.0.1:${port}/skill/essays/lorem-ipsum/`,
+      ],
       numberOfRuns: 3,
       settings: {
         // Lighthouse's defaults, stated because they're the point: a throttled phone.
@@ -25,7 +28,6 @@ module.exports = {
         'largest-contentful-paint': ['error', { maxNumericValue: 2500, aggregationMethod }],
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.1, aggregationMethod }],
         'total-blocking-time': ['error', { maxNumericValue: 200, aggregationMethod }],
-        // The JS-size cap comes in phase 2, set from bake-off 1's measurements (S1).
       },
     },
     upload: { target: 'filesystem', outputDir: 'lighthouse-reports' },
