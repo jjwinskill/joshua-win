@@ -11,7 +11,8 @@ import {
 
 // Throttled checks of what Lighthouse can't see (S1): scrolling, interaction and transitions (#33).
 const essay = 'essays/lorem-ipsum/';
-const scrolled = [essay];
+const heavy = 'essays/amet-consectetur/';
+const scrolled = [essay, heavy];
 
 test.describe('scrolling', () => {
   for (const route of scrolled) {
@@ -39,6 +40,33 @@ test.describe('interaction', () => {
     await report('interaction', essay, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(essay).inp);
     expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(essay).cls);
+  });
+});
+
+test.describe('the heavy page', () => {
+  test('scrubbing the chart responds in time', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(heavy);
+    await page.locator('.heavy-chart').scrollIntoViewIfNeeded();
+    await expect(page.locator('.heavy-chart circle')).toHaveCount(2000);
+    await page.getByRole('slider').tap({ position: { x: 300, y: 20 } });
+    await expect(page.locator('[aria-live="polite"]')).not.toContainText('Step 30 of');
+    const metrics = await readMetrics(page);
+    await report('scrub', heavy, metrics);
+    expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(heavy).inp);
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(heavy).cls);
+  });
+
+  test('the scene loads and runs without shifting the page', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(heavy);
+    await page.locator('.heavy-scene').scrollIntoViewIfNeeded();
+    await expect(page.locator('.heavy-scene canvas')).toHaveAttribute('data-running', 'true');
+    await resetFrames(page);
+    await page.waitForTimeout(1500);
+    const metrics = await readMetrics(page);
+    await report('scene', heavy, metrics);
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(heavy).cls);
   });
 });
 

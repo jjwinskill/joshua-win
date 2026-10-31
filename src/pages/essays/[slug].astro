@@ -1,9 +1,13 @@
 ---
 // The essay template: complete and semantic, with no treatment.
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { CastList } from '../../components/cast/CastList';
+import { HeavyChart } from '../../components/figures/HeavyChart';
+import { HeavyScene } from '../../components/figures/HeavyScene';
 import { Parade } from '../../components/parade/Parade';
+import { splitAtFigures } from '../../lib/figures';
+import '../../styles/figures.css';
 import '../../styles/parade.css';
 import { castInOrderOfAppearance } from '../../components/cast/mentions';
 import { morphNames } from '../../components/morph';
@@ -15,10 +19,10 @@ export async function getStaticPaths() {
 }
 
 const { piece } = Astro.props;
-const { Content } = await render(piece);
+const html = piece.rendered?.html ?? '';
 const { title, dek, date, citedWork } = piece.data;
 const names = morphNames(piece.id);
-const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast);
+const cast = castInOrderOfAppearance(html, piece.data.cast);
 ---
 
 <Base title={title}>
@@ -36,7 +40,15 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
       </p>
     </header>
     <div class="essay-body">
-      <Content />
+      {splitAtFigures(html).map((part) =>
+        'html' in part ? (
+          <Fragment set:html={part.html} />
+        ) : part.figure === 'scene' ? (
+          <HeavyScene client:idle />
+        ) : (
+          <HeavyChart client:idle />
+        ),
+      )}
       <p class="end-mark" id="parade-end" aria-hidden="true">
         · · ·
       </p>
