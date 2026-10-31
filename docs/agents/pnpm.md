@@ -26,6 +26,7 @@
 | `minimumReleaseAgeExclude` | none | empty | Bypass by package name. Only with Josh's OK, for an urgent security patch. |
 | `blockExoticSubdeps` | `true` | `true` | Only direct dependencies may come from git URLs or tarballs. |
 | `trustPolicy` | `off` | `no-downgrade` | Fails if a package's trust level (for example its provenance) drops from earlier releases. |
+| `trustPolicyExclude` | none | `semver@6.3.1` | Exact versions excused from `trustPolicy`, each with Josh's OK (G32). |
 
 **Removed settings that agents still reach for:** `onlyBuiltDependencies` and `ignoredBuiltDependencies` were removed in v11 and replaced by `allowBuilds` (`name: true | false`). `pnpm ignored-builds` lists what was blocked.
 
@@ -70,7 +71,7 @@ It installs pnpm (version from `packageManager`), installs Node from `devEngines
 ## Known local notes
 
 - `pnpm doctor` from an agent sandbox reported no write access to `~/Library/pnpm/store/v11`. The first real install (2026-10-29) used that store without trouble, so it was the sandbox.
-- `trustPolicy: no-downgrade` blocked `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. That plugin was left out rather than loosening the policy. Adding it back needs Josh's OK for an exclusion.
+- `trustPolicy: no-downgrade` blocks `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. Josh approved one exclusion on 2026-10-31 (G32): `trustPolicyExclude` names exactly that version, and every other check stays on. 6.3.1 was published in July 2023, after the 7.5.x releases. Checked against pnpm 12.16.1, eslint-plugin-react-hooks 7.1.1 and @eslint-react/eslint-plugin 5.28.8. Add a new entry only with Josh's OK.
 - `eslint-plugin-jsx-a11y` 6.10.2 doesn't list ESLint 10 as a peer, so `pnpm install` warns. Its rules were checked to fire under ESLint 10 in both `.tsx` and `.astro` files. The plugin-astro docs name `eslint-plugin-jsx-a11y-x` as an alternative if it ever breaks.
 - Wrangler 4.155.0 pulls in a **beta** Miniflare (`miniflare@5.20261023.2-beta`) as a dependency, which is Wrangler's own choice, not ours. It runs only in local dev and tests (`wrangler dev`), never in the deployed Worker.
 - `pnpm add wrangler` gave 4.155.0, not the newest 4.156.0, because `minimumReleaseAge` waits a day. That's working as intended.

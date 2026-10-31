@@ -13,3 +13,9 @@ allowBuilds:
   # dependency, and download it from the npm registry if it's missing. Not needed (checked 2026-10-29).
   esbuild: false
   workerd: false
+
+# Reviewed exceptions to trustPolicy, by exact version. Josh approved this one on #27 (G32):
+# eslint-plugin-react-hooks reaches semver@6.3.1 through @babel/core. It's a patch to an older release
+# line, published after newer lines gained trust evidence, and it's used only in development.
+trustPolicyExclude:
+  - semver@6.3.1

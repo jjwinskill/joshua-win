@@ -58,7 +58,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
 | `pnpm typecheck` | `wrangler types` (regenerates the git-ignored `worker-configuration.d.ts`), then `astro check` for the site, then `tsc -p worker` for the Worker (Workers types, not DOM) |
-| `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y) |
+| `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y, React hooks and leak rules), failing on any warning |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
 | `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home, essay and contents pages. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
