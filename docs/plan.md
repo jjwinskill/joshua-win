@@ -166,6 +166,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). Since G24, the deployed soft launch isn't private: only the repo is. | Changes phases 5 and 6 |
 | G23 | No zone-level noindex rule (it would outlive publishing). | |
 | G24 | **No invite gate.** Anyone who visits the domain can read the site, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
+| G25 | A PR that only reverts an already reviewed PR skips the independent review of G21, because speed matters in an incident. Josh merged the rollback test's revert on this basis; say if it should change. | Exception to G21 |
 
 ## Change log
 
@@ -178,3 +179,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: the production deploy (#6) added G23: HSTS, no zone-level noindex, no Workers Logs. Phase 6 should consider raising HSTS.
 - 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch isn't private on the site, and Josh decides at step 2 whether that's enough.
 - 2026-10-30: the first deploy failed because Cloudflare refused `assets.base_path` for this account (code 100343). Astro now builds into `dist/skill/`, so #7's previews and #5's Lighthouse should expect that layout.
+- 2026-10-30: a rollback test (#18, #19) proved both the Cloudflare rollback and the GitHub revert. The steps are in `agents/local-dev.md`, and G25 exempts pure reverts from G21.

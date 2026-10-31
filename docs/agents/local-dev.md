@@ -23,6 +23,15 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 - **Not deployed on purpose:** there's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
 - **Debugging:** Workers Logs are on (`wrangler.jsonc`), or use `wrangler tail`.
 
+## Rolling back
+
+Tested end to end on 2026-10-30 (#18, #19). If a deploy breaks the live site, do both steps, in this order. Josh runs them.
+
+1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version's pages came back too, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
+2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the four checks pass, squash-merge and delete the branch. The merge deploys a new version over the rollback. A PR that only reverts skips the independent review (G25).
+
+If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward, or turn off the rule on `main` in the repo settings for as long as it takes.
+
 ## Commands
 
 | Command | What it does |
