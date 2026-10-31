@@ -4,6 +4,7 @@ lighthouse-reports/
 .astro/
 drafts/
 .drafts-test/
+.cast-test/
 pnpm-lock.yaml
 # Josh's prose and the planning docs are formatted by hand; never reflow them.
 *.md
