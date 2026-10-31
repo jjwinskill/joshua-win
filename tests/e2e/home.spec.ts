@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 // The home page, the contents list and the card that expands into its piece (#32).
 const essayUrl = /essays\/lorem-ipsum\/$/;
-const morph = '::view-transition-group(piece-lorem-ipsum)';
+const morph = '::view-transition-group(piece-box-lorem-ipsum)';
 const pieces = ['kicker', 'title', 'dek'].map(
   (piece) => `::view-transition-group(piece-${piece}-lorem-ipsum)`,
 );

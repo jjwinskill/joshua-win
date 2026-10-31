@@ -16,9 +16,10 @@ export interface Metrics {
 export interface TransitionResult {
   ran: boolean;
   morphed: boolean;
-  tapToFinishMs: number;
-  frames: number;
-  worstFrame: number;
+  // Null when no transition was recorded, so that it can't read as a fast one.
+  tapToFinishMs: number | null;
+  frames: number | null;
+  worstFrame: number | null;
 }
 
 declare global {
@@ -199,12 +200,35 @@ export async function swipeToBottom(page: Page): Promise<void> {
   });
 }
 
+// For a transition that may not run: waits for the destination's heading, then for anything animating to
+// finish, so a late transition isn't reported as a lost one.
+export async function settledTransition(
+  page: Page,
+  heading: string | RegExp,
+): Promise<TransitionResult> {
+  await page.getByRole('heading', { level: 1, name: heading }).waitFor({ timeout: 10_000 });
+  await page.waitForTimeout(300);
+  await page.waitForFunction(
+    () =>
+      !document.documentElement
+        .getAnimations({ subtree: true })
+        .some((animation) =>
+          (animation.effect as KeyframeEffect | null)?.pseudoElement?.includes('view-transition'),
+        ),
+    undefined,
+    { timeout: 10_000 },
+  );
+  // The result is written when the transition's finished promise settles.
+  await page.waitForTimeout(100);
+  return readTransition(page);
+}
+
 export function readTransition(page: Page): Promise<TransitionResult> {
   return page.evaluate(
     () =>
       JSON.parse(
         sessionStorage.getItem('perf-transition') ??
-          '{"ran":false,"morphed":false,"tapToFinishMs":0,"frames":0,"worstFrame":0}',
+          '{"ran":false,"morphed":false,"tapToFinishMs":null,"frames":null,"worstFrame":null}',
       ) as TransitionResult,
   );
 }

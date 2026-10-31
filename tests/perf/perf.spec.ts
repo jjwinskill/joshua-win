@@ -3,6 +3,7 @@ import { limitsFor } from './limits';
 import {
   readMetrics,
   readTransition,
+  settledTransition,
   waitForInteractions,
   report,
   resetFrames,
@@ -117,9 +118,7 @@ test.describe('the card transition', () => {
     const page = await throttledPage(context);
     await page.goto('./', { waitUntil: 'commit' });
     await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
-    await page.waitForURL(`**/${essay}`);
-    await page.waitForTimeout(1500);
-    await report('transition-immediate', essay, await readTransition(page));
+    await report('transition-immediate', essay, await settledTransition(page, /Lorem ipsum dolor/));
   });
 
   // Reported only: whether browser back morphs is part of the bake-off's findings, not a limit.
@@ -128,16 +127,13 @@ test.describe('the card transition', () => {
     await page.goto('./');
     await page.waitForLoadState('networkidle');
     await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
-    await finishedTransition(page);
-    await page.waitForTimeout(600);
+    await settledTransition(page, /Lorem ipsum dolor/);
     await page.evaluate(() => {
       sessionStorage.removeItem('perf-transition');
       sessionStorage.setItem('perf-tap', String(performance.timeOrigin + performance.now()));
     });
     await page.goBack();
-    await page.getByRole('heading', { level: 1, name: 'Josh Winskill' }).waitFor();
-    await page.waitForTimeout(1500);
-    await report('transition-back', './', await readTransition(page));
+    await report('transition-back', './', await settledTransition(page, 'Josh Winskill'));
   });
 });
 
