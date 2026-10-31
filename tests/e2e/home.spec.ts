@@ -101,6 +101,28 @@ test.describe('the card transition', () => {
     await expect.poll(() => groupsSeen(page)).toContain(morph);
   });
 
+  test('a card off screen on the new page fades in, without flying in', async ({ page }) => {
+    await page.setViewportSize({ width: 412, height: 400 });
+    await page.goto('essays/lorem-ipsum/');
+    await page.getByRole('link', { name: 'joshua.win/skill' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+    await page.waitForTimeout(600);
+    expect(await groupsSeen(page)).not.toContain(morph);
+  });
+
+  test('morphs back through the link home, and forward again', async ({ page }) => {
+    await page.goto('./');
+    await openPiece(page);
+    await forgetTransitions(page);
+    await page.getByRole('link', { name: 'joshua.win/skill' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+    await expect.poll(() => groupsSeen(page)).toContain(morph);
+
+    await forgetTransitions(page);
+    await openPiece(page);
+    await expect.poll(() => groupsSeen(page)).toContain(morph);
+  });
+
   test.describe('under reduced motion', () => {
     test.use({ reducedMotion: 'reduce' });
 

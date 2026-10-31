@@ -178,6 +178,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G31 | The heavy page stays on the winner until phase 6 as the performance canary. It's realistic for an essay or write-up, not a stress test. | |
 | G32 | Hooks lint uses `eslint-plugin-react-hooks` and the leak rules from `@eslint-react/eslint-plugin`, as errors, with `--max-warnings 0`. Josh approved one `trustPolicyExclude` entry, exactly `semver@6.3.1`. | Adds an exception to G12 |
 | G33 | Pagination waits until there are 11 pieces. The `/skill/essays/` index and a custom 404 move to phase 5. | Defers part of S9 and S8 |
+| G34 | Astro's `<ClientRouter />` runs the card transition, not native cross-document transitions. Chrome on iOS jumps on any full-page navigation, with or without a transition, and same-document navigation avoids it everywhere except Chrome's own back arrow (`docs/research/ios-chrome-view-transitions.md`). It adds about 5.7 KB gzipped to every page. Josh: "The delight of the transitions is very important in an application that showcases my FE talents". Revisit if browsers fix the jump. | Reverses the "no `<ClientRouter />`" call in `docs/research/route-transitions.md` |
 
 ## Change log
 
@@ -199,4 +200,5 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: the transitions research (#28) found Next's morph doesn't run on browser back, in Chromium or iOS Safari, while Astro's does. #35 reports this instead of requiring it. Going back after scrolling down an essay is untested, so #32 and #35 must check it.
 - 2026-10-31: the home page (#32) found the morph flies in from over 6,000 px away when going back from far down an essay. A small script in the layout crossfades off-screen elements instead, so the transition isn't quite JS-free. Josh asked to keep building with Cloudflare previews and review the pages visually as they land.
 - 2026-10-31: Josh asked for each piece of the card's text to move to its place instead of fading, so both bake-off builds were measured with that transition (#45). The rest of #45 (the card filling the page, the parade's entrance, the movement on his phone) must land before phase 2 ends.
+- 2026-10-31: phone tests in Chrome on iOS found the jump comes from full-page navigation itself, so G34 moves the transition to `<ClientRouter />`. Scripts and islands now live through page swaps, so later phases' effects must clean up on unmount and have a test that reaches them from another page.
 - 2026-10-31: the heavy page (#34) marks its figures with an empty element in Markdown until phase 3's MDX decision (S15). If MDX wins, the figures become components in the prose and the marker goes. Phase 6 removes the page with the lorem pieces.

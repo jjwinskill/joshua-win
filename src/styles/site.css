@@ -249,13 +249,9 @@ span[id^='cast-']:target {
   view-transition-name: none !important;
 }
 
-/* The card that expands into its piece (N1): a native cross-document view transition. Only the
-   off-screen check in the layout uses JavaScript. Browsers without support navigate normally. See docs/research/route-transitions.md. */
+/* The card that expands into its piece (N1), run by Astro's <ClientRouter /> as a same-document view
+   transition. Browsers without support navigate normally. See docs/research/ios-chrome-view-transitions.md. */
 @media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
-
   ::view-transition-group(*) {
     animation-duration: 420ms;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);

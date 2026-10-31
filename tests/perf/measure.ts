@@ -131,12 +131,12 @@ function installRecorder() {
     });
   };
 
-  // Cross-document transitions (Astro) arrive on pagereveal.
+  // Cross-document transitions arrive on pagereveal.
   addEventListener('pagereveal', (event) => {
     const { viewTransition } = event as PageRevealEvent;
     if (viewTransition) watchTransition(viewTransition);
   });
-  // Same-document transitions (Next, through React) call this.
+  // Same-document transitions (Astro's router, and Next through React) call this.
   const start = document.startViewTransition?.bind(document);
   if (start) {
     document.startViewTransition = ((...args: Parameters<typeof start>) => {

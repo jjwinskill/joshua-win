@@ -26,7 +26,7 @@ These replace the original recommendation, which is kept below as written. Teste
 
 **Tested in iOS 27.2 Simulator Safari:** `<ClientRouter />` morphs forward and back, with the same clipping above the toolbar as before.
 
-**New recommendation:** use `<ClientRouter />`, and report the back-arrow jump to Chromium with a minimal test page. Before merging, it needs the reduced-motion test fixed, the parade checked across page changes, and Lighthouse rerun. It adds about 5.7 KB gzipped of router code to every page, and the home page currently has no JS.
+**New recommendation, adopted as G34:** use `<ClientRouter />`, and report the back-arrow jump to Chromium with a minimal test page. It adds about 5.7 KB gzipped of router code to every page. The home page had no JS before.
 
 ## Original recommendation, before the phone results
 
