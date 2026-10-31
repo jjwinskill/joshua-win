@@ -69,15 +69,12 @@ jobs:
         env:
           # Only production builds count visits (G18). The token is public by design: it's in every page.
           PUBLIC_CF_ANALYTICS_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.CF_ANALYTICS_TOKEN || '' }}
-      # Only main's build carries the beacon, and never on the placeholder. An unset variable fails
-      # here, rather than silently deploying a site that counts nobody.
+      # Only main's build carries the beacon. An unset variable fails here, rather than silently
+      # deploying a site that counts nobody.
       - name: Check the analytics beacon
         env:
           ON_MAIN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
-          if grep -q cloudflareinsights dist/placeholder/index.html; then
-            echo "The beacon is on the placeholder"; exit 1
-          fi
           if [ "$ON_MAIN" = "true" ]; then
             grep -q cloudflareinsights dist/index.html || { echo "main's build has no beacon"; exit 1; }
           elif grep -q cloudflareinsights dist/index.html; then

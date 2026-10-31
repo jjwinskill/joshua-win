@@ -1,13 +1,12 @@
 // The Worker's decisions, kept free of the Workers runtime so they're unit-tested in plain Vitest.
-// The invite gate is separate (gate.ts): redirects run first, and it only sees the final URL.
 
-export const BASE_PATH = '/skill/';
+const BASE_PATH = '/skill/';
 const SITE_ROOT = '/skill'; // BASE_PATH without its trailing slash
 
 // Hosts that only ever serve local dev and tests, so they keep plain http.
 const LOOPBACK = new Set(['localhost', '127.0.0.1', '[::1]']);
 
-export const isLocal = (url: URL): boolean => LOOPBACK.has(url.hostname);
+const isLocal = (url: URL): boolean => LOOPBACK.has(url.hostname);
 
 export type Outcome = { kind: 'redirect'; location: string } | { kind: 'asset' };
 

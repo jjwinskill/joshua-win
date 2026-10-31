@@ -12,18 +12,18 @@
 | # | Phase | Status | At the end, you have |
 |---|---|---|---|
 | 0 | Planning | **done** | This plan, the glossary and the repo set up |
-| 1 | Pipeline | **in progress** | A hello page at joshua.win/skill that only invite-link holders can see, noindexed, deployed on every merge with all checks running; `@joshua.win` email working |
+| 1 | Pipeline | **in progress** | A hello page at joshua.win/skill, noindexed, deployed on every merge with all checks running; `@joshua.win` email working |
 | 2 | Lorem piece 1 and bake-off 1 | not started | A lorem essay with the parade, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
 | 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, share images, RSS and the sitemap |
-| 6 | Ship | not started | The launch bar met, the lorem pieces removed, the invite gate and noindex lifted: published |
+| 6 | Ship | not started | The launch bar met, the lorem pieces removed, noindex lifted: published |
 
 ---
 
 ## Phase 1: Pipeline
 
-**Goal:** everything after this phase deploys itself, is checked automatically, and stays private.
+**Goal:** everything after this phase deploys itself, is checked automatically, and stays out of search.
 
 - **Scaffold:**
   - Astro, with React for every component (G2)
@@ -36,9 +36,7 @@
   - `@axe-core/playwright` on every route
   - Lighthouse CI
 - **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. Each PR gets a Cloudflare Worker Preview (`wrangler preview`) and its URL is posted on the PR (G17). A merge to `main` runs `wrangler deploy`.
-- **Privacy (G4):**
-  - Every response carries an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7).
-  - The invite gate: a small Worker in front of the static files. A secret invite link sets a cookie; without it, visitors get a plain placeholder page. Rotating the secret locks everyone out. Previews aren't gated (G16).
+- **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7). There's no gate: the site is public but unlisted.
 - **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
 - **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
 - **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(content/essays/**)`, `Edit(content/write-ups/**)` and `Edit(drafts/**)`. Lorem lives in `content/lorem/`, which never prompts.
@@ -50,7 +48,6 @@
 - **Exit:**
   - a merged PR deploys to joshua.win/skill
   - the hello page passes every check
-  - without the invite cookie you see only the placeholder
   - noindex is verified on production and on a preview
   - mail to `hello@` arrives, and a reply from `@joshua.win` passes SPF and DKIM
 - **Launch-bar items started:** Email (done here), and the pipeline that Performance and Automated accessibility depend on.
@@ -132,10 +129,10 @@
 The real pieces stay out of this public repo and out of CI until step 5 (G22).
 
 1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback. Until step 5, CI can't see the pieces, so run the automated checks on them locally against a soft-launch build.
-2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy` behind the invite gate. Build it with `PUBLIC_CF_ANALYTICS_TOKEN` set, or invited readers won't be counted. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so add a pause (a repository variable in the deploy job's `if`), or merge nothing to `main`, until step 5.
-3. Soft launch: send the invite link to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
+2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy`. Anyone with the URL can read it (G24), so Josh decides here whether unlisted is enough for real pieces. Build it with `PUBLIC_CF_ANALYTICS_TOKEN` set, or readers won't be counted. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so add a pause (a repository variable in the deploy job's `if`), or merge nothing to `main`, until step 5.
+3. Soft launch: send the URL to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
 4. Remove the lorem pieces.
-5. The publishing PR: move the pieces and their one-off components into `content/`, and lift the invite gate and noindex, all together (and consider raising HSTS, G23), so the pieces enter the public repo only as they go public. CI's checks now cover them. Merging it publishes the site.
+5. The publishing PR: move the pieces and their one-off components into `content/`, and lift noindex, all together (and consider adding HSTS), so the pieces enter the public repo only as they go public. CI's checks now cover them. Merging it publishes the site.
 6. After publishing: the URL goes on the résumé and LinkedIn Featured, with one plain LinkedIn post per piece.
 
 ---
@@ -147,7 +144,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G1 | Six build phases as above. The style run comes after **all three** lorem pieces (Josh: "after our lorem ipsums are in place"). | P2 said after piece 1 |
 | G2 | Scaffold in Astro, the stated default. Next is built only as the bake-off challenger. React Router was considered and left out: like Next, it hydrates every page. | |
 | G3 | GitHub Actions for CI/CD, Cloudflare preview URLs per PR, and the test stack in phase 1. | |
-| G4 | **A secret invite link (cookie, checked by a Worker) instead of Cloudflare Access.** Access's one-time code always needs an email address; Josh wants first readers to get in without one. | P8 offered an embargo or Access |
+| G4 | **Reversed by G24.** A secret invite link (cookie, checked by a Worker) instead of Cloudflare Access. Access's one-time code always needs an email address; Josh wants first readers to get in without one. | P8 offered an embargo or Access |
 | G5 | Drafts in a private repo cloned into a git-ignored `drafts/`; a draft's one-off components stay private with it and are documented for reuse. | Settles P6 |
 | G6 | The lorem write-up is a chart playground of cheap prototypes. "Quirky" means delightful and easy to follow. | |
 | G7 | Charts read a run file with placeholder names; real names come from v1's contrived run. Making the skill itself configurable is the skill repo's work. | |
@@ -159,14 +156,15 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. | Sharpens S2 |
 | G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. The pin is an exact version, because CI installs Node from it rather than from the lockfile. | Settles the phase 1 open item |
 | G15 | TypeScript 6.0, not 7: TypeScript 7.0 has no programmatic API yet, and `astro check` and typescript-eslint need 6. Lint is ESLint with typescript-eslint, the Astro plugin and jsx-a11y. Revisit TypeScript when 7.1 ships its API. | |
-| G16 | PR previews aren't behind the invite gate (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
+| G16 | PR previews are open (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
 | G17 | PR previews use Cloudflare's Worker Previews (`wrangler preview --name pr-<n>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
 | G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
 | G19 | `www.joshua.win` 301s to the bare domain as a second custom domain on the same Worker, keeping its path (Josh: keep paths so missing pages reach the real 404 "instead of 301-ing everything"). `www.joshua.win/` lands on `/skill/`. Public hosts are https-only: the Worker upgrades http itself. | Adds to S8 |
-| G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello and placeholder pages stay lorem until Josh writes them. | |
+| G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello page stays lorem until Josh writes it. | |
 | G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
 | G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). | Changes phases 5 and 6 |
-| G23 | HSTS is set by the Worker at 30 days, without subdomains, so a browser that has visited can't send an invite over http. Always send https links. Workers Logs are explicitly off. Raise it at publishing if nothing has gone wrong. No zone-level noindex rule (it would outlive publishing) | |
+| G23 | No zone-level noindex rule (it would outlive publishing). | |
+| G24 | **No invite gate.** The site is public but unlisted, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
 
 ## Change log
 
@@ -177,3 +175,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: the invite gate's review (#4) raised an open question at phase 6 step 2: the public repo exposes real pieces before the gate lifts.
 - 2026-10-30: G22 answers that question: the pieces stay private until publishing, the soft-launch deploy is local, and the drafts repo is the backup. Phase 5's exit and phase 6's steps changed to match.
 - 2026-10-30: the production deploy (#6) added G23: HSTS, no zone-level noindex, no Workers Logs. Phase 6 should consider raising HSTS.
+- 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch is unlisted, not private, and Josh decides at step 2 whether that's enough.
