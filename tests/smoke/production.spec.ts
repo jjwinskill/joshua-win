@@ -18,6 +18,12 @@ test.describe('noindex', () => {
   }
 });
 
+test('the home page is the built site, and it counts visits', async ({ request }) => {
+  const html = await (await request.get('./')).text();
+  expect(html).toMatch(/<h1\b/i);
+  expect(html).toContain('cloudflareinsights');
+});
+
 test.describe('redirects', () => {
   const home = 'https://joshua.win/skill/';
   for (const [from, to] of [

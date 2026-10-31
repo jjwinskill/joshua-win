@@ -36,7 +36,8 @@
   - `@axe-core/playwright` on every route
   - Lighthouse CI
 - **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. Each PR gets a Cloudflare Worker Preview (`wrangler preview`) and its URL is posted on the PR (G17). A merge to `main` runs `wrangler deploy`.
-- **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7). There's no gate: the site is public but unlisted.
+- **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7). There's no gate: anyone who visits the domain can read the site.
+- **Lorem is public too (G24):** from here on, every merge puts the lorem pieces and style tests on the live domain, noindexed.
 - **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
 - **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
 - **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(content/essays/**)`, `Edit(content/write-ups/**)` and `Edit(drafts/**)`. Lorem lives in `content/lorem/`, which never prompts.
@@ -120,7 +121,7 @@
 - **Casts:** the write-up's cast, if it has one, is drawn. Rig automation (P3) happens here only if it's still worth it; it's second on the cut list.
 - **The about page (S23):** a LinkedIn link, a "what I've worked on" paragraph, and an invitation to ask for a tailored résumé. It depends on the LinkedIn overhaul (N6). The contact-form Worker comes with it, with Turnstile.
 - **Also:** share images rendered from each cast (PNG), RSS, and the sitemap.
-- **Exit:** both pieces are finished in `drafts/` (they stay private until publishing, G22), their treatment checklists are done, and the about page and contact form work end to end.
+- **Exit:** both pieces are finished in `drafts/` (they stay out of the public repo until publishing, G22), their treatment checklists are done, and the about page and contact form work end to end.
 
 ## Phase 6: Ship
 
@@ -129,10 +130,10 @@
 The real pieces stay out of this public repo and out of CI until step 5 (G22).
 
 1. Walk the launch bar (S22): performance, axe, the manual keyboard and VoiceOver pass, reduced motion, email, the style guide, treatment checklists and feedback. Until step 5, CI can't see the pieces, so run the automated checks on them locally against a soft-launch build.
-2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy`. Anyone with the URL can read it (G24), so Josh decides here whether unlisted is enough for real pieces. Build it with `PUBLIC_CF_ANALYTICS_TOKEN` set, or readers won't be counted. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so add a pause (a repository variable in the deploy job's `if`), or merge nothing to `main`, until step 5.
+2. Soft-launch deploy: from Josh's machine, an explicit local build that includes `drafts/`, deployed with `wrangler deploy`. Anyone who visits the domain can read it (G24), so Josh decides here whether that's acceptable for real pieces. Build it with `PUBLIC_CF_ANALYTICS_TOKEN` set, or readers won't be counted. CI's deploy on merge to `main` would overwrite it with a build that has no pieces, so add a pause (a repository variable in the deploy job's `if`), or merge nothing to `main`, until step 5.
 3. Soft launch: send the URL to 3–5 readers, then triage every comment as fix, won't fix or later, and do every fix.
 4. Remove the lorem pieces.
-5. The publishing PR: move the pieces and their one-off components into `content/`, and lift noindex, all together (and consider adding HSTS), so the pieces enter the public repo only as they go public. CI's checks now cover them. Merging it publishes the site.
+5. The publishing PR: move the pieces and their one-off components into `content/`, and lift noindex, all together (and consider adding HSTS), so the pieces enter the public repo only in that PR. CI's checks now cover them. Merging it publishes the site.
 6. After publishing: the URL goes on the résumé and LinkedIn Featured, with one plain LinkedIn post per piece.
 
 ---
@@ -162,9 +163,9 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G19 | `www.joshua.win` 301s to the bare domain as a second custom domain on the same Worker, keeping its path (Josh: keep paths so missing pages reach the real 404 "instead of 301-ing everything"). `www.joshua.win/` lands on `/skill/`. Public hosts are https-only: the Worker upgrades http itself. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello page stays lorem until Josh writes it. | |
 | G21 | Every PR gets an independent, adversarial review by fresh agents before merge (see Work tracking). Added after the scaffold PR merged with only its author's checks and CI. | |
-| G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). | Changes phases 5 and 6 |
+| G22 | The real pieces stay private until publishing: in `drafts/` and its private repo, which is also their backup. The soft-launch deploy is built and deployed locally from Josh's machine, and they enter this public repo only in the publishing PR (Josh: "Let's keep them private."). Since G24, the deployed soft launch isn't private: only the repo is. | Changes phases 5 and 6 |
 | G23 | No zone-level noindex rule (it would outlive publishing). | |
-| G24 | **No invite gate.** The site is public but unlisted, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
+| G24 | **No invite gate.** Anyone who visits the domain can read the site, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
 
 ## Change log
 
@@ -175,4 +176,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: the invite gate's review (#4) raised an open question at phase 6 step 2: the public repo exposes real pieces before the gate lifts.
 - 2026-10-30: G22 answers that question: the pieces stay private until publishing, the soft-launch deploy is local, and the drafts repo is the backup. Phase 5's exit and phase 6's steps changed to match.
 - 2026-10-30: the production deploy (#6) added G23: HSTS, no zone-level noindex, no Workers Logs. Phase 6 should consider raising HSTS.
-- 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch is unlisted, not private, and Josh decides at step 2 whether that's enough.
+- 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch isn't private on the site, and Josh decides at step 2 whether that's enough.

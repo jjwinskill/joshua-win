@@ -13,13 +13,14 @@ How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Ch
 
 A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the build those checks tested, then smoke-tests the live site. Nothing else deploys, except the local soft-launch deploy in phase 6 (G22).
 
-- **The site is public but unlisted** (G24). Anyone with the URL can read what's deployed, and noindex keeps it out of search.
+- **The site is public** (G24). Anyone who visits joshua.win reads what's deployed, and noindex keeps it out of search.
 - **What CI needs:** the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets on the `production` GitHub environment, which only `main` can deploy to, so a PR branch can't reach them; and the `CF_ANALYTICS_TOKEN` repository variable. The build fails on `main` if the variable is unset.
 - **The token** starts from Cloudflare's "Edit Cloudflare Workers" template, scoped to this account and the `joshua.win` zone. The docs don't say what custom domains need: if the deploy gets an auth error, add `Zone: DNS: Edit` and rerun the job.
 - **A failed deploy can still change the site.** Wrangler puts the new version live before it updates the custom domains, so a red deploy job doesn't mean the old version is still up.
-- **The first deploy** is the first merge, and it creates the Worker. Smoke-test retries are immediate, so a new certificate can fail that job: rerun it a few minutes later.
+- **The first deploy** is the first merge, and it creates the Worker. Set up everything under "What CI needs" first, with the environment limited to `main`, or the build fails or the secrets are missing. Cloudflare's DNS records for `joshua.win` and `www` must be empty, because a CI deploy overwrites them without asking. Smoke-test retries are immediate, so a new certificate can fail that job: rerun it a few minutes later.
 - **Zone settings to leave alone:** **Always Use HTTPS** and **Bot Fight Mode** stay off. The Worker already upgrades http, and the edge's redirect wouldn't carry noindex. A bot challenge would fail the smoke tests. Web Analytics must be set to the manual JS snippet (G18).
 - **Not deployed on purpose:** there's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
+- **Debugging:** Workers Logs are on (`wrangler.jsonc`), or use `wrangler tail`.
 
 ## Commands
 

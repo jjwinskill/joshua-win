@@ -83,7 +83,7 @@ Putting a build on the live domain, which happens from the start, behind noindex
 _Avoid_: Publish, launch (for this step)
 
 **Publish**:
-Lifting noindex (and any pre-launch privacy) once the launch bar is met.
+Lifting noindex once the launch bar is met.
 _Avoid_: Deploy, go live
 
 **Bake-off**:

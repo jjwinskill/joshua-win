@@ -13,6 +13,8 @@
   // Without this, `wrangler dev` tells the Worker each request is for the first route, over http.
   // The Worker would upgrade it to https, and Wrangler would rewrite that back: a redirect loop.
   "dev": { "host": "localhost" },
+  // Keeps the Worker's logs, for its console.error on a failure.
+  "observability": { "enabled": true },
   // No workers.dev URLs until #7 decides what they're for.
   "workers_dev": false,
   "preview_urls": false,
