@@ -58,6 +58,7 @@ test.describe('the heavy page', () => {
       await slider.tap({ position: { x, y: 20 } });
       await expect(slider).not.toHaveValue(before);
     }
+    await waitForInteractions(page, 5);
     const metrics = await readMetrics(page);
     await report('scrub', heavy, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(heavy).inp);
