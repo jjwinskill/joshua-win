@@ -15,6 +15,7 @@ export interface Metrics {
 
 export interface TransitionResult {
   ran: boolean;
+  morphed: boolean;
   tapToFinishMs: number;
   frames: number;
   worstFrame: number;
@@ -25,6 +26,7 @@ declare global {
     perf: {
       layoutShift: number;
       interaction: number;
+      interactions: Set<number>;
       longFrames: number;
       blockingMs: number;
       frames: number[];
@@ -38,6 +40,7 @@ function installRecorder() {
   const perf = {
     layoutShift: 0,
     interaction: 0,
+    interactions: new Set<number>(),
     longFrames: 0,
     blockingMs: 0,
     frames: [] as number[],
@@ -55,7 +58,9 @@ function installRecorder() {
 
   new PerformanceObserver((list) => {
     for (const entry of list.getEntries() as (PerformanceEntry & { interactionId: number })[]) {
-      if (entry.interactionId) perf.interaction = Math.max(perf.interaction, entry.duration);
+      if (!entry.interactionId) continue;
+      perf.interactions.add(entry.interactionId);
+      perf.interaction = Math.max(perf.interaction, entry.duration);
     }
   }).observe({ type: 'event', durationThreshold: 16, buffered: true } as PerformanceObserverInit);
 
@@ -76,7 +81,10 @@ function installRecorder() {
 
   addEventListener(
     'click',
-    () => sessionStorage.setItem('perf-tap', String(performance.timeOrigin + performance.now())),
+    () => {
+      sessionStorage.removeItem('perf-transition');
+      sessionStorage.setItem('perf-tap', String(performance.timeOrigin + performance.now()));
+    },
     true,
   );
 
@@ -84,19 +92,36 @@ function installRecorder() {
     const frames: number[] = [];
     let previous = performance.now();
     let running = true;
+    let morphed = false;
     const frame = (now: number) => {
       frames.push(now - previous);
       previous = now;
+      morphed ||= document.documentElement
+        .getAnimations({ subtree: true })
+        .some((animation) =>
+          (animation.effect as KeyframeEffect | null)?.pseudoElement?.includes(
+            'view-transition-group(piece-',
+          ),
+        );
       if (running) requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
+    // finished still fulfils for a skipped transition. Only ready tells them apart.
+    let ran = false;
+    transition.ready.then(
+      () => {
+        ran = true;
+      },
+      () => undefined,
+    );
     void transition.finished.then(() => {
       running = false;
       const tap = Number(sessionStorage.getItem('perf-tap'));
       sessionStorage.setItem(
         'perf-transition',
         JSON.stringify({
-          ran: true,
+          ran,
+          morphed,
           tapToFinishMs: performance.timeOrigin + performance.now() - tap,
           frames: frames.length,
           worstFrame: Math.max(0, ...frames),
@@ -129,8 +154,14 @@ export async function throttledPage(context: BrowserContext): Promise<Page> {
   return page;
 }
 
+// A slow interaction is reported only after its next paint. Waiting for it means a slow one can't be
+// missed, and an interaction that was never measured fails here rather than reading as 0.
+export async function waitForInteractions(page: Page, count: number): Promise<void> {
+  await page.waitForFunction((n) => window.perf.interactions.size >= n, count, { timeout: 10_000 });
+}
+
 export async function readMetrics(page: Page): Promise<Metrics> {
-  // Two tasks' grace, so the observers have delivered their last entries.
+  // A short grace, so the observers have delivered their last entries.
   await page.waitForTimeout(300);
   return page.evaluate(() => {
     const { layoutShift, interaction, longFrames, blockingMs, frames } = window.perf;
@@ -146,9 +177,13 @@ export async function readMetrics(page: Page): Promise<Metrics> {
   });
 }
 
+// Starts frame and long-frame counts afresh, so they cover what's measured and not the page's load.
+// CLS isn't reset: a shift during load counts.
 export function resetFrames(page: Page): Promise<void> {
   return page.evaluate(() => {
     window.perf.frames.length = 0;
+    window.perf.longFrames = 0;
+    window.perf.blockingMs = 0;
   });
 }
 
@@ -169,16 +204,23 @@ export function readTransition(page: Page): Promise<TransitionResult> {
     () =>
       JSON.parse(
         sessionStorage.getItem('perf-transition') ??
-          '{"ran":false,"tapToFinishMs":0,"frames":0,"worstFrame":0}',
+          '{"ran":false,"morphed":false,"tapToFinishMs":0,"frames":0,"worstFrame":0}',
       ) as TransitionResult,
   );
 }
 
 const resultsDir = 'perf-results';
 
-// One JSON line per measurement. CI keeps the file, and the bake-off report reads it.
+// One JSON line per measurement, marked with its run and target so that builds can't be confused. CI
+// keeps the file, and the bake-off report reads it.
 export async function report(check: string, route: string, values: object): Promise<void> {
   await mkdir(resultsDir, { recursive: true });
-  const line = JSON.stringify({ check, route, ...values });
+  const line = JSON.stringify({
+    run: process.env.PERF_RUN,
+    target: process.env.PERF_BASE_URL ?? 'local',
+    check,
+    route,
+    ...values,
+  });
   await appendFile(`${resultsDir}/results.jsonl`, `${line}\n`);
 }

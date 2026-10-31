@@ -3,6 +3,7 @@ import { limitsFor } from './limits';
 import {
   readMetrics,
   readTransition,
+  waitForInteractions,
   report,
   resetFrames,
   swipeToBottom,
@@ -15,14 +16,15 @@ const scrolled = [essay];
 
 test.describe('scrolling', () => {
   for (const route of scrolled) {
-    test(`${route} stays stable and responsive through a touch scroll`, async ({ context }) => {
+    test(`${route} stays stable through a touch scroll`, async ({ context }) => {
       const page = await throttledPage(context);
       await page.goto(route);
       await expect(page.locator('.parade .fill')).toHaveAttribute('style', /scaleX/);
       await resetFrames(page);
       await swipeToBottom(page);
       const metrics = await readMetrics(page);
-      await report('scroll', route, metrics);
+      // Nothing is tapped here, so an INP would mean nothing.
+      await report('scroll', route, { ...metrics, inp: undefined });
       expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(route).cls);
     });
   }
@@ -35,6 +37,7 @@ test.describe('interaction', () => {
     await expect(page.locator('.parade .fill')).toHaveAttribute('style', /scaleX/);
     await page.getByRole('button', { name: /The Cheshire Cat/ }).tap();
     await expect(page.locator('#cast-cat')).toHaveClass(/flash/);
+    await waitForInteractions(page, 1);
     const metrics = await readMetrics(page);
     await report('interaction', essay, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(essay).inp);
@@ -53,20 +56,22 @@ test.describe('the card transition', () => {
     await page.waitForLoadState('networkidle');
     await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
     await page.waitForURL(`**/${essay}`);
-    await expect.poll(() => readTransition(page).then((result) => result.ran)).toBe(true);
+    await expect
+      .poll(() => readTransition(page).then((result) => result.ran), { timeout: 10_000 })
+      .toBe(true);
     return readTransition(page);
   }
 
   test('runs from a cold navigation', async ({ context }) => {
     const result = await tapCard(context, false);
     await report('transition-cold', essay, result);
-    expect(result.frames).toBeGreaterThan(0);
+    expect(result.morphed).toBe(true);
   });
 
   test('runs from a warm navigation', async ({ context }) => {
     const result = await tapCard(context, true);
     await report('transition-warm', essay, result);
-    expect(result.frames).toBeGreaterThan(0);
+    expect(result.morphed).toBe(true);
   });
 });
 
@@ -93,7 +98,7 @@ test('a deliberately slow page goes over the limits', async ({ context }) => {
   // After the first paint, or the shift doesn't count.
   await page.waitForTimeout(1200);
   await page.locator('#slow').tap();
-  await page.waitForTimeout(800);
+  await waitForInteractions(page, 1);
   const metrics = await readMetrics(page);
   const limits = limitsFor('slow-page');
   expect(metrics.inp, 'INP on the slow page').toBeGreaterThan(limits.inp);
