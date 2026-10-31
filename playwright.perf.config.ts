@@ -5,12 +5,15 @@ import { defineConfig, devices } from '@playwright/test';
 // /skill/). One worker, so tests don't slow each other down. Checked against Playwright 1.64.1 on 2026-10-31.
 const port = 8790;
 const deployed = process.env.PERF_BASE_URL;
+// Marks this run's rows in the results file. Workers inherit it.
+process.env.PERF_RUN ??= new Date().toISOString();
 
 export default defineConfig({
   testDir: './tests/perf',
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // None: a miss that passed on a retry would still be a miss.
+  retries: 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: deployed ?? `http://127.0.0.1:${port}/skill/`,
