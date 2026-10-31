@@ -16,7 +16,7 @@
 | 2 | Lorem piece 1 and bake-off 1 | not started | A lorem essay with the parade, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
-| 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, share images, RSS and the sitemap |
+| 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, sending from `@joshua.win`, share images, RSS and the sitemap |
 | 6 | Ship | not started | The launch bar met, the lorem pieces removed, noindex lifted: published |
 
 ---
@@ -151,7 +151,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G6 | The lorem write-up is a chart playground of cheap prototypes. "Quirky" means delightful and easy to follow. | |
 | G7 | Charts read a run file with placeholder names; real names come from v1's contrived run. Making the skill itself configurable is the skill repo's work. | |
 | G8 | The first hand-made cast is *Too Loud a Solitude* (the four members above), used as piece 1's placeholder parade. | S4 used *Alice* as the example |
-| G9 | Email in phase 1 through the dashboards, led step by step; the contact form in phase 5. | |
+| G9 | Email through the dashboards, led step by step: receiving in phase 1 and sending in phase 5 (G27); the contact form in phase 5. | |
 | G10 | Josh's Gmail address was replaced with `[my Gmail]` in the repo copy of S24, at his request. | |
 | G11 | The plan is a living document (this file); CLAUDE.md points every session here. | |
 | G12 | pnpm 12 with its supply-chain defaults kept on, plus `trustPolicy: no-downgrade` (see `agents/pnpm.md`). Node 26 LTS everywhere; Josh's machine was upgraded on 2026-10-29. | |
@@ -169,7 +169,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G24 | **No invite gate.** Anyone who visits the domain can read the site, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
 | G25 | A PR containing only GitHub's revert of an already reviewed PR skips the independent review of G21, to save time in an incident. | Exception to G21 |
 | G26 | **Previews run on demand from Josh's machine, with no CI token.** A token that PR branches can reach could also overwrite production, which would undo the `main`-only rule for deploys (Josh: "do we really need a separate token if that token can also overwrite main?"). Revisit with a trusted workflow if on-demand gets annoying. | Changes G3 and G17 |
-| G27 | Phase 1 email is receiving only. Sending moves to phase 5, because the likely reply path needs Thunderbird, which Josh wants only once there's enough mail to warrant it. It stays on the launch bar. | Changes G9 and phase 1's exit |
+| G27 | Phase 1 email is receiving only. Sending moves to phase 5, because the reply path needs Thunderbird, which Josh wants only once there's enough mail to warrant it. It stays on the launch bar. | Changes G9 and phase 1's exit |
 
 ## Change log
 
