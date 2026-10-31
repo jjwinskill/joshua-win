@@ -81,7 +81,7 @@ test('a deliberately slow page goes over the limits', async ({ context }) => {
         <button id="slow" style="height:60px;width:200px">Slow</button>
         <p style="height:2000px">Tall</p>
         <script>
-          setTimeout(() => { document.getElementById('box').style.height = '600px'; }, 100);
+          setTimeout(() => { document.getElementById('box').style.height = '600px'; }, 800);
           document.getElementById('slow').addEventListener('click', () => {
             const end = performance.now() + 400;
             while (performance.now() < end);
@@ -90,8 +90,10 @@ test('a deliberately slow page goes over the limits', async ({ context }) => {
     }),
   );
   await page.goto('slow-page');
-  await page.waitForTimeout(300);
+  // After the first paint, or the shift doesn't count.
+  await page.waitForTimeout(1200);
   await page.locator('#slow').tap();
+  await page.waitForTimeout(800);
   const metrics = await readMetrics(page);
   const limits = limitsFor('slow-page');
   expect(metrics.inp, 'INP on the slow page').toBeGreaterThan(limits.inp);
