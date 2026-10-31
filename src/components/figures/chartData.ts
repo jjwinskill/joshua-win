@@ -7,7 +7,7 @@ export interface ChartPoint {
   y: number;
 }
 
-// The same step always gives the same points, so the server's and the browser's renders agree.
+// The same step always gives the same points.
 export function chartPoints(step: number, count = 2000): ChartPoint[] {
   const phase = (step / chartSteps) * Math.PI * 2;
   return Array.from({ length: count }, (_, i) => {
@@ -22,9 +22,11 @@ export function chartPoints(step: number, count = 2000): ChartPoint[] {
   });
 }
 
-export function chartPeak(points: readonly ChartPoint[]): ChartPoint | undefined {
-  return points.reduce<ChartPoint | undefined>(
-    (peak, point) => (!peak || point.y < peak.y ? point : peak),
-    undefined,
-  );
+// A few evenly spaced points, for the list screen readers get in place of the chart.
+export function chartSample(step: number, size = 10): ChartPoint[] {
+  const points = chartPoints(step);
+  return Array.from(
+    { length: size },
+    (_, i) => points[Math.floor((i / size) * points.length)],
+  ).filter((point) => point !== undefined);
 }

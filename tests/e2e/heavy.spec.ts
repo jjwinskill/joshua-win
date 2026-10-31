@@ -55,7 +55,7 @@ test('the scene runs only on screen, and can be paused', async ({ page }) => {
   await expect(canvas).toHaveAttribute('data-running', 'true');
 });
 
-test('scrubbing the chart moves its points and tells a screen reader', async ({ page }) => {
+test('scrubbing the chart moves its points and describes each step', async ({ page }) => {
   await page.goto(heavy);
   await scrollTo(page, '.heavy-chart');
   const point = page.locator('.heavy-chart circle').nth(100);
@@ -63,7 +63,32 @@ test('scrubbing the chart moves its points and tells a screen reader', async ({ 
   const before = await point.getAttribute('cy');
   await page.getByRole('slider').fill('70');
   await expect(point).not.toHaveAttribute('cy', before ?? '');
-  await expect(page.locator('[aria-live="polite"]')).toContainText('Step 70 of 100');
+  await expect(page.getByRole('slider')).toHaveAttribute('aria-valuetext', 'Step 70 of 100');
+  await expect(page.locator('.heavy-figure ul li')).toHaveCount(10);
+});
+
+test('turning on reduced motion while reading stops the scene, and turning it off restarts it', async ({
+  page,
+}) => {
+  await page.goto(heavy);
+  const canvas = page.locator('.heavy-scene canvas');
+  await scrollTo(page, '.heavy-scene');
+  await expect(canvas).toHaveAttribute('data-running', 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(canvas).toHaveAttribute('data-running', 'false');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect(canvas).toHaveAttribute('data-running', 'true');
+});
+
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('the figures’ dead controls are hidden, and the sampled values remain', async ({ page }) => {
+    await page.goto(heavy);
+    await expect(page.getByRole('slider')).toBeHidden();
+    await expect(page.locator('.heavy-pause')).toBeHidden();
+    await expect(page.locator('.heavy-figure ul li')).toHaveCount(10);
+  });
 });
 
 test.describe('under reduced motion', () => {

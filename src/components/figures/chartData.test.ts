@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chartPeak, chartPoints, chartSize } from './chartData';
+import { chartPoints, chartSample, chartSize } from './chartData';
 
 describe('chartPoints', () => {
   it('gives about 2,000 points inside the chart', () => {
@@ -14,11 +14,8 @@ describe('chartPoints', () => {
   });
 });
 
-it('finds the highest point, which has the smallest y', () => {
-  expect(
-    chartPeak([
-      { x: 1, y: 5 },
-      { x: 2, y: 3 },
-    ]),
-  ).toEqual({ x: 2, y: 3 });
+it('samples evenly spaced points for the screen-reader list', () => {
+  const sample = chartSample(30);
+  expect(sample).toHaveLength(10);
+  expect(sample[1]).toEqual(chartPoints(30)[200]);
 });

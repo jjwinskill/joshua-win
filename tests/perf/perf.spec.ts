@@ -44,13 +44,17 @@ test.describe('interaction', () => {
 });
 
 test.describe('the heavy page', () => {
-  test('scrubbing the chart responds in time', async ({ context }) => {
+  test('scrubbing the chart responds in time at each step', async ({ context }) => {
     const page = await throttledPage(context);
     await page.goto(heavy);
     await page.locator('.heavy-chart').scrollIntoViewIfNeeded();
     await expect(page.locator('.heavy-chart circle')).toHaveCount(2000);
-    await page.getByRole('slider').tap({ position: { x: 300, y: 20 } });
-    await expect(page.locator('[aria-live="polite"]')).not.toContainText('Step 30 of');
+    const slider = page.getByRole('slider');
+    for (const x of [60, 140, 220, 300, 340]) {
+      const before = await slider.inputValue();
+      await slider.tap({ position: { x, y: 20 } });
+      await expect(slider).not.toHaveValue(before);
+    }
     const metrics = await readMetrics(page);
     await report('scrub', heavy, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(heavy).inp);

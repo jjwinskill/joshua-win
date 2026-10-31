@@ -4,9 +4,17 @@ export type FigureName = 'scene' | 'chart';
 
 export type PiecePart = { html: string } | { figure: FigureName };
 
+const marker = /<div data-figure="(scene|chart)"><\/div>/;
+
+export function hasFigures(html: string): boolean {
+  return html.includes('data-figure=');
+}
+
 export function splitAtFigures(html: string): PiecePart[] {
-  return html.split(/<div data-figure="(scene|chart)"><\/div>/).flatMap((part, i): PiecePart[] => {
+  return html.split(marker).flatMap((part, i): PiecePart[] => {
     if (i % 2) return [{ figure: part as FigureName }];
+    // A marker that didn't match is a typo, and it would silently lose its figure.
+    if (part.includes('data-figure=')) throw new Error(`Unknown figure marker in: ${part}`);
     return part.trim() ? [{ html: part }] : [];
   });
 }

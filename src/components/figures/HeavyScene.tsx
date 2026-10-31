@@ -28,6 +28,8 @@ export function HeavyScene() {
       else renderer.stop();
     };
     sync.current = run;
+    // The reader can change this setting while the page is open.
+    motion.addEventListener('change', run);
 
     const visibility = new IntersectionObserver(([entry]) => {
       onScreen = entry?.isIntersecting ?? false;
@@ -49,6 +51,7 @@ export function HeavyScene() {
 
     return () => {
       cancelled = true;
+      motion.removeEventListener('change', run);
       visibility.disconnect();
       renderer?.destroy();
     };
@@ -64,14 +67,16 @@ export function HeavyScene() {
     <figure className="heavy-figure" ref={figure}>
       <div className="heavy-scene">
         <canvas ref={canvas} aria-hidden="true" />
-        {failed && <p className="heavy-failed">This figure needs WebGL.</p>}
+        {failed && <p className="heavy-failed">Couldn’t load this figure.</p>}
       </div>
-      <p className="visually-hidden">A knot turning slowly, with six small shapes circling it.</p>
+      <p className="visually-hidden">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
       <figcaption>
         Lorem ipsum dolor sit amet.
-        <button type="button" className="heavy-pause" onClick={togglePause}>
-          {paused ? 'Play' : 'Pause'}
-        </button>
+        {!failed && (
+          <button type="button" className="heavy-pause" onClick={togglePause}>
+            {paused ? 'Play' : 'Pause'}
+          </button>
+        )}
       </figcaption>
     </figure>
   );

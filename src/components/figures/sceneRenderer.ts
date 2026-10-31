@@ -61,6 +61,9 @@ export function createSceneRenderer(canvas: HTMLCanvasElement): SceneRenderer {
   });
   resize.observe(canvas);
 
+  // three.js restores its own state after a lost context, but a paused scene needs redrawing.
+  canvas.addEventListener('webglcontextrestored', draw);
+
   let frame = 0;
   let last = 0;
   const animate = (now: number) => {
@@ -89,11 +92,13 @@ export function createSceneRenderer(canvas: HTMLCanvasElement): SceneRenderer {
     destroy() {
       stop();
       resize.disconnect();
+      canvas.removeEventListener('webglcontextrestored', draw);
       knotGeometry.dispose();
       knotMaterial.dispose();
       satelliteGeometry.dispose();
       satelliteMaterial.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
     },
   };
 }
