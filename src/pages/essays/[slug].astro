@@ -3,7 +3,11 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { CastList } from '../../components/cast/CastList';
+import { HeavyChart } from '../../components/figures/HeavyChart';
+import { HeavyScene } from '../../components/figures/HeavyScene';
 import { Parade } from '../../components/parade/Parade';
+import { hasFigures, splitAtFigures } from '../../lib/figures';
+import '../../styles/figures.css';
 import '../../styles/parade.css';
 import { castInOrderOfAppearance } from '../../components/cast/mentions';
 import { morphNames } from '../../components/morph';
@@ -16,9 +20,10 @@ export async function getStaticPaths() {
 
 const { piece } = Astro.props;
 const { Content } = await render(piece);
+const html = piece.rendered?.html ?? '';
 const { title, dek, date, citedWork } = piece.data;
 const names = morphNames(piece.id);
-const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast);
+const cast = castInOrderOfAppearance(html, piece.data.cast);
 ---
 
 <Base title={title}>
@@ -36,7 +41,19 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
       </p>
     </header>
     <div class="essay-body">
-      <Content />
+      {hasFigures(html) ? (
+        splitAtFigures(html).map((part) =>
+          'html' in part ? (
+            <Fragment set:html={part.html} />
+          ) : part.figure === 'scene' ? (
+            <HeavyScene client:idle />
+          ) : (
+            <HeavyChart client:idle />
+          ),
+        )
+      ) : (
+        <Content />
+      )}
       <p class="end-mark" id="parade-end" aria-hidden="true">
         · · ·
       </p>
@@ -47,8 +64,12 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
   <noscript slot="head">
     <style>
       .parade,
-      .replay-row {
-        display: none;
+      .replay-row,
+      .heavy-scene,
+      .heavy-chart,
+      .heavy-figure figcaption {
+        /* This loads before the stylesheets, which would otherwise win. */
+        display: none !important;
       }
     </style>
   </noscript>
