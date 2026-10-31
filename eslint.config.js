@@ -51,7 +51,7 @@ export default defineConfig(
     extends: [jsxA11y.flatConfigs.recommended],
   },
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{js,jsx,ts,tsx}'],
     plugins: { 'react-hooks': reactHooks, '@eslint-react': eslintReact },
     rules: { ...hookRules, ...leakRules },
   },

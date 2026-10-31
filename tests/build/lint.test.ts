@@ -26,6 +26,16 @@ const examples: Record<string, string> = {
   'react-hooks/immutability': component(
     'const [n] = useState({ a: 1 }); n.a = 2; return <p>{n.a}{on}</p>;',
   ),
+  'react-hooks/static-components': component(
+    'const Inner = () => <p />; return <Inner key={String(on)} />;',
+  ),
+  'react-hooks/set-state-in-render': component(
+    'const [n, setN] = useState(0); setN(1); return <p>{n}{on}</p>;',
+  ),
+  'react-hooks/error-boundaries': component('try { return <p>{on}</p>; } catch { return null; }'),
+  '@eslint-react/web-api-no-leaked-fetch': component(
+    "useEffect(() => { fetch('/x'); }, []); return <p>{on}</p>;",
+  ),
   '@eslint-react/web-api-no-leaked-timeout': component(
     'useEffect(() => { setTimeout(() => {}, 1); }, []); return <p>{on}</p>;',
   ),
@@ -42,6 +52,22 @@ const examples: Record<string, string> = {
     'useEffect(() => { new IntersectionObserver(() => {}).observe(document.body); }, []); return <p>{on}</p>;',
   ),
 };
+
+describe('the lint config', () => {
+  // Some rules only fire on code that's hard to write on purpose, so this covers every one of them.
+  it('makes every hook and leak rule an error, for every kind of source file', async () => {
+    for (const file of ['A.tsx', 'a.ts', 'A.jsx', 'a.js']) {
+      const { rules } = (await eslint.calculateConfigForFile(`src/components/${file}`)) as {
+        rules: Record<string, [number]>;
+      };
+      const ours = Object.entries(rules).filter(([rule]) =>
+        /^react-hooks\/|no-leaked-(?!dollar|semi)/.test(rule),
+      );
+      expect(ours.length, file).toBe(22);
+      expect(ours.filter(([, [severity]]) => severity !== 2)).toEqual([]);
+    }
+  });
+});
 
 describe('lint on a deliberately bad component', () => {
   for (const [rule, code] of Object.entries(examples)) {

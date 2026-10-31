@@ -71,7 +71,7 @@ It installs pnpm (version from `packageManager`), installs Node from `devEngines
 ## Known local notes
 
 - `pnpm doctor` from an agent sandbox reported no write access to `~/Library/pnpm/store/v11`. The first real install (2026-10-29) used that store without trouble, so it was the sandbox.
-- `trustPolicy: no-downgrade` blocks `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. Josh approved one exclusion on 2026-10-31 (G32): `trustPolicyExclude` names exactly that version, and every other check stays on. 6.3.1 was published in July 2023, after the 7.5.x releases. Add a new entry only with Josh's OK.
+- `trustPolicy: no-downgrade` blocks `semver@6.3.1` (flagged as a possible takeover), which `eslint-plugin-react-hooks` pulls in through `@babel/core`. Josh approved one exclusion on 2026-10-31 (G32): `trustPolicyExclude` names exactly that version, and every other check stays on. 6.3.1 was published in July 2023, after the 7.5.x releases. Checked against pnpm 12.16.1, eslint-plugin-react-hooks 7.1.1 and @eslint-react/eslint-plugin 5.28.8. Add a new entry only with Josh's OK.
 - `eslint-plugin-jsx-a11y` 6.10.2 doesn't list ESLint 10 as a peer, so `pnpm install` warns. Its rules were checked to fire under ESLint 10 in both `.tsx` and `.astro` files. The plugin-astro docs name `eslint-plugin-jsx-a11y-x` as an alternative if it ever breaks.
 - Wrangler 4.155.0 pulls in a **beta** Miniflare (`miniflare@5.20261023.2-beta`) as a dependency, which is Wrangler's own choice, not ours. It runs only in local dev and tests (`wrangler dev`), never in the deployed Worker.
 - `pnpm add wrangler` gave 4.155.0, not the newest 4.156.0, because `minimumReleaseAge` waits a day. That's working as intended.
