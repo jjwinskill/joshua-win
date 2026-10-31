@@ -18,15 +18,26 @@ beforeAll(async () => {
     await cp(file, join(root, file), { recursive: true });
   }
   await writeFile(join(root, 'drafts', 'lorem.md'), `---\ntitle: Lorem\n---\n\n${marker}\n`);
+  // A public page that prints the collection, so the test sees it if a build ever loads drafts.
+  await writeFile(
+    join(root, 'src', 'pages', 'reads-collection.astro'),
+    `---\nimport { getCollection } from 'astro:content';\nconst drafts = await getCollection('drafts');\n---\n<p>{drafts.map((draft) => draft.body)}</p>\n`,
+  );
 });
 
 afterAll(() => rm(root, { recursive: true, force: true }));
 
 it('astro build leaves drafts out, even with the folder present', async () => {
-  await run(process.execPath, ['node_modules/astro/bin/astro.mjs', 'build', '--root', root]);
+  // NODE_ENV=development is the risky case: it makes import.meta.env.DEV true in a build.
+  await run(process.execPath, ['node_modules/astro/bin/astro.mjs', 'build', '--root', root], {
+    env: { ...process.env, NODE_ENV: 'development' },
+  });
   const files = await readdir(dist, { recursive: true, withFileTypes: true });
   const built = files.filter((file) => file.isFile());
-  expect(built.length).toBeGreaterThan(0);
+  expect(built.map((file) => file.name)).toContain('index.html');
+  expect(await readFile(join(dist, 'skill', 'reads-collection', 'index.html'), 'utf8')).toContain(
+    '<p>',
+  );
   for (const file of built) {
     const path = join(file.parentPath, file.name);
     expect(relative(dist, path)).not.toContain('drafts');

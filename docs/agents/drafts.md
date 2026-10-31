@@ -17,7 +17,7 @@ Then `pnpm dev`, and open http://localhost:4321/skill/drafts/. It lists every `.
 
 ## Where drafts appear
 
-Only under `astro dev`. Every build gets an empty collection and has no drafts route, even with the folder present (`tests/build/drafts.test.ts`). CI never has the folder. Phase 6's local soft-launch build (G22) will add its own explicit switch in `src/content.config.ts`, and CI must never be able to turn it on.
+Only under `astro dev`. Every build gets an empty collection and has no drafts route, even with the folder present (`tests/build/drafts.test.ts`). `astro.config.mjs` decides from the command, not `import.meta.env.DEV`, which can be true in a build. Dev also caches draft text in the git-ignored `.astro/` folder, so never commit or share that. CI never has the folder. Phase 6's local soft-launch build (G22) will add its own explicit switch in `src/content.config.ts`, and CI must never be able to turn it on.
 
 ## Backup
 

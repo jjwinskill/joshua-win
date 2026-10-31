@@ -37,7 +37,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | Command | What it does |
 |---|---|
 | `pnpm install` | Installs dependencies and the pinned Node 26 |
-| `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. |
+| `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. `astro preview` detaches too. |
 | `pnpm build` | Static build into `dist/skill/` |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
