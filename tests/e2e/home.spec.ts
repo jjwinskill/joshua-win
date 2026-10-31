@@ -3,6 +3,9 @@ import { expect, test, type Page } from '@playwright/test';
 // The home page, the contents list and the card that expands into its piece (#32).
 const essayUrl = /essays\/lorem-ipsum\/$/;
 const morph = '::view-transition-group(piece-lorem-ipsum)';
+const pieces = ['kicker', 'title', 'dek'].map(
+  (piece) => `::view-transition-group(piece-${piece}-lorem-ipsum)`,
+);
 
 // Records every view-transition group that animates, across page loads, in sessionStorage.
 function recordTransitions() {
@@ -68,12 +71,12 @@ test.describe('the card transition', () => {
   test('morphs the card into the piece, and back on browser back', async ({ page }) => {
     await page.goto('./');
     await openPiece(page);
-    await expect.poll(() => groupsSeen(page)).toContain(morph);
+    await expect.poll(() => groupsSeen(page)).toEqual(expect.arrayContaining([morph, ...pieces]));
 
     await forgetTransitions(page);
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
-    await expect.poll(() => groupsSeen(page)).toContain(morph);
+    await expect.poll(() => groupsSeen(page)).toEqual(expect.arrayContaining([morph, ...pieces]));
   });
 
   test('crossfades instead of flying in when going back from the bottom of the essay', async ({
@@ -90,7 +93,7 @@ test.describe('the card transition', () => {
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
     await expect.poll(() => groupsSeen(page)).toContain('::view-transition-group(root)');
-    expect(await groupsSeen(page)).not.toContain(morph);
+    for (const name of [morph, ...pieces]) expect(await groupsSeen(page)).not.toContain(name);
 
     // The next tap on the card morphs again.
     await forgetTransitions(page);

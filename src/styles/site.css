@@ -139,8 +139,10 @@ a:focus-visible {
   border-block-end: 1px solid var(--rule);
 }
 
-/* A morphing title is only as wide as its text, so the text doesn't stretch in flight. */
-.essay-head h1 {
+/* Morphing text is only as wide as its words, so it doesn't stretch in flight. */
+.essay-head h1,
+.kicker,
+.dek {
   width: fit-content;
 }
 

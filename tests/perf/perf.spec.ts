@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { limitsFor } from './limits';
 import {
   readMetrics,
@@ -88,6 +88,10 @@ test.describe('the card transition', () => {
     await page.goto('./');
     await page.waitForLoadState('networkidle');
     await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
+    return finishedTransition(page);
+  }
+
+  async function finishedTransition(page: Page) {
     await page.waitForURL(`**/${essay}`);
     await expect
       .poll(() => readTransition(page).then((result) => result.ran), { timeout: 10_000 })
@@ -105,6 +109,35 @@ test.describe('the card transition', () => {
     const result = await tapCard(context, true);
     await report('transition-warm', essay, result);
     expect(result.morphed).toBe(true);
+  });
+
+  // The cold check waits for a quiet network, which lets a prefetching framework finish first. A reader
+  // taps as soon as they see the card. Reported only: a framework may lose the morph here.
+  test('is reported when the card is tapped as soon as it appears', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto('./', { waitUntil: 'commit' });
+    await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
+    await page.waitForURL(`**/${essay}`);
+    await page.waitForTimeout(1500);
+    await report('transition-immediate', essay, await readTransition(page));
+  });
+
+  // Reported only: whether browser back morphs is part of the bake-off's findings, not a limit.
+  test('is reported on browser back', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto('./');
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: /Lorem ipsum dolor/ }).tap();
+    await finishedTransition(page);
+    await page.waitForTimeout(600);
+    await page.evaluate(() => {
+      sessionStorage.removeItem('perf-transition');
+      sessionStorage.setItem('perf-tap', String(performance.timeOrigin + performance.now()));
+    });
+    await page.goBack();
+    await page.getByRole('heading', { level: 1, name: 'Josh Winskill' }).waitFor();
+    await page.waitForTimeout(1500);
+    await report('transition-back', './', await readTransition(page));
   });
 });
 
