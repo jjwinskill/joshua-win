@@ -6,7 +6,7 @@
   --ink: #1f1c18;
   --ink-soft: #5b544a;
   --rule: #d9cfbd;
-  --accent: #c2410c;
+  --accent: #b83d0b;
   --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
@@ -63,15 +63,90 @@ p {
   font-style: italic;
 }
 
-/* The essay template */
-.essay-head {
-  padding: 4.5rem 16px 2rem;
+.site-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 16px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
 }
 
-.essay-head > *,
+a {
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* The home page */
+.home,
+.contents {
+  max-width: 56rem;
+  margin-inline: auto;
+  padding: 2.5rem 16px 4rem;
+}
+
+.home-lead {
+  margin-block-end: 2.5rem;
+}
+
+.piece-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.piece-card {
+  display: block;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  background: var(--paper-2);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.piece-card h2 {
+  width: fit-content;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.08;
+  margin: 0 0 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.piece-card-cast {
+  display: flex;
+  gap: 0.75rem;
+  margin-block-start: 1.5rem;
+}
+
+.piece-card-cast svg {
+  width: 44px;
+  height: 52px;
+  overflow: visible;
+}
+
+/* The essay template */
+.essay-head {
+  padding: 4.5rem max(16px, calc((100% - 40rem) / 2)) 2rem;
+  background: var(--paper-2);
+  border-block-end: 1px solid var(--rule);
+}
+
+/* A morphing title is only as wide as its text, so the text doesn't stretch in flight. */
+.essay-head h1 {
+  width: fit-content;
+}
+
 .essay-body,
 .cast-section {
-  max-width: 40rem;
+  max-width: calc(40rem + 32px);
   margin-inline: auto;
 }
 
@@ -145,11 +220,6 @@ span[id^='cast-']:target {
   line-height: 1.3;
 }
 
-.cast-list a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
 .cast-list svg {
   width: 52px;
   height: 61px;
@@ -173,7 +243,22 @@ span[id^='cast-']:target {
   transform-box: view-box;
 }
 
+[data-no-morph] {
+  view-transition-name: none !important;
+}
+
+/* The card that expands into its piece (N1): a native cross-document view transition. Only the
+   off-screen check in the layout uses JavaScript. Browsers without support navigate normally. See docs/research/route-transitions.md. */
 @media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-group(*) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   html {
     scroll-behavior: smooth;
   }

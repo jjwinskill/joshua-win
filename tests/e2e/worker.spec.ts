@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
 const noRedirects = { maxRedirects: 0 } as const;
 const builtAssets = fileURLToPath(new URL('../../dist/skill/_astro', import.meta.url));
 
-test('the hello page renders under /skill/ with noindex', async ({ page }) => {
+test('the home page renders under /skill/ with noindex', async ({ page }) => {
   const response = await page.goto('./');
   expect(response?.status()).toBe(200);
   expect(response?.headers()['x-robots-tag']).toBe('noindex');

@@ -12,6 +12,7 @@ module.exports = {
       url: [
         `http://127.0.0.1:${port}/skill/`,
         `http://127.0.0.1:${port}/skill/essays/lorem-ipsum/`,
+        `http://127.0.0.1:${port}/skill/contents/`,
       ],
       numberOfRuns: 3,
       settings: {

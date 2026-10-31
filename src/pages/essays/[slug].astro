@@ -4,6 +4,8 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { CastList } from '../../components/cast/CastList';
 import { castInOrderOfAppearance } from '../../components/cast/mentions';
+import { morphNames } from '../../components/morph';
+import { essayKicker } from '../../lib/pieces';
 
 export async function getStaticPaths() {
   const pieces = await getCollection('lorem');
@@ -13,14 +15,17 @@ export async function getStaticPaths() {
 const { piece } = Astro.props;
 const { Content } = await render(piece);
 const { title, dek, date, citedWork } = piece.data;
+const names = morphNames(piece.id);
 const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast);
 ---
 
 <Base title={title}>
   <article>
-    <header class="essay-head">
-      <p class="kicker">Essay · placeholder text</p>
-      <h1>{title}</h1>
+    <header class="essay-head" data-morph style={{ viewTransitionName: names.box }}>
+      <p class="kicker">{essayKicker}</p>
+      <h1 data-morph style={{ viewTransitionName: names.title }}>
+        {title}
+      </h1>
       <p class="dek">{dek}</p>
       <p class="essay-date">
         <time datetime={date.toISOString().slice(0, 10)}>
