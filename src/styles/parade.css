@@ -1,0 +1,334 @@
+/* The parade, from docs/demo/parade.html. */
+:root {
+  --bar-height: 96px;
+  --cast-width: 44px;
+  --bar-background: rgb(246 241 231 / 85%);
+  --bar-shadow: 0 -8px 24px rgb(31 28 24 / 8%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bar-background: rgb(23 21 15 / 85%);
+    --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --bar-height: 80px;
+    --cast-width: 34px;
+  }
+}
+
+body:has(.parade) {
+  padding-block-end: calc(var(--bar-height) + 2rem);
+}
+
+.end-mark {
+  text-align: center;
+  color: var(--ink-soft);
+  letter-spacing: 0.4em;
+  margin: 3rem 0;
+}
+
+.parade {
+  position: fixed;
+  inset: auto 0 0;
+  height: var(--bar-height);
+  z-index: 10;
+  background: var(--bar-background);
+  backdrop-filter: blur(10px);
+  border-block-start: 1px solid var(--rule);
+  box-shadow: var(--bar-shadow);
+  /* The cast walks off stage right. Clip that, but not the labels above the bar. */
+  overflow-x: clip;
+}
+
+.stage {
+  position: absolute;
+  inset: 0 24px;
+}
+
+.track,
+.fill {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 18px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.track {
+  inset-inline-end: 0;
+  background: var(--rule);
+}
+
+.fill {
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+/* One slot per cast member: a clickable dot on the line, with its cast member standing on it. */
+.slot {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 13px;
+  width: var(--cast-width);
+  height: calc(var(--cast-width) * 1.18 + 20px);
+  margin-inline-start: calc(var(--cast-width) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--ink);
+  transform: translateX(var(--x, -80px));
+  transition: transform var(--move, 0ms) linear;
+  will-change: transform;
+}
+
+.slot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.dot {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: 0;
+  width: 12px;
+  height: 12px;
+  margin-inline-start: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+  transition:
+    border-color 300ms,
+    background 300ms,
+    transform 200ms,
+    opacity 300ms;
+}
+
+.slot:hover .dot,
+.slot:focus-visible .dot {
+  transform: scale(1.25);
+  border-color: var(--accent);
+}
+
+.slot.passed .dot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.slot.offstage .dot {
+  opacity: 0;
+}
+
+.hop {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 10px;
+  height: calc(var(--cast-width) * 1.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+.slot.in .hop,
+.slot:hover .hop,
+.slot:focus-visible .hop {
+  opacity: 1;
+}
+
+.slot:not(.in):hover .hop,
+.slot:not(.in):focus-visible .hop {
+  opacity: 0.85;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.art.facing-left {
+  transform: scaleX(-1);
+}
+
+.art svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
+  transform-origin: 50% 100%;
+}
+
+.legs line {
+  stroke-width: 2.2;
+}
+
+.label {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: calc(100% + 6px);
+  transform: translateX(-50%);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.slot:hover .label,
+.slot:focus-visible .label {
+  opacity: 1;
+}
+
+.replay-row {
+  max-width: calc(40rem + 32px);
+  margin: 0 auto 2rem;
+  padding-inline: 16px;
+}
+
+.replay {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.replay:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* With no motion there's no curtain call to replay. */
+@media (prefers-reduced-motion: reduce) {
+  .replay-row {
+    display: none;
+  }
+}
+
+@media print {
+  .parade,
+  .replay-row {
+    display: none;
+  }
+}
+
+/* The jump moves focus to a mention, and its highlight already shows where that is. */
+span[id^='cast-']:focus {
+  outline: none;
+}
+
+span[id^='cast-'].flash {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  span[id^='cast-'] {
+    transition: background-color 600ms ease;
+  }
+
+  .hop {
+    transform: translateY(70%) scale(0.6);
+    transition:
+      transform var(--hop-duration, 460ms) cubic-bezier(0.28, 1.6, 0.5, 1),
+      opacity 180ms ease;
+  }
+
+  .slot.in .hop,
+  .slot:hover .hop,
+  .slot:focus-visible .hop {
+    transform: none;
+  }
+
+  .slot:hover .art svg,
+  .slot:focus-visible .art svg {
+    animation: look-at-me 900ms ease-out;
+  }
+
+  /* The rig: a torso above the hips, and two legs with thigh, shin and foot. */
+  .torso {
+    transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .thigh,
+  .shin {
+    transition: transform 300ms ease;
+  }
+
+  .walking .thigh {
+    animation: thigh 620ms ease-in-out infinite;
+  }
+
+  .walking .shin {
+    animation: shin 620ms ease-in-out infinite;
+  }
+
+  .walking .leg-back .thigh,
+  .walking .leg-back .shin {
+    animation-delay: -310ms;
+  }
+
+  .walking .torso {
+    animation: stride 310ms ease-in-out infinite alternate;
+  }
+
+  /* The bow bends at the hips. The legs stay planted, with a little give at the knees. */
+  .bow .torso {
+    transform: rotate(40deg);
+  }
+
+  .bow .thigh {
+    transform: rotate(-9deg);
+  }
+
+  .bow .shin {
+    transform: rotate(16deg);
+  }
+
+  @keyframes thigh {
+    0%,
+    100% {
+      transform: rotate(-26deg);
+    }
+    50% {
+      transform: rotate(22deg);
+    }
+  }
+
+  @keyframes shin {
+    0%,
+    100% {
+      transform: rotate(3deg);
+    }
+    45% {
+      transform: rotate(8deg);
+    }
+    62% {
+      transform: rotate(52deg);
+    }
+    82% {
+      transform: rotate(22deg);
+    }
+  }
+
+  @keyframes stride {
+    to {
+      transform: translateY(-1.4px);
+    }
+  }
+}

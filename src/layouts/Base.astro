@@ -18,6 +18,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <slot name="head" />
     <script is:inline>
       // Going back from far down an essay, its header would fly in from thousands of pixels away. So an
       // element off screen doesn't morph, and the page crossfades instead. It's a classic script in the
