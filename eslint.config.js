@@ -13,6 +13,7 @@ export default defineConfig(
       '.astro/',
       '.wrangler/',
       'drafts/',
+      '.drafts-test/',
       'node_modules/',
       '.claude/skills/',
       'worker-configuration.d.ts',

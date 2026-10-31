@@ -180,3 +180,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch isn't private on the site, and Josh decides at step 2 whether that's enough.
 - 2026-10-30: the first deploy failed because Cloudflare refused `assets.base_path` for this account (code 100343). Astro now builds into `dist/skill/`, so #7's previews and #5's Lighthouse should expect that layout.
 - 2026-10-30: a rollback test (#18, #19) proved both the Cloudflare rollback and the GitHub revert. The steps are in `agents/local-dev.md`, and G25 exempts pure reverts from G21.
+- 2026-10-30: the drafts PR (#9) keeps drafts to `.md` until phase 3's MDX decision (S15), since one-off components need MDX. Phase 6's soft-launch build must add its switch in `src/content.config.ts`.

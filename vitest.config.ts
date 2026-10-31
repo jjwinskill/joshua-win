@@ -10,7 +10,7 @@ export default getViteConfig({
         extends: true,
         test: {
           name: 'unit',
-          include: ['src/**/*.test.ts', 'worker/**/*.test.ts'],
+          include: ['src/**/*.test.ts', 'worker/**/*.test.ts', 'tests/build/**/*.test.ts'],
           environment: 'node',
         },
       },

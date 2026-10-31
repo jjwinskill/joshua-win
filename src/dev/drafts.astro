@@ -1,0 +1,35 @@
+---
+// Lists and renders drafts at /skill/drafts/ under `astro dev` only: astro.config.mjs injects this
+// route for dev, so no build has it. Minimal until phase 2's template replaces it.
+import type { InferGetStaticPropsType } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { sitePath } from '../lib/paths';
+
+export async function getStaticPaths() {
+  const drafts = await getCollection('drafts');
+  return [
+    { params: { slug: undefined }, props: { drafts, draft: undefined } },
+    ...drafts.map((draft) => ({ params: { slug: draft.id }, props: { drafts, draft } })),
+  ];
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { drafts, draft } = Astro.props as Props;
+const rendered = draft ? await render(draft) : undefined;
+---
+
+<Base title={draft?.data.title ?? 'Drafts'}>
+  {rendered ? (
+    <rendered.Content />
+  ) : (
+    <ul>
+      {drafts.map(({ id, data }) => (
+        <li>
+          <a href={sitePath(`drafts/${id}/`)}>{data.title ?? id}</a>
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>
