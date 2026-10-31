@@ -3,6 +3,8 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { CastList } from '../../components/cast/CastList';
+import { Parade } from '../../components/parade/Parade';
+import '../../styles/parade.css';
 import { castInOrderOfAppearance } from '../../components/cast/mentions';
 import { morphNames } from '../../components/morph';
 import { essayKicker } from '../../lib/pieces';
@@ -35,7 +37,18 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
     </header>
     <div class="essay-body">
       <Content />
+      <p class="end-mark" id="parade-end" aria-hidden="true">
+        · · ·
+      </p>
     </div>
   </article>
   <CastList cast={cast} citedWork={citedWork} />
+  <Parade client:idle cast={cast} endId="parade-end" />
+  <noscript slot="head">
+    <style>
+      .parade {
+        display: none;
+      }
+    </style>
+  </noscript>
 </Base>
