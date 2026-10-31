@@ -40,7 +40,7 @@
 - **Lorem is public too (G24):** from here on, every merge puts the lorem pieces and style tests on the live domain, noindexed.
 - **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
 - **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
-- **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(content/essays/**)`, `Edit(content/write-ups/**)` and `Edit(drafts/**)`. Lorem lives in `content/lorem/`, which never prompts.
+- **The AI line (S20):** `.claude/settings.json` `ask` rules on `Edit(/content/essays/**)`, `Edit(/content/write-ups/**)` and `Edit(/drafts/**)`. The leading `/` anchors them at the session's primary working directory, so start sessions at the repo root. Lorem lives in `content/lorem/`, which never prompts. They don't cover shell writes, so the CLAUDE.md rule still applies.
 - **Drafts (P6, G5):** a private repo `joshua-win-drafts`, cloned into a git-ignored `drafts/` folder. The local dev server can render drafts; CI never sees them.
   - A draft's one-off components live in `drafts/` with its prose. Each documents its props and purpose at the top of its file, so a later agent can reuse it or promote it to `src/components/`. There's a promotion checklist.
   - Publishing a piece means moving its file, plus any one-off components, into the public repo in a PR.
