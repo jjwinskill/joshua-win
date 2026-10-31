@@ -1,5 +1,5 @@
 // The Worker in front of the static site. Checked against wrangler 4.155.0 and the Workers
-// static-assets docs on 2026-10-29, and custom domains on 2026-10-30. Previews come in #7.
+// static-assets docs on 2026-10-29, and custom domains and Worker Previews on 2026-10-30.
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "joshua-win",
@@ -15,9 +15,12 @@
   "dev": { "host": "localhost" },
   // Keeps the Worker's logs, for its console.error on a failure.
   "observability": { "enabled": true },
-  // No workers.dev URLs until #7 decides what they're for.
+  // The site has no second address on workers.dev, but on-demand previews do (G26). Seen on
+  // 2026-10-30: a change to preview_urls did nothing until `wrangler triggers deploy` ran.
   "workers_dev": false,
-  "preview_urls": false,
+  "preview_urls": true,
+  // Worker Previews need this block even when empty (#7).
+  "previews": {},
   "assets": {
     // Astro writes to dist/skill/, so files are served under /skill/. Not `base_path`: on 2026-10-30
     // Cloudflare's API refused it for this account (code 100343), though the docs list no limit.
