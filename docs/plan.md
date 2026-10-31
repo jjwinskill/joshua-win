@@ -13,7 +13,7 @@
 |---|---|---|---|
 | 0 | Planning | **done** | This plan, the glossary and the repo set up |
 | 1 | Pipeline | **done** | A hello page at joshua.win/skill, noindexed, deployed on every merge with all checks running; mail to `@joshua.win` reaching Josh's Gmail |
-| 2 | Lorem piece 1 and bake-off 1 | **in progress** (spec #27) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
+| 2 | Lorem piece 1 and bake-off 1 | **in progress** (spec #27; Astro chosen, #45 still to land) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
 | 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, sending from `@joshua.win`, share images, RSS and the sitemap |
@@ -71,10 +71,11 @@
 - **Bake-off 1 (S2, G13, G28, G29), timeboxed to about a day:** the same pages built in Next.js as a static export, on a branch that never gets a PR.
   - **Gate (G29):** Next wins only if (a) it beats Astro by 20% or more on at least two of LCP, TBT and INP on the same page (the essay page or the heavy page), or (b) the card-expand transition works in Next and not in Astro. A metric where Astro's median is 0 counts as not beaten. Otherwise Astro wins. Josh may override. JS size and frame rate are reported, not scored.
   - **Analysis for Josh:** a full side-by-side on both builds, deployed as Worker Previews. It covers Lighthouse mobile runs (three each), the throttled scrolling, interaction and transition checks (three each), and the iOS Simulator in Safari for transition behaviour. If the results are inconclusive, Josh tries the previews on his real phone.
-  - **Then:** an ADR records the verdict, and the losing build is deleted. If Next wins, a migration ticket replaces the Astro pages and dependencies on `main`. Phase 3 can't start before all of that.
+  - **Result:** Astro, in [`adr/0001-astro-over-next.md`](adr/0001-astro-over-next.md). The Next build is deleted.
 - **No JS cap (G30).** Lighthouse CI adds the essay page and the heavy page, and JS size is reported. The throttled checks enforce INP, which Lighthouse can't measure.
 - **Hooks lint (G32)** lands before the parade.
-- **Exit:** the ADR is merged, piece 1 and the heavy page pass every check on the winning framework, and the parade passes the interaction check (TBT, INP and CLS after the lazy JS loads).
+- **The transition (#45):** before this phase ends, the card must feel like it becomes the page. Josh checks it on his phone.
+- **Exit:** the ADR is merged, #45 has landed, piece 1 and the heavy page pass every check on the winning framework, and the parade passes the interaction check (TBT, INP and CLS after the lazy JS loads).
 
 ## Phase 3: Lorem pieces 2 and 3, and the hand-made cast
 
@@ -201,4 +202,5 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: the home page (#32) found the morph flies in from over 6,000 px away when going back from far down an essay. A small script in the layout crossfades off-screen elements instead, so the transition isn't quite JS-free. Josh asked to keep building with Cloudflare previews and review the pages visually as they land.
 - 2026-10-31: Josh asked for each piece of the card's text to move to its place instead of fading, so both bake-off builds were measured with that transition (#45). The rest of #45 (the card filling the page, the parade's entrance, the movement on his phone) must land before phase 2 ends.
 - 2026-10-31: phone tests in Chrome on iOS found the jump comes from full-page navigation itself, so G34 moves the transition to `<ClientRouter />`. Scripts and islands now live through page swaps, so later phases' effects must clean up on unmount and have a test that reaches them from another page.
+- 2026-10-31: Josh chose Astro (ADR 0001), and the Next build is deleted. Phase 2 stays open until #45 lands, which Josh asked for before the phase ends. Phase 3 can start planning from Astro with `<ClientRouter />`, and its pieces must clean up across page swaps.
 - 2026-10-31: the heavy page (#34) marks its figures with an empty element in Markdown until phase 3's MDX decision (S15). If MDX wins, the figures become components in the prose and the marker goes. Phase 6 removes the page with the lorem pieces.
