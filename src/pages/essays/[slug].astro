@@ -18,9 +18,9 @@ const cast = castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast
 
 <Base title={title}>
   <article>
-    <header class="essay-head">
+    <header class="essay-head" style={{ viewTransitionName: `piece-${piece.id}` }}>
       <p class="kicker">Essay · placeholder text</p>
-      <h1>{title}</h1>
+      <h1 style={{ viewTransitionName: `piece-title-${piece.id}` }}>{title}</h1>
       <p class="dek">{dek}</p>
       <p class="essay-date">
         <time datetime={date.toISOString().slice(0, 10)}>

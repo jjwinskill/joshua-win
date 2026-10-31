@@ -66,7 +66,7 @@ Going back after scrolling matters most, because it's what a reader actually doe
 3. Keep names static. Chrome and MDN suggest setting names just in time, and clearing them for bfcache, for long lists where names would otherwise clash. Ours don't clash, and the probe's back navigation worked with static names. Pagination is deferred until 11 pieces, so reconsider then.
 4. Keep it simple until measured: Chrome warns to measure before using `<link rel="expect" blocking="render">`.
 5. Test it in Chromium through Playwright, checking that `::view-transition-group(piece-…)` animated, as the probe did.
-6. Check going back from the bottom of an essay, by eye in the Simulator as well. If the morph looks wrong from there, the fix is to decide it from the real page, not from this doc.
+6. Check going back from the bottom of an essay. **Done in #32:** the header flew in from over 6,000 px away on a real page, so a small inline script drops the name from anything off screen on `pageswap` and `pagereveal`, and the page crossfades. Browsers without those events keep the fly-in.
 
 ## Next
 

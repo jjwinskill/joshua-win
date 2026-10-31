@@ -1,5 +1,6 @@
 ---
 import '../styles/site.css';
+import { sitePath } from '../lib/paths';
 
 interface Props {
   title: string;
@@ -17,8 +18,26 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <script is:inline>
+      // Going back from far down an essay, its header would fly in from thousands of pixels away. So an
+      // element off screen doesn't morph, and the page crossfades instead. It's a classic script in the
+      // head because pagereveal fires before the first render.
+      const syncMorphs = (event) => {
+        if (!event.viewTransition) return;
+        for (const el of document.querySelectorAll('[style*="view-transition-name"]')) {
+          const { top, bottom } = el.getBoundingClientRect();
+          el.toggleAttribute('data-no-morph', bottom <= 0 || top >= innerHeight);
+        }
+      };
+      addEventListener('pageswap', syncMorphs);
+      addEventListener('pagereveal', syncMorphs);
+    </script>
   </head>
   <body>
+    <nav class="site-nav" aria-label="Site">
+      <a href={sitePath()}>joshua.win/skill</a>
+      <a href={sitePath('contents/')}>Contents</a>
+    </nav>
     <main>
       <slot />
     </main>

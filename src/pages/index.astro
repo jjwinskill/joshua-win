@@ -1,11 +1,37 @@
 ---
-// The hello page. Lorem until Josh writes the real lines (#11).
+// The home page (S9, S19): it leads with Josh, then big cards, newest first. The paragraph is lorem
+// until Josh writes the real lines (#11).
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { Greeting } from '../components/Greeting';
+import { PieceCard } from '../components/PieceCard';
+import { castInOrderOfAppearance } from '../components/cast/mentions';
+import { sitePath } from '../lib/paths';
+import { newestFirst } from '../lib/pieces';
+
+const pieces = newestFirst(await getCollection('lorem'));
 ---
 
-<Base title="Lorem ipsum">
-  <Greeting heading="Lorem ipsum">
-    <p>Dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
-  </Greeting>
+<Base title="Josh Winskill">
+  <div class="home">
+    <header class="home-lead">
+      <h1>Josh Winskill</h1>
+      <p>
+        Dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+      </p>
+    </header>
+    <ol class="piece-cards">
+      {pieces.map((piece) => (
+        <li>
+          <PieceCard
+            href={sitePath(`essays/${piece.id}/`)}
+            slug={piece.id}
+            kicker="Essay · placeholder text"
+            title={piece.data.title}
+            dek={piece.data.dek}
+            cast={castInOrderOfAppearance(piece.body ?? '', piece.data.cast)}
+          />
+        </li>
+      ))}
+    </ol>
+  </div>
 </Base>
