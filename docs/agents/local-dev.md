@@ -1,6 +1,6 @@
 # Local development
 
-How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Checked against Astro 7.4.4, Vitest 5.0.5, ESLint 10.13.0, Prettier 3.9.10, Wrangler 4.155.0 and Playwright 1.64.1 on 2026-10-29. Later phase 1 tickets extend this file: drafts (#9).
+How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Checked against Astro 7.4.4, Vitest 5.0.5, ESLint 10.13.0, Prettier 3.9.10, Wrangler 4.155.0 and Playwright 1.64.1 on 2026-10-29. Drafts have their own doc: [`drafts.md`](drafts.md).
 
 ## The stack, briefly
 
@@ -37,7 +37,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | Command | What it does |
 |---|---|
 | `pnpm install` | Installs dependencies and the pinned Node 26 |
-| `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/ |
+| `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. |
 | `pnpm build` | Static build into `dist/skill/` |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
@@ -56,9 +56,11 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 |---|---|
 | `src/pages/` | Routes. `index.astro` is `/skill/`. |
 | `src/layouts/` | Page shells (`Base.astro`) |
+| `src/dev/` | Pages that only exist under `astro dev`, injected from `astro.config.mjs` |
 | `src/components/` | The shared React component library. No Astro or framework APIs, so the bake-off can reuse it in Next. |
 | `src/lib/` | Plain TypeScript helpers |
 | `worker/` | The Worker in front of the static files, with its own `tsconfig.json` |
+| `tests/build/` | Tests that run `astro build` on a copy of the site (in `pnpm test`) |
 | `tests/e2e/` | Playwright tests against the built site through the Worker |
 | `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
 | `content/lorem/` | Lorem pieces, free to edit |

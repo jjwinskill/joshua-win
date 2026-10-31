@@ -1,0 +1,35 @@
+import { execFile } from 'node:child_process';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
+import { promisify } from 'node:util';
+import { afterAll, beforeAll, expect, it } from 'vitest';
+
+// Builds a copy of the site with a lorem drafts folder, so it never touches a real drafts/. The copy
+// sits inside the repo so Node finds node_modules, and has its own Astro cache.
+const run = promisify(execFile);
+const root = '.drafts-test';
+const dist = join(root, 'dist');
+const marker = 'lorem-draft-marker';
+
+beforeAll(async () => {
+  await rm(root, { recursive: true, force: true });
+  await mkdir(join(root, 'drafts'), { recursive: true });
+  for (const file of ['astro.config.mjs', 'tsconfig.json', 'package.json', 'src']) {
+    await cp(file, join(root, file), { recursive: true });
+  }
+  await writeFile(join(root, 'drafts', 'lorem.md'), `---\ntitle: Lorem\n---\n\n${marker}\n`);
+});
+
+afterAll(() => rm(root, { recursive: true, force: true }));
+
+it('astro build leaves drafts out, even with the folder present', async () => {
+  await run(process.execPath, ['node_modules/astro/bin/astro.mjs', 'build', '--root', root]);
+  const files = await readdir(dist, { recursive: true, withFileTypes: true });
+  const built = files.filter((file) => file.isFile());
+  expect(built.length).toBeGreaterThan(0);
+  for (const file of built) {
+    const path = join(file.parentPath, file.name);
+    expect(relative(dist, path)).not.toContain('drafts');
+    expect(await readFile(path, 'utf8'), path).not.toContain(marker);
+  }
+}, 60_000);
