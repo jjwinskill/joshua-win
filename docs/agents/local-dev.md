@@ -61,7 +61,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y) |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home page and the essay page. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home, essay and contents pages. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 

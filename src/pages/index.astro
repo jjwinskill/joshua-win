@@ -6,7 +6,7 @@ import Base from '../layouts/Base.astro';
 import { PieceCard } from '../components/PieceCard';
 import { castInOrderOfAppearance } from '../components/cast/mentions';
 import { sitePath } from '../lib/paths';
-import { newestFirst } from '../lib/pieces';
+import { essayKicker, essayPath, newestFirst } from '../lib/pieces';
 
 const pieces = newestFirst(await getCollection('lorem'));
 ---
@@ -23,12 +23,12 @@ const pieces = newestFirst(await getCollection('lorem'));
       {pieces.map((piece) => (
         <li>
           <PieceCard
-            href={sitePath(`essays/${piece.id}/`)}
+            href={sitePath(essayPath(piece.id))}
             slug={piece.id}
-            kicker="Essay · placeholder text"
+            kicker={essayKicker}
             title={piece.data.title}
             dek={piece.data.dek}
-            cast={castInOrderOfAppearance(piece.body ?? '', piece.data.cast)}
+            cast={castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast)}
           />
         </li>
       ))}

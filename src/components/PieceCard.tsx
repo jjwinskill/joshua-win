@@ -1,5 +1,6 @@
 // A big card on the home page: one link that expands into its piece. The card and the essay's header
 // share view-transition names built from the slug, and the browser morphs one into the other.
+import { morphNames } from './morph';
 import { CastFigure } from './cast/CastFigure';
 import type { CastKey } from './cast/registry';
 
@@ -13,10 +14,13 @@ interface PieceCardProps {
 }
 
 export function PieceCard({ href, slug, kicker, title, dek, cast }: PieceCardProps) {
+  const names = morphNames(slug);
   return (
-    <a className="piece-card" href={href} style={{ viewTransitionName: `piece-${slug}` }}>
+    <a className="piece-card" href={href} data-morph style={{ viewTransitionName: names.box }}>
       <p className="kicker">{kicker}</p>
-      <h2 style={{ viewTransitionName: `piece-title-${slug}` }}>{title}</h2>
+      <h2 data-morph style={{ viewTransitionName: names.title }}>
+        {title}
+      </h2>
       <p className="dek">{dek}</p>
       <span className="piece-card-cast">
         {cast.map((key) => (

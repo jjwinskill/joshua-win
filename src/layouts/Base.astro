@@ -24,7 +24,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       // head because pagereveal fires before the first render.
       const syncMorphs = (event) => {
         if (!event.viewTransition) return;
-        for (const el of document.querySelectorAll('[style*="view-transition-name"]')) {
+        for (const el of document.querySelectorAll('[data-morph]')) {
           const { top, bottom } = el.getBoundingClientRect();
           el.toggleAttribute('data-no-morph', bottom <= 0 || top >= innerHeight);
         }

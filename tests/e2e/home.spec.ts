@@ -47,13 +47,30 @@ test('every page links back to the home page and the contents', async ({ page })
 test.describe('the card transition', () => {
   test.beforeEach(({ context }) => context.addInitScript(recordTransitions));
 
-  test('morphs the card into the piece, and back on browser back', async ({ page }) => {
-    await page.goto('./');
+  // Resets the record only once nothing is animating, or a running transition writes itself back in.
+  async function forgetTransitions(page: Page) {
+    await page.waitForFunction(
+      () =>
+        !document.documentElement
+          .getAnimations({ subtree: true })
+          .some((animation) =>
+            (animation.effect as KeyframeEffect | null)?.pseudoElement?.includes('view-transition'),
+          ),
+    );
+    await page.evaluate(() => sessionStorage.removeItem('groups'));
+  }
+
+  async function openPiece(page: Page) {
     await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
     await expect(page).toHaveURL(essayUrl);
+  }
+
+  test('morphs the card into the piece, and back on browser back', async ({ page }) => {
+    await page.goto('./');
+    await openPiece(page);
     await expect.poll(() => groupsSeen(page)).toContain(morph);
 
-    await page.evaluate(() => sessionStorage.removeItem('groups'));
+    await forgetTransitions(page);
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
     await expect.poll(() => groupsSeen(page)).toContain(morph);
@@ -63,32 +80,35 @@ test.describe('the card transition', () => {
     page,
   }) => {
     await page.goto('./');
-    await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
-    await expect(page).toHaveURL(essayUrl);
+    await openPiece(page);
     await expect.poll(() => groupsSeen(page)).toContain(morph);
     await page.evaluate(() =>
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }),
     );
 
-    await page.evaluate(() => sessionStorage.removeItem('groups'));
+    await forgetTransitions(page);
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
     await expect.poll(() => groupsSeen(page)).toContain('::view-transition-group(root)');
     expect(await groupsSeen(page)).not.toContain(morph);
 
-    // And coming back to the top still morphs.
-    await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
-    await expect(page).toHaveURL(essayUrl);
-    await expect(page.locator('.essay-head')).not.toHaveAttribute('data-no-morph');
+    // The next tap on the card morphs again.
+    await forgetTransitions(page);
+    await openPiece(page);
+    await expect.poll(() => groupsSeen(page)).toContain(morph);
   });
 
   test.describe('under reduced motion', () => {
     test.use({ reducedMotion: 'reduce' });
 
-    test('doesn’t animate', async ({ page }) => {
+    test('doesn’t animate, forward or back', async ({ page }) => {
       await page.goto('./');
-      await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
-      await expect(page).toHaveURL(essayUrl);
+      await openPiece(page);
+      await page.waitForTimeout(600);
+      expect(await groupsSeen(page)).toEqual([]);
+
+      await page.goBack();
+      await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
       await page.waitForTimeout(600);
       expect(await groupsSeen(page)).toEqual([]);
     });

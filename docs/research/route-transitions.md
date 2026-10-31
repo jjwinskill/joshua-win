@@ -33,7 +33,6 @@ A minimal two-card home page and two short essay pages in each framework: Astro 
 
 **Not tested:**
 
-- going back after scrolling far down a real essay, when the matching element is offscreen
 - Safari's swipe-back gesture
 - a real phone
 - navigation over a real network, so a slow first tap in Next
@@ -41,7 +40,7 @@ A minimal two-card home page and two short essay pages in each framework: Astro 
 - a full home page of cards
 - reduced motion in iOS Safari
 
-Going back after scrolling matters most, because it's what a reader actually does. React forms no pair when either side is offscreen, and the Astro morph may fly in from offscreen. #32 and #35 must test it on the real pages, and #36 covers the rest.
+Going back after scrolling far down an essay wasn't tested by the probes either, and it's what a reader actually does. #32 tested it on the real pages (step 6 below). React forms no pair when either side is offscreen, so #35 must test it too, and #36 covers the rest.
 
 ## The platform
 
@@ -63,10 +62,10 @@ Going back after scrolling matters most, because it's what a reader actually doe
 
 1. In the shared layout: `@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }`.
 2. Give the card and the essay's matching element the same `view-transition-name`, built from the piece's slug. Every name is then unique per page.
-3. Keep names static. Chrome and MDN suggest setting names just in time, and clearing them for bfcache, for long lists where names would otherwise clash. Ours don't clash, and the probe's back navigation worked with static names. Pagination is deferred until 11 pieces, so reconsider then.
+3. Set the names in the markup, built from the slug, so they're present with no JavaScript. Chrome and MDN suggest clearing names for bfcache where they'd clash. Ours don't clash.
 4. Keep it simple until measured: Chrome warns to measure before using `<link rel="expect" blocking="render">`.
 5. Test it in Chromium through Playwright, checking that `::view-transition-group(piece-…)` animated, as the probe did.
-6. Check going back from the bottom of an essay. **Done in #32:** the header flew in from over 6,000 px away on a real page, so a small inline script drops the name from anything off screen on `pageswap` and `pagereveal`, and the page crossfades. Browsers without those events keep the fly-in.
+6. Check going back from the bottom of an essay. **Done in #32:** the header flew in from over 6,000 px away on a real page, so a small inline script drops the name from anything off screen on `pageswap` and `pagereveal`, and the page crossfades. Checked in Chromium through Playwright and by eye in iOS 27.2 Simulator Safari, using the on-screen back button. Browsers without those events would keep the fly-in, and swipe back is still untested.
 
 ## Next
 

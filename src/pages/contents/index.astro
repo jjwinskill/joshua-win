@@ -3,7 +3,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { sitePath } from '../../lib/paths';
-import { newestFirst } from '../../lib/pieces';
+import { essayPath, newestFirst } from '../../lib/pieces';
 
 const pieces = newestFirst(await getCollection('lorem'));
 ---
@@ -14,7 +14,7 @@ const pieces = newestFirst(await getCollection('lorem'));
     <ul>
       {pieces.map((piece) => (
         <li>
-          <a href={sitePath(`essays/${piece.id}/`)}>{piece.data.title}</a>
+          <a href={sitePath(essayPath(piece.id))}>{piece.data.title}</a>
         </li>
       ))}
     </ul>

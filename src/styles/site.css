@@ -139,6 +139,7 @@ a:focus-visible {
   border-block-end: 1px solid var(--rule);
 }
 
+/* A morphing title is only as wide as its text, so the text doesn't stretch in flight. */
 .essay-head h1 {
   width: fit-content;
 }
@@ -219,11 +220,6 @@ span[id^='cast-']:target {
   line-height: 1.3;
 }
 
-.cast-list a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
 .cast-list svg {
   width: 52px;
   height: 61px;
@@ -251,8 +247,8 @@ span[id^='cast-']:target {
   view-transition-name: none !important;
 }
 
-/* The card that expands into its piece (N1): a native cross-document view transition, with no
-   JavaScript. Browsers without support navigate normally. See docs/research/route-transitions.md. */
+/* The card that expands into its piece (N1): a native cross-document view transition. Only the
+   off-screen check in the layout uses JavaScript. Browsers without support navigate normally. See docs/research/route-transitions.md. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
