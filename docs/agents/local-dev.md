@@ -1,6 +1,6 @@
 # Local development
 
-How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Checked against Astro 7.4.4, Vitest 5.0.5, ESLint 10.13.0, Prettier 3.9.10, Wrangler 4.155.0 and Playwright 1.64.1 on 2026-10-29. Drafts have their own doc: [`drafts.md`](drafts.md).
+How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Checked against @axe-core/playwright 4.14.0, @lhci/cli 0.15.1, Astro 7.4.4, Vitest 5.0.5, ESLint 10.13.0, Prettier 3.9.10, Wrangler 4.155.0 and Playwright 1.64.1 on 2026-10-29. Drafts have their own doc: [`drafts.md`](drafts.md).
 
 ## The stack, briefly
 
@@ -45,10 +45,11 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y) |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It only measures the home page for now. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
-CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the tests, then the build, then Playwright against that build, each job only if the one before it passed. Run the same commands locally before opening a PR.
+CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the tests, then the build, then Playwright and axe against that build, then Lighthouse, each job only if the one before it passed. Run the same commands locally before opening a PR.
 
 ## Folders
 
@@ -71,4 +72,4 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 - **Component tests** are `src/**/*.test.tsx` and run in jsdom with Testing Library and the jest-dom matchers. The example is `src/components/Greeting.test.tsx`. Test what a reader sees (roles, text), not internals. `.astro` files aren't component-tested, because Astro's Container API is still experimental (`experimental_AstroContainer` in Astro 7.4.4); Playwright covers them through the built site.
 - Under Vitest, `import.meta.env.BASE_URL` is `/`, not `/skill/`, so pass the base explicitly in unit tests.
 - **Worker unit tests** are `worker/**/*.test.ts`: the routing (`route.test.ts`) and the handler with a stand-in assets binding (`handler.test.ts`).
-- **Integration tests** are `tests/e2e/*.spec.ts` (Playwright). They test through HTTP what a reader or a crawler gets: status, headers, redirects and the rendered page. `baseURL` ends in `/skill/`, so navigate with relative paths (`page.goto('./')`, `request.get('essays/')`). For root paths, build an absolute URL: `new URL('/', baseURL)`. `wrangler dev` sets the host the Worker sees (`dev.host` in `wrangler.jsonc`), so `www` can't be reached locally: `route.test.ts` covers its logic, and the smoke test covers the live host.
+- **Integration tests** are `tests/e2e/*.spec.ts` (Playwright). They test through HTTP what a reader or a crawler gets: status, headers, redirects and the rendered page. `baseURL` ends in `/skill/`, so navigate with relative paths (`page.goto('./')`, `request.get('essays/')`). For root paths, build an absolute URL: `new URL('/', baseURL)`. `wrangler dev` sets the host the Worker sees (`dev.host` in `wrangler.jsonc`), so `www` can't be reached locally: `route.test.ts` covers its logic, and the smoke test covers the live host. `routes.spec.ts` finds every HTML page in the build and checks each for noindex and axe violations, so a new page needs no new test.

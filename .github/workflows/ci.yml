@@ -1,6 +1,6 @@
 # The check pipeline (G3). Each job runs only if the one before it passed, so slow checks
-# never run on broken code. Playwright runs against the build through the Worker; later
-# phase 1 tickets add axe beside it, then Lighthouse. Actions are pinned to commit SHAs; the comment gives the release.
+# never run on broken code. Playwright and axe run against the build through the Worker, then
+# Lighthouse. Actions are pinned to commit SHAs; the comment gives the release.
 # Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
 name: CI
 
@@ -117,11 +117,37 @@ jobs:
             test-results/
           retention-days: 7
 
+  lighthouse:
+    name: Lighthouse
+    needs: e2e
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          cache: true
+          require-lockfile: true
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      # Uses the runner's preinstalled Chrome.
+      - run: pnpm test:lighthouse
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports/
+          retention-days: 7
+
   deploy:
     name: Deploy to production
-    # After every check, and only for main. List every check job here: #5 adds Lighthouse. The secrets
+    # After every check, and only for main. List every check job here. The secrets
     # live in the production environment, which only main can deploy to, so no PR can reach them.
-    needs: [check, test, build, e2e]
+    needs: [check, test, build, e2e, lighthouse]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
