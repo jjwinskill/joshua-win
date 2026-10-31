@@ -20,6 +20,10 @@ _Avoid_: Case study, tutorial
 A throwaway piece with placeholder text that tests the stack and styling, never the prose. All lorem pieces are removed before publishing.
 _Avoid_: Prototype piece, dummy post
 
+**Heavy page**:
+The lorem piece with a WebGL scene and a large SVG chart, kept as the performance canary until the lorem pieces are removed.
+_Avoid_: Stress test, benchmark page (and don't confuse it with a heavy treatment)
+
 **Cited work**:
 The book, film or other work a piece discusses, and the source of its cast.
 _Avoid_: Source, subject

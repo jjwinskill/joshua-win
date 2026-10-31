@@ -67,12 +67,12 @@
   - the demo's code-drawn *Alice* figures as placeholders
 - **The cast list:** whole-card links to each passage (S11).
 - **The `/skill` home** (S9, S19): it leads with Josh, then big cards, newest first. Each card expands into its piece with a route transition (N1), per [`research/route-transitions.md`](research/route-transitions.md). `/skill/contents` is the plain list.
-- **The heavy page (G31):** a lorem page reached from its own card on `/skill`, with the parade, a three.js WebGL scene and an SVG chart of about 2,000 points. It's realistic heavy use, not a stress test.
+- **The heavy page (G31):** a lorem piece reached from its own card on `/skill`, with the parade, a three.js WebGL scene and an SVG chart of about 2,000 points. It's realistic heavy use, not a stress test.
 - **Bake-off 1 (S2, G13, G28, G29), timeboxed to about a day:** the same pages built in Next.js as a static export, on a branch that never gets a PR.
-  - **Gate (G29):** Next wins only if (a) it beats Astro by 20% or more on at least two of LCP, TBT and INP, on the essay page or the heavy page, or (b) the card-expand transition works in Next and not in Astro. Otherwise Astro wins. Josh may override. JS size and frame rate are reported, not scored.
+  - **Gate (G29):** Next wins only if (a) it beats Astro by 20% or more on at least two of LCP, TBT and INP on the same page (the essay page or the heavy page), or (b) the card-expand transition works in Next and not in Astro. A metric where Astro's median is 0 counts as not beaten. Otherwise Astro wins. Josh may override. JS size and frame rate are reported, not scored.
   - **Analysis for Josh:** a full side-by-side on both builds, deployed as Worker Previews. It covers Lighthouse mobile runs (three each), the throttled scrolling, interaction and transition checks (three each), and the iOS Simulator in Safari for transition behaviour. If the results are inconclusive, Josh tries the previews on his real phone.
-  - **Then:** an ADR records the verdict, and the losing build is deleted. Phase 3 can't start before both.
-- **No JS cap (G30).** Lighthouse CI adds the essay page and the heavy page, and JS size is reported.
+  - **Then:** an ADR records the verdict, and the losing build is deleted. If Next wins, a migration ticket replaces the Astro pages and dependencies on `main`. Phase 3 can't start before all of that.
+- **No JS cap (G30).** Lighthouse CI adds the essay page and the heavy page, and JS size is reported. The throttled checks enforce INP, which Lighthouse can't measure.
 - **Hooks lint (G32)** lands before the parade.
 - **Exit:** the ADR is merged, piece 1 and the heavy page pass every check on the winning framework, and the parade passes the interaction check (TBT, INP and CLS after the lazy JS loads).
 
@@ -122,7 +122,7 @@
 - **Treatment checklists:** each piece gets a short one, written before its treatment work starts. That's the "Flair done" definition (S22).
 - **Casts:** the write-up's cast, if it has one, is drawn. Rig automation (P3) happens here only if it's still worth it; it's second on the cut list.
 - **The about page (S23):** a LinkedIn link, a "what I've worked on" paragraph, and an invitation to ask for a tailored résumé. It depends on the LinkedIn overhaul (N6). The contact-form Worker comes with it, with Turnstile.
-- **Also:** share images rendered from each cast (PNG), RSS, and the sitemap.
+- **Also:** share images rendered from each cast (PNG), RSS, the sitemap, the `/skill/essays/` index and a custom 404 (G33).
 - **Sending from `@joshua.win` (G27):** Resend, DMARC at `p=none`, and a reply path. Gmail's "Send as" has probably ended by now, so check it first; Thunderbird is the fallback (P4).
 - **Exit:** both pieces are finished in `drafts/` (they stay out of the public repo until publishing, G22), their treatment checklists are done, the about page and contact form work end to end, and a reply from `@joshua.win` passes SPF and DKIM.
 
@@ -157,7 +157,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G10 | Josh's Gmail address was replaced with `[my Gmail]` in the repo copy of S24, at his request. | |
 | G11 | The plan is a living document (this file); CLAUDE.md points every session here. | |
 | G12 | pnpm 12 with its supply-chain defaults kept on, plus `trustPolicy: no-downgrade` (see `agents/pnpm.md`). Node 26 LTS everywhere; Josh's machine was upgraded on 2026-10-29. | |
-| G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. | Sharpens S2 |
+| G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. Its metrics are changed by G29. | Sharpens S2 |
 | G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. The pin is an exact version, because CI installs Node from it rather than from the lockfile. | Settles the phase 1 open item |
 | G15 | TypeScript 6.0, not 7: TypeScript 7.0 has no programmatic API yet, and `astro check` and typescript-eslint need 6. Lint is ESLint with typescript-eslint, the Astro plugin and jsx-a11y. Revisit TypeScript when 7.1 ships its API. | |
 | G16 | Previews are open (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
@@ -173,8 +173,8 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G26 | **Previews run on demand from Josh's machine, with no CI token.** A token that PR branches can reach could also overwrite production, which would undo the `main`-only rule for deploys (Josh: "do we really need a separate token if that token can also overwrite main?"). Revisit with a trusted workflow if on-demand gets annoying. | Changes G3 and G17 |
 | G27 | Phase 1 email is receiving only. Sending moves to phase 5, because the reply path needs Thunderbird, which Josh wants only once there's enough mail to warrant it. It stays on the launch bar. | Changes G9 and phase 1's exit |
 | G28 | The Next build lives on a branch with no PR, in its own folder with its own manifest, lockfile and supply-chain settings. Both builds are compared as deployed Worker Previews. Josh's bar: "we are able to compare the two in a deployed context" and it "sets us up properly to remove one when we choose the other". | Settles S2's setup |
-| G29 | The gate scores LCP, TBT and INP, on the essay page or the heavy page, and a metric where Astro's median is 0 counts as not beaten. JS size is out of the gate, but Josh still gets it in the report. | Changes G13 |
-| G30 | **No JS cap**, unless there's a specific reason for one (Josh: "our goal here is not to ship as little js as possible, our goal is to have good UX, which we can attain within acceptable performance criteria"; "Only use a cap if we have a specific reason to."). The LCP, CLS, TBT and INP lines stay. A page may have its own limit only with Josh's OK and a recorded reason, for a minor miss that buys an especially good visual. | Reverses S1's JS cap |
+| G29 | The gate scores LCP, TBT and INP, with both beaten metrics on the same page (the essay page or the heavy page), and a metric where Astro's median is 0 counts as not beaten. JS size is out of the gate, but Josh still gets it in the report. | Changes G13 |
+| G30 | **No JS cap**, unless there's a specific reason for one (Josh: "our goal here is not to ship as little js as possible, our goal is to have good UX, which we can attain within acceptable performance criteria"; "Only use a cap if we have a specific reason to."). This also applies where S22 says "passes S1". The LCP, CLS and TBT lines stay, and INP ≤ 200 ms is added through the throttled checks. A page may have its own limit only with Josh's OK and a recorded reason, for a minor miss that buys an especially good visual. | Reverses S1's JS cap |
 | G31 | The heavy page stays on the winner until phase 6 as the performance canary. It's realistic for an essay or write-up, not a stress test. | |
 | G32 | Hooks lint uses `eslint-plugin-react-hooks` and the leak rules from `@eslint-react/eslint-plugin`, as errors, with `--max-warnings 0`. Josh approved one `trustPolicyExclude` entry, exactly `semver@6.3.1`. | Adds an exception to G12 |
 | G33 | Pagination waits until there are 11 pieces. The `/skill/essays/` index and a custom 404 move to phase 5. | Defers part of S9 and S8 |
@@ -196,4 +196,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: G26 replaces a preview on every PR with on-demand previews, so #7 adds no CI job or token. `preview_urls` is on in production, which also makes Version URLs public.
 - 2026-10-30: phase 1 done. G27 moves sending from `@joshua.win` to phase 5, with its exit check. #11 (the hello copy) stays open and never blocked phase 1.
 - 2026-10-31: phase 2 spec (#27) added G28–G33: the bake-off on a no-PR branch and deployed previews, the new gate (changes G13), no JS cap (reverses S1's), the heavy page as canary, hooks lint and deferred scope. Phase 2 marked in progress.
-- 2026-10-31: the transitions research (#28) found Next's morph doesn't run on browser back, in Chromium or iOS Safari, while Astro's does. #35 reports this instead of requiring it.
+- 2026-10-31: the transitions research (#28) found Next's morph doesn't run on browser back, in Chromium or iOS Safari, while Astro's does. #35 reports this instead of requiring it. Going back after scrolling down an essay is untested, so #32 and #35 must check it.
