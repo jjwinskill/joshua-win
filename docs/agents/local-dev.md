@@ -23,6 +23,22 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 - **Not deployed on purpose:** there's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
 - **Debugging:** Workers Logs are on (`wrangler.jsonc`), or use `wrangler tail`.
 
+## Previews
+
+Previews are on demand from Josh's machine, signed in with `wrangler login` (G26). CI has no preview credential on purpose: a token PR branches can reach could also overwrite production. Checked against the [Worker Previews docs](https://developers.cloudflare.com/workers/previews/) (updated 2026-09-24) and Wrangler 4.155.0, whose help calls the command an open beta.
+
+```bash
+pnpm build && pnpm exec wrangler preview --name my-test
+```
+
+It prints a URL, which always shows that name's latest upload. Anyone with the URL can read it, and it carries noindex from the Worker, as well as Cloudflare's own on `workers.dev`. It doesn't affect production, and it serves whatever is in your local `dist/`. Delete it when you're done; past the plan's limit, Cloudflare deletes the least recently used:
+
+```bash
+pnpm exec wrangler preview delete --name my-test --skip-confirmation
+```
+
+Don't run these in CI or paste `--json` output anywhere public: when tested, it included the account's email.
+
 ## Rolling back
 
 Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands:** any merge to `main` redeploys the bad code over the rollback.

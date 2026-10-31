@@ -4,7 +4,7 @@
 
 - **Sources:** strategy v1 in [`strategy/decisions.md`](strategy/decisions.md) (the S, P and N numbers) and [`strategy/strategy.md`](strategy/strategy.md). Planning decisions are below as G1, G2…; where they differ from the strategy, they win.
 - **Vocabulary:** [`../GLOSSARY.md`](../GLOSSARY.md).
-- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Each ticket gets a PR with its own preview deploy. Before merge, every PR gets an independent review: `/code-review` with fresh agents given only the diff and the ticket, told to look for what's wrong. Its findings go on the PR and are fixed or answered before Josh is asked to merge (G21). The one exception is a pure revert (G25).
+- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Each ticket gets a PR. Before merge, every PR gets an independent review: `/code-review` with fresh agents given only the diff and the ticket, told to look for what's wrong. Its findings go on the PR and are fixed or answered before Josh is asked to merge (G21). The one exception is a pure revert (G25).
 - **Time:** there's no hours budget; the launch bar is what matters. When Josh's "too much work, too little substance" signal shows up, apply the cut list (S26) and ship.
 
 ## Status
@@ -35,8 +35,8 @@
   - Playwright for integration tests against the built site
   - `@axe-core/playwright` on every route
   - Lighthouse CI
-- **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. Each PR gets a Cloudflare Worker Preview (`wrangler preview`) and its URL is posted on the PR (G17). A merge to `main` runs `wrangler deploy`.
-- **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route, previews included (P7). There's no gate: anyone who visits the domain can read the site.
+- **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. A merge to `main` runs `wrangler deploy`.
+- **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route (P7), and it was checked by hand on a preview. There's no gate: anyone who visits the domain can read the site.
 - **Lorem is public too (G24):** from here on, every merge puts the lorem pieces and style tests on the live domain, noindexed.
 - **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
 - **Cloudflare Web Analytics** on, through the manual beacon on production only (G18).
@@ -144,7 +144,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 |---|---|---|
 | G1 | Six build phases as above. The style run comes after **all three** lorem pieces (Josh: "after our lorem ipsums are in place"). | P2 said after piece 1 |
 | G2 | Scaffold in Astro, the stated default. Next is built only as the bake-off challenger. React Router was considered and left out: like Next, it hydrates every page. | |
-| G3 | GitHub Actions for CI/CD, Cloudflare preview URLs per PR, and the test stack in phase 1. | |
+| G3 | GitHub Actions for CI/CD and the test stack in phase 1. Previews are on demand (G26). | |
 | G4 | **Reversed by G24.** A secret invite link (cookie, checked by a Worker) instead of Cloudflare Access. Access's one-time code always needs an email address; Josh wants first readers to get in without one. | P8 offered an embargo or Access |
 | G5 | Drafts in a private repo cloned into a git-ignored `drafts/`; a draft's one-off components stay private with it and are documented for reuse. | Settles P6 |
 | G6 | The lorem write-up is a chart playground of cheap prototypes. "Quirky" means delightful and easy to follow. | |
@@ -157,8 +157,8 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G13 | A concrete gate for bake-off 1, which Josh can override, with a full side-by-side analysis. | Sharpens S2 |
 | G14 | Node is pinned with pnpm's `devEngines.runtime`, not `.nvmrc`: one source of truth that pnpm enforces locally and pnpm/setup reads in CI. The pin is an exact version, because CI installs Node from it rather than from the lockfile. | Settles the phase 1 open item |
 | G15 | TypeScript 6.0, not 7: TypeScript 7.0 has no programmatic API yet, and `astro check` and typescript-eslint need 6. Lint is ESLint with typescript-eslint, the Astro plugin and jsx-a11y. Revisit TypeScript when 7.1 ships its API. | |
-| G16 | PR previews are open (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
-| G17 | PR previews use Cloudflare's Worker Previews (`wrangler preview --name pr-<n>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
+| G16 | Previews are open (Josh's call). They carry noindex, and anyone with a preview URL can read that build. | |
+| G17 | Previews use Cloudflare's Worker Previews (`wrangler preview --name <name>`), which Cloudflare now recommends over Version URLs for PR testing. Previews don't inherit production vars or secrets. | |
 | G18 | Web Analytics uses the manual JS beacon, on production only. Cloudflare's docs don't say whether automatic setup works on Worker-served HTML. | |
 | G19 | `www.joshua.win` 301s to the bare domain as a second custom domain on the same Worker, keeping its path (Josh: keep paths so missing pages reach the real 404 "instead of 301-ing everything"). `www.joshua.win/` lands on `/skill/`. Public hosts are https-only: the Worker upgrades http itself. | Adds to S8 |
 | G20 | Phase 1 email covers `hello@`, `josh@`, `gatekeeper@` and `keymaster@`. The hello page stays lorem until Josh writes it. | |
@@ -167,6 +167,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G23 | No zone-level noindex rule (it would outlive publishing). | |
 | G24 | **No invite gate.** Anyone who visits the domain can read the site, and noindex keeps it out of search. Josh only wanted cover while testing designs and before content, and "our whole secret strategy is probably overkill". The gate, its secret and placeholder page, and the HSTS and log settings that existed for it are gone. | Reverses G4 |
 | G25 | A PR containing only GitHub's revert of an already reviewed PR skips the independent review of G21, to save time in an incident. | Exception to G21 |
+| G26 | **Previews run on demand from Josh's machine, with no CI token.** A token that PR branches can reach could also overwrite production, which would undo the `main`-only rule for deploys (Josh: "do we really need a separate token if that token can also overwrite main?"). Revisit with a trusted workflow if on-demand gets annoying. | Changes G3 and G17 |
 
 ## Change log
 
@@ -182,3 +183,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: a rollback test (#18, #19) proved both the Cloudflare rollback and the GitHub revert. The steps are in `agents/local-dev.md`, and G25 exempts pure reverts from G21.
 - 2026-10-30: the drafts PR (#9) keeps drafts to `.md` until phase 3's MDX decision (S15), since one-off components need MDX. Phase 6's soft-launch build must add its switch in `src/content.config.ts`.
 - 2026-10-30: the axe and Lighthouse PR (#5) measures only the home page. Phase 2 should add the essay page to `lighthouserc.cjs` when it sets the JS cap.
+- 2026-10-30: G26 replaces a preview on every PR with on-demand previews, so #7 adds no CI job or token. `preview_urls` is on in production, which also makes Version URLs public.
