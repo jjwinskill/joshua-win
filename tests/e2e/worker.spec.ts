@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // The Worker in front of the static files (#3): noindex on every response, and redirects into /skill/.
 
 const noRedirects = { maxRedirects: 0 } as const;
-const builtAssets = fileURLToPath(new URL('../../dist/_astro', import.meta.url));
+const builtAssets = fileURLToPath(new URL('../../dist/skill/_astro', import.meta.url));
 
 test('the hello page renders under /skill/ with noindex', async ({ page }) => {
   const response = await page.goto('./');
