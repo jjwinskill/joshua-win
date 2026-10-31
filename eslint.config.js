@@ -10,6 +10,8 @@ export default defineConfig(
   {
     ignores: [
       'dist/',
+      '.lighthouseci/',
+      'lighthouse-reports/',
       '.astro/',
       '.wrangler/',
       'drafts/',
