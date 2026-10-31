@@ -11,7 +11,7 @@ How to run, check and test the site locally. Read [`pnpm.md`](pnpm.md) first. Ch
 
 ## Deploying
 
-A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the build those checks tested, then smoke-tests the live site. Nothing else deploys, except the local soft-launch deploy in phase 6 (G22).
+A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the build those checks tested, then smoke-tests the live site. Nothing else deploys, except a rollback (see Rolling back) and the local soft-launch deploy in phase 6 (G22).
 
 - **The site is public** (G24). Anyone who visits joshua.win reads what's deployed, and noindex keeps it out of search.
 - **What CI needs:** the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets on the `production` GitHub environment, which only `main` can deploy to, so a PR branch can't reach them; and the `CF_ANALYTICS_TOKEN` repository variable. The build fails on `main` if the variable is unset.
@@ -25,12 +25,12 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 
 ## Rolling back
 
-Tested end to end on 2026-10-30 (#18, #19). If a deploy breaks the live site, do both steps, in this order. Josh runs them.
+Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands:** any merge to `main` redeploys the bad code over the rollback.
 
-1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version's pages came back too, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
-2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the four checks pass, squash-merge and delete the branch. The merge deploys a new version over the rollback. A PR that only reverts skips the independent review (G25).
+1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version of the page came back, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. Cloudflare can refuse a rollback if a binding the old version uses was deleted, or after certain Durable Object changes; this site has neither today. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
+2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the four checks pass, squash-merge and delete the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
 
-If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward, or turn off the rule on `main` in the repo settings for as long as it takes.
+If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward in a new PR. Turning off the rule on `main` is Josh's call and a last resort: turn it back on straight away, and review what went in without it.
 
 ## Commands
 
