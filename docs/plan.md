@@ -177,3 +177,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-30: G22 answers that question: the pieces stay private until publishing, the soft-launch deploy is local, and the drafts repo is the backup. Phase 5's exit and phase 6's steps changed to match.
 - 2026-10-30: the production deploy (#6) added G23: HSTS, no zone-level noindex, no Workers Logs. Phase 6 should consider raising HSTS.
 - 2026-10-30: G24 removes the invite gate before anything deployed (Josh's call), reversing G4 and cutting G23 to its noindex rule. The first deploy is now the first merge. Phase 6's soft launch isn't private on the site, and Josh decides at step 2 whether that's enough.
+- 2026-10-30: the first deploy failed because Cloudflare refused `assets.base_path` for this account (code 100343). Astro now builds into `dist/skill/`, so #7's previews and #5's Lighthouse should expect that layout.
