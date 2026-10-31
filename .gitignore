@@ -20,3 +20,5 @@ playwright-report/
 # Lighthouse CI output
 .lighthouseci/
 lighthouse-reports/
+# Throttled check results
+perf-results/
