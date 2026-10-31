@@ -250,7 +250,7 @@ span[id^='cast-']:target {
 }
 
 /* The card that expands into its piece (N1), run by Astro's <ClientRouter /> as a same-document view
-   transition. Browsers without support navigate normally. See docs/research/ios-chrome-view-transitions.md. */
+   transition. Browsers without support swap the page with no morph. See docs/research/ios-chrome-view-transitions.md. */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-group(*) {
     animation-duration: 420ms;

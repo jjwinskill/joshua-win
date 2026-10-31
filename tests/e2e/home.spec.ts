@@ -106,6 +106,7 @@ test.describe('the card transition', () => {
     await page.goto('essays/lorem-ipsum/');
     await page.getByRole('link', { name: 'joshua.win/skill' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+    await expect.poll(() => groupsSeen(page)).toContain('::view-transition-group(root)');
     await page.waitForTimeout(600);
     expect(await groupsSeen(page)).not.toContain(morph);
   });
