@@ -1,4 +1,6 @@
 dist/
+.lighthouseci/
+lighthouse-reports/
 .astro/
 drafts/
 .drafts-test/
