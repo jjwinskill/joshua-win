@@ -17,11 +17,15 @@ export function PieceCard({ href, slug, kicker, title, dek, cast }: PieceCardPro
   const names = morphNames(slug);
   return (
     <a className="piece-card" href={href} data-morph style={{ viewTransitionName: names.box }}>
-      <p className="kicker">{kicker}</p>
+      <p className="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
+        {kicker}
+      </p>
       <h2 data-morph style={{ viewTransitionName: names.title }}>
         {title}
       </h2>
-      <p className="dek">{dek}</p>
+      <p className="dek" data-morph style={{ viewTransitionName: names.dek }}>
+        {dek}
+      </p>
       <span className="piece-card-cast">
         {cast.map((key) => (
           <CastFigure key={key} castKey={key} />
