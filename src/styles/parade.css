@@ -207,7 +207,7 @@ body:has(.parade) {
   cursor: pointer;
 }
 
-.finale .replay {
+.curtain-done .replay {
   display: block;
 }
 

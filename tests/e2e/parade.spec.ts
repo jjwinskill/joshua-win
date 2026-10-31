@@ -56,7 +56,7 @@ test('the curtain call gathers and bows the cast, walks them off and can replay'
   await expect(rabbit).not.toHaveClass(/bow/, { timeout: 5_000 });
 
   const replay = parade(page).getByRole('button', { name: 'Replay the curtain call' });
-  await expect(replay).toBeVisible();
+  await expect(replay).toBeVisible({ timeout: 15_000 });
   await replay.click();
   await expect(rabbit).toHaveClass(/walking/);
 });

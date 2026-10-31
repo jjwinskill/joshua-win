@@ -107,13 +107,15 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
 
   function curtainCall() {
     finale = true;
-    root.classList.add('finale');
     actors.forEach(({ slot }, i) => {
       const now = state[i];
       if (now) now.passed = true;
       slot.classList.add('passed', 'in');
     });
-    if (motion.matches) return;
+    if (motion.matches) {
+      root.classList.add('curtain-done');
+      return;
+    }
 
     // 1. Gather centre stage. The dots fade, since the line no longer maps to the text.
     actors.forEach(({ slot }) => slot.classList.add('offstage'));
@@ -132,7 +134,11 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
     later(() => {
       for (let i = actors.length - 1, order = 0; i >= 0; i--, order++) {
         const actor = i;
-        later(() => walk(actor, exits[actors.length - 1 - actor] ?? stageWidth), order * 180);
+        later(() => {
+          const ms = walk(actor, exits[actors.length - 1 - actor] ?? stageWidth);
+          // The replay button waits for the last one off, so it never covers the cast.
+          if (actor === 0) later(() => root.classList.add('curtain-done'), ms);
+        }, order * 180);
       }
     }, bowAt + 1800);
   }
@@ -141,7 +147,7 @@ export function createParade({ root, stage, fill, actors, end }: ParadeOptions):
     timers.forEach(clearTimeout);
     timers.clear();
     finale = false;
-    root.classList.remove('finale');
+    root.classList.remove('curtain-done');
     actors.forEach(({ slot, art }, i) => {
       const now = state[i];
       slot.classList.remove('walking', 'bow', 'in', 'passed', 'offstage');
