@@ -4,6 +4,9 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
+// Set only for production builds (G18), so previews and local builds aren't counted.
+const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 ---
 
 <!doctype html>
@@ -17,5 +20,13 @@ const { title } = Astro.props;
     <main>
       <slot />
     </main>
+    {analyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+      />
+    )}
   </body>
 </html>

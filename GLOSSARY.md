@@ -83,12 +83,8 @@ Putting a build on the live domain, which happens from the start, behind noindex
 _Avoid_: Publish, launch (for this step)
 
 **Publish**:
-Lifting noindex (and any pre-launch privacy) once the launch bar is met.
+Lifting noindex once the launch bar is met.
 _Avoid_: Deploy, go live
-
-**Invite link**:
-The secret link that lets a reader past the pre-launch gate; anyone without it sees only a placeholder page.
-_Avoid_: Password, login, allowlist
 
 **Bake-off**:
 A timeboxed head-to-head that ends in a gated choice: bake-off 1 picks the framework, bake-off 2 picks the style.
