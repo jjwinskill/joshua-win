@@ -19,6 +19,7 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 - **A failed deploy can still change the site.** Wrangler puts the new version live before it updates the custom domains, so a red deploy job doesn't mean the old version is still up.
 - **The first deploy** is the first merge, and it creates the Worker. Set up everything under "What CI needs" first, with the environment limited to `main`, or the build fails or the secrets are missing. Cloudflare's DNS records for `joshua.win` and `www` must be empty, because a CI deploy overwrites them without asking. Smoke-test retries are immediate, so a new certificate can fail that job: rerun it a few minutes later.
 - **Zone settings to leave alone:** **Always Use HTTPS** and **Bot Fight Mode** stay off. The Worker already upgrades http, and the edge's redirect wouldn't carry noindex. A bot challenge would fail the smoke tests. Web Analytics must be set to the manual JS snippet (G18).
+- **A custom 404 page** will need `not_found_handling: "404-page"` under `assets` in `wrangler.jsonc`. Until then, a missing page is an empty 404.
 - **Not deployed on purpose:** there's no zone rule backing up noindex: it would sit outside this repo and keep noindexing after publishing. So errors the platform itself returns (limits, crashes) carry no noindex; they hold no content.
 - **Debugging:** Workers Logs are on (`wrangler.jsonc`), or use `wrangler tail`.
 
@@ -29,7 +30,7 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 | `pnpm install` | Installs dependencies and the pinned Node 26 |
 | `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/ |
 | `pnpm build` | Static build into `dist/skill/` |
-| `pnpm preview` | Serves `dist/` with Astro's server (no Worker; for a quick look only) |
+| `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
 | `pnpm typecheck` | `wrangler types` (regenerates the git-ignored `worker-configuration.d.ts`), then `astro check` for the site, then `tsc -p worker` for the Worker (Workers types, not DOM) |
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y) |

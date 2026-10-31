@@ -21,6 +21,8 @@
   "assets": {
     // Astro writes to dist/skill/, so files are served under /skill/. Not `base_path`: on 2026-10-30
     // Cloudflare's API refused it for this account (code 100343), though the docs list no limit.
+    // Wrangler reads _headers, _redirects and .assetsignore from dist/ itself, so those files won't
+    // work from public/, which lands in dist/skill/, and they'd be served as pages.
     "directory": "./dist",
     "binding": "ASSETS",
     // Every request, assets included, passes through the Worker, so every response gets noindex.
