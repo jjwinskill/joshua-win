@@ -6,7 +6,10 @@ const fills = (page: Page) => page.locator('.parade .fill');
 function failOnErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    // playwright.config.ts blocks main's analytics beacon, so that failed load isn't the page's error.
+    if (message.type() === 'error' && !message.location().url.includes('cloudflareinsights')) {
+      errors.push(message.text());
+    }
   });
   page.on('pageerror', (error) => errors.push(error.message));
   return errors;
