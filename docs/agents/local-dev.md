@@ -48,7 +48,8 @@ gh pr merge <number> --repo jjwinskill/joshua-win --squash --match-head-commit <
 ```
 
 - **The author email:** GitHub accepts only addresses it lists for the account, and it refuses the private noreply address that local commits use. `jjwinskill@github.com` is the one to use. The account's other address is an old work email, which must stay out of history.
-- **Wait for the result:** `gh run watch <id> --exit-status` on the `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch.
+- **Merge a batch together (G38):** PRs that are ready and approved merge one after another, without waiting for each other's deploys. `main` runs one workflow at a time and keeps one pending, so runs queued in between may be cancelled, and the latest one tests and deploys everything merged. A run reads "cancelled" for this reason, and that's fine as long as a later run passes.
+- **Wait for the result:** `gh run watch <id> --exit-status` on the latest `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch. A merge of docs alone starts no run and deploys nothing.
 - **Check the live site with `curl -L`:** pages redirect to a trailing slash, so a plain `curl` reads an empty 307.
 - **Clean up:** delete any preview for the PR. GitHub deletes the PR's branch on merge, and local worktrees and branches are yours to remove.
 
@@ -102,7 +103,7 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
-CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the tests, then the build, then Playwright and axe against that build, then Lighthouse, each job only if the one before it passed. Run the same commands locally before opening a PR.
+CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check beside the tests, then the build if both passed, then Playwright and axe beside Lighthouse against that build. A PR that changes only `docs/` or Markdown at the repo root skips them all, and a skipped job counts as passed. Run the same commands locally before opening a PR. GitHub's behavior for skipped jobs and path filters was checked in its docs on 2026-11-01.
 
 ## Folders
 

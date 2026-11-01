@@ -1,13 +1,21 @@
-# The check pipeline (G3). Each job runs only if the one before it passed, so slow checks
-# never run on broken code. Playwright and axe run against the build through the Worker, then
-# Lighthouse. Actions are pinned to commit SHAs; the comment gives the release.
+# The check pipeline (G3, G38). Typecheck and lint and the unit tests run side by side, and the build
+# runs only if both passed, so slow checks never run on broken code. Playwright and axe, and Lighthouse,
+# then run side by side against that build through the Worker. Actions are pinned to commit SHAs; the comment gives the release.
 # Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
+#
+# A change to docs alone can't change the site, so it runs no checks (G38). On main, `paths-ignore`
+# means it starts no run at all, so it can't cancel a pending run that still has code to deploy. A PR
+# can't use `paths-ignore`, because its required checks would stay pending forever. The `changes` job
+# skips them instead, and GitHub counts a skipped job as passed.
 name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
 
 permissions:
   contents: read
@@ -20,8 +28,34 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  changes:
+    name: Find what changed
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      site: ${{ steps.diff.outputs.site }}
+    steps:
+      # A PR checks out a merge commit, so its first parent is the base branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          site=true
+          if [ "$EVENT" = "pull_request" ]; then
+            changed=$(git diff --name-only HEAD^1 HEAD)
+            if ! grep -qvE '^(docs/|[^/]+\.md$)' <<< "$changed"; then site=false; fi
+          fi
+          echo "site=$site" >> "$GITHUB_OUTPUT"
+
   check:
     name: Typecheck and lint
+    needs: changes
+    # Runs unless docs alone changed, so a failure in `changes` can't skip the checks and pass them.
+    if: ${{ !cancelled() && needs.changes.outputs.site != 'false' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -39,7 +73,8 @@ jobs:
 
   test:
     name: Unit and component tests
-    needs: check
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.site != 'false' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -54,7 +89,7 @@ jobs:
 
   build:
     name: Build
-    needs: test
+    needs: [check, test]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -129,7 +164,7 @@ jobs:
 
   lighthouse:
     name: Lighthouse
-    needs: e2e
+    needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
