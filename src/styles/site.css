@@ -361,7 +361,7 @@ span[id^='cast-']:target {
     transition: translate 280ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  [data-card='opening'] .parade {
+  [data-swapping] .parade {
     translate: 0 100%;
     transition: none;
   }
@@ -405,14 +405,17 @@ span[id^='cast-']:target {
   @keyframes card-grows {
     from {
       border-radius: 20px;
+      box-shadow: inset 0 0 0 1px var(--rule);
       opacity: 1;
     }
     76% {
       border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
       opacity: 1;
     }
     to {
       border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
       opacity: 0;
     }
   }
@@ -420,14 +423,17 @@ span[id^='cast-']:target {
   @keyframes card-shrinks {
     from {
       border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
       opacity: 0;
     }
     24% {
       border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
       opacity: 1;
     }
     to {
       border-radius: 20px;
+      box-shadow: inset 0 0 0 1px var(--rule);
       opacity: 1;
     }
   }

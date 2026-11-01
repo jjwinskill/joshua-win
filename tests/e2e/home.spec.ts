@@ -124,26 +124,71 @@ test.describe('the card transition', () => {
     );
   });
 
-  test('the parade waits below the screen, then slides in once the card has landed', async ({
-    page,
-  }) => {
-    await page.goto('./');
-    await page.evaluate(() => {
-      document.addEventListener(
-        'astro:after-swap',
-        () => {
+  // Reads the page once the transition is running, before it has finished.
+  function recordMidTransition() {
+    document.addEventListener(
+      'astro:before-swap',
+      (event) => {
+        const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
+        void viewTransition.ready.then(() => {
           const parade = document.querySelector('.parade');
-          if (parade) sessionStorage.setItem('paradeAtSwap', getComputedStyle(parade).translate);
-        },
-        { once: true },
-      );
-    });
-    await openPiece(page);
-    await expect(page.locator('.parade')).toHaveCSS('translate', 'none');
-    expect(await page.evaluate(() => sessionStorage.getItem('paradeAtSwap'))).toMatch(
-      /100%|\d+px$/,
+          const running = document.documentElement
+            .getAnimations({ subtree: true })
+            .map((animation) => (animation as CSSAnimation).animationName);
+          sessionStorage.setItem(
+            'midTransition',
+            JSON.stringify({
+              parade: parade && getComputedStyle(parade).translate,
+              running,
+            }),
+          );
+        });
+      },
+      { once: true },
     );
+  }
+
+  const midTransition = (page: Page) =>
+    page.evaluate(
+      () =>
+        JSON.parse(sessionStorage.getItem('midTransition') ?? '{}') as {
+          parade: string | null;
+          running: string[];
+        },
+    );
+
+  test('the card grows, with the parade below the screen until it has landed', async ({ page }) => {
+    await page.goto('./');
+    await page.evaluate(recordMidTransition);
+    await openPiece(page);
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ parade: expect.stringMatching(/px|%/) });
+    expect((await midTransition(page)).running).toContain('card-grows');
     await expect(page.locator('html')).not.toHaveAttribute('data-card');
+    await expect(page.locator('.parade')).toHaveCSS('translate', 'none');
+  });
+
+  test('the parade waits on a route with no card too', async ({ page }) => {
+    await page.goto('contents/');
+    await page.evaluate(recordMidTransition);
+    await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ parade: expect.stringMatching(/px|%/) });
+    await expect(page.locator('.parade')).toHaveCSS('translate', 'none');
+  });
+
+  test('the page shrinks back into its card', async ({ page }) => {
+    await page.goto('./');
+    await openPiece(page);
+    await page.evaluate(recordMidTransition);
+    await page.goBack();
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({
+        running: expect.arrayContaining(['card-shrinks']),
+      });
   });
 
   test('morphs back through the link home, and forward again', async ({ page }) => {
