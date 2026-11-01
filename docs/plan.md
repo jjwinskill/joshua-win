@@ -14,7 +14,7 @@
 | 0 | Planning | **done** | This plan, the glossary and the repo set up |
 | 1 | Pipeline | **done** | A hello page at joshua.win/skill, noindexed, deployed on every merge with all checks running; mail to `@joshua.win` reaching Josh's Gmail |
 | 2 | Lorem piece 1 and bake-off 1 | **done** (spec #27; Astro chosen, ADR 0001; #11 stays open for Josh's hello copy) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
-| 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
+| 3 | Lorem pieces 2 and 3 | in progress (spec #51) | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
 | 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, sending from `@joshua.win`, share images, RSS and the sitemap |
 | 6 | Ship | not started | The launch bar met, the lorem pieces removed, noindex lifted: published |
@@ -82,7 +82,7 @@
 **Goal:** stress-test the stack on diagrams, a heavy treatment and real drawings, with cheap prototypes rather than polish.
 
 - **Treatment research first (S14):** refresh [`research/visual-treatments.md`](research/visual-treatments.md) using what piece 1 taught us. It feeds pieces 2 and 3.
-- **The write-up template.**
+- **The write-up template,** on its own route, `/skill/write-ups/<slug>/`, with the same card transition (G36).
 - **Lorem piece 2, the chart playground (G6, G7):** prototypes of ways to show the creative-iteration skill's steps and orchestration: which agents spin up and down, and what each does.
   - **Ideas to try:**
     - the umbrella carousel for the fan-out: clicking twists a panel forward and expands only that one (N5)
@@ -94,11 +94,12 @@
   - **Accessibility:** moving charts follow the S16 pattern (an `aria-hidden` visual, a visually hidden list, real buttons, and a snap instead of a spin under reduced motion).
   - Card Arm Flow is a visual reference for shape only. Its labels never enter this repo.
 - **Lorem piece 3:** a heavy treatment with its own font, in MDX. The MDX verdict (S15) goes in an ADR if MDX gets in the way.
-  - **The text spiral (Josh's idea):** a configurable section of 3 to 4 paragraphs that sinks into a spiral as you scroll, like the vertigo in Hitchcock's *Vertigo* or the spirals tied to hypnosis. It applies only to that part of the piece.
+  - **The text spiral (Josh's idea):** a section of 3 to 4 paragraphs that sinks into a spiral as you scroll, like the vertigo in Hitchcock's *Vertigo* or the spirals tied to hypnosis. It applies only to that part of the piece. It's the Swirl pattern from the phone prototype, unchanged, on Canvas 2D (G35).
     - **The motion:** scrolling down curls the previous text upward and around, smaller as it goes, so it looks like it's sinking into the middle. The next sentence appears in normal text below it, then gets rolled in too.
     - **The way out:** past the section, the finished spiral stays in the page's flow and scrolls away with it, and the rest of the piece scrolls as normal.
-    - **Configurable:** a reusable component whose text and settings come from the piece using it, so it can outlive piece 3 and serve a real essay.
-    - **Accessibility:** the text stays real and readable to a screen reader, and under reduced motion it's plain paragraphs.
+    - **What changes from the prototype:** only what shipping needs. It cleans up across page swaps, uses the piece's font, and loses the switcher bar.
+    - **Accessibility:** the text stays real and readable to a screen reader, and under reduced motion or with no JS it's plain paragraphs.
+    - **After V1:** iterating on the pattern, and making it a reusable, configurable component whose text and settings come from the piece, both wait until V1 has shipped. Josh's notes from the phone test are in #51.
 - **The template sheet (P5):** a printable page with a fixed box and a hip line that matches the shared legs' hip.
 - **The first hand-made cast (S7, G8):** the *Too Loud a Solitude* cast, drawn by Josh on the template sheet:
   - a crumpled sheet of paper (the intro)
@@ -106,8 +107,8 @@
   - the giant new hydraulic press at Bubny
   - a glass of milk for the milk-drinking Socialist Labour brigade
 
-  Hand-cleaned SVG and a hand-tuned walk. It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
-- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the text spiral, and Josh has checked it on his phone; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
+  Josh draws and an agent traces (G37): hand-cleaned SVG and a hand-tuned walk, with photos outside the repo and Josh approving each cleaned SVG. It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
+- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
 
 ## Phase 4: Style (bake-off 2)
 
@@ -185,6 +186,9 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G32 | Hooks lint uses `eslint-plugin-react-hooks` and the leak rules from `@eslint-react/eslint-plugin`, as errors, with `--max-warnings 0`. Josh approved one `trustPolicyExclude` entry, exactly `semver@6.3.1`. | Adds an exception to G12 |
 | G33 | Pagination waits until there are 11 pieces. The `/skill/essays/` index and a custom 404 move to phase 5. | Defers part of S9 and S8 |
 | G34 | Astro's `<ClientRouter />` runs the card transition, not native cross-document transitions. Chrome on iOS jumps on any full-page navigation, with or without a transition, and in Josh's phone test same-document navigation avoided it everywhere except Chrome's own back arrow (`docs/research/ios-chrome-view-transitions.md`). Astro's bug #18377, where Back leaves the site in Chrome on iOS, is still open: it didn't appear in that test, but check it after each upgrade. It adds about 5.7 KB gzipped to every page, and turns on prefetching on hover. Josh: "The delight of the transitions is very important in an application that showcases my FE talents". Revisit if browsers fix the jump. | Reverses the "no `<ClientRouter />`" call in `docs/research/route-transitions.md` |
+| G35 | **The spiral goes in unchanged.** The Swirl pattern goes into piece 3's treatment as it stands (Josh: "let's just incorporate the spiral pattern unchanged into the heavy treatment"). All iteration, and making it reusable, waits until after V1 ships. Phase 3's exit needs the Swirl on piece 3 and checked on Josh's phone, not a further round of design. | Changes phase 3's "configurable" spiral |
+| G36 | Write-ups get their own route, `/skill/write-ups/<slug>/`, with the same card transition as an essay. | |
+| G37 | **Josh draws, an agent traces.** Photos stay outside the repo, and Josh approves each cleaned SVG. | Sharpens S7's hand-made step |
 
 ## Change log
 
@@ -212,3 +216,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: the transition (#45) landed, and phase 2 is done. Essay pages are now the card's color. A piece's treatment must work on that background, and its parade must stay out of the transition until the card has landed. Chrome's back arrow on iOS still jumps before morphing, which comes from the browser.
 - 2026-10-31: a retro on phase 2 added merge steps and a way to check motion to `agents/local-dev.md`. Phase 3's moving charts should use the contact-sheet check and go to Josh's phone for sign-off.
 - 2026-10-31: Josh added a scroll-driven text spiral to piece 3, so a treatment now has to drive one section from the scroll position while the page scrolls normally. Phase 3's exit includes it.
+- 2026-11-01: phase 3 spec (#51) added G35–G37 (the Swirl goes in unchanged, write-ups get their own route, Josh draws and an agent traces), and phase 3 is in progress. #52 refreshed the treatment research: Firefox 159 shipped scroll-driven animations and Safari 26.4 threads them, so piece 2's robot can try CSS only, once a phone check shows how `view()` behaves as the iOS toolbar collapses. Its recommendation for piece 3 keeps the card's text in the house font, so the new font can't disturb the transition.
