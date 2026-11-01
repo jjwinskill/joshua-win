@@ -7,6 +7,7 @@ A personal site of essays on media and the software zeitgeist, plus technical wr
 1. **Read `docs/plan.md` first.** It's the living plan: phase status, what's next, and the planning decisions (G1…). When work changes what later phases should do, update it in the same PR and add a change-log line.
 2. Use the vocabulary in `GLOSSARY.md`.
 3. Strategy and its reasons are in `docs/strategy/` (start with `decisions.md`).
+4. Read `docs/agents/local-dev.md` before running the site, merging a PR, or checking motion.
 
 ## Packages: pnpm only
 
