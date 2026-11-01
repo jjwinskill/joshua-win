@@ -48,16 +48,17 @@ gh pr merge <number> --repo jjwinskill/joshua-win --squash --match-head-commit <
 ```
 
 - **The author email:** GitHub accepts only addresses it lists for the account, and it refuses the private noreply address that local commits use. `jjwinskill@github.com` is the one to use. The account's other address is an old work email, which must stay out of history.
-- **Wait for the result:** `gh run watch <id> --exit-status` on the `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch.
+- **Merge a batch together (G38):** PRs that are ready and approved merge one after another, without waiting for each other's deploys. `main` runs one workflow at a time and keeps one pending, so runs queued in between may be cancelled, and the latest one tests and deploys everything merged. A run reads "cancelled" for this reason, and that's fine as long as a later run passes.
+- **Wait for the result:** `gh run watch <id> --exit-status` on the latest `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch. A merge of docs alone starts no run and deploys nothing, so it won't repair a failed run: production stays behind `main` until a site change merges, or you re-run the failed run. Re-run it only if it's the newest run on `main`, because an older one deploys its older build over newer code.
 - **Check the live site with `curl -L`:** pages redirect to a trailing slash, so a plain `curl` reads an empty 307.
 - **Clean up:** delete any preview for the PR. GitHub deletes the PR's branch on merge, and local worktrees and branches are yours to remove.
 
 ## Rolling back
 
-Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands:** any merge to `main` redeploys the bad code over the rollback.
+Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands, and cancel any `main` run that's running or pending first:** any of them redeploys the bad code over the rollback.
 
 1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version of the page came back, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. Cloudflare can refuse a rollback if a binding the old version uses was deleted, or after certain Durable Object changes; this site has neither today. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
-2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the five required checks pass, squash-merge with the author email from Merging a PR. GitHub deletes the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
+2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the required check passes, squash-merge with the author email from Merging a PR. GitHub deletes the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
 
 If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward in a new PR. Turning off the rule on `main` is Josh's call and a last resort: turn it back on straight away, and review what went in without it.
 
@@ -97,12 +98,23 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y, React hooks and leak rules), failing on any warning |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home, essay, contents and heavy pages. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
-| `pnpm test:perf` | Throttled checks in headless Chromium at a phone viewport with 4x CPU throttling (`tests/perf/`): a touch scroll, a tap on a parade dot, the card transition from a cold and a warm navigation, and on the heavy page the running scene and scrubbing the chart. CLS over 0.1 or INP over 200 ms fails; frame timing is reported only. Build first. Results append to `perf-results/results.jsonl`, and CI keeps that file. To measure a deployed site, set `PERF_BASE_URL` to its URL ending in `/skill/`. A page's own limit goes in `tests/perf/limits.ts`, with Josh's OK and a reason. Headless Chromium draws WebGL in software, so frame rates don't tell you about a phone. |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: one run of the heavy page on a throttled phone profile, failing if LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. `pnpm test:lighthouse:full` runs the home, essay, contents and heavy pages three times each, and judges the median. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
+| `pnpm test:perf` | Throttled checks in headless Chromium at a phone viewport with 4x CPU throttling (`tests/perf/`): a touch scroll, a tap on a parade dot, the card transition from a cold and a warm navigation, and on the heavy page the running scene and scrubbing the chart. CLS over 0.1 or INP over 200 ms fails; frame timing is reported only. Build first. Results append to `perf-results/results.jsonl`, and a checkpoint keeps that file. To measure a deployed site, set `PERF_BASE_URL` to its URL ending in `/skill/`. A page's own limit goes in `tests/perf/limits.ts`, with Josh's OK and a reason. Headless Chromium draws WebGL in software, so frame rates don't tell you about a phone. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
-CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the tests, then the build, then Playwright and axe against that build, then Lighthouse, each job only if the one before it passed. Run the same commands locally before opening a PR.
+CI (`.github/workflows/ci.yml`) runs one job, **Checks**, on every PR and before every deploy: typecheck, lint and format check, the tests, the build, Playwright and axe against that build, then one Lighthouse run. It should take about two minutes, so keep it there. A merge of only `docs/` or Markdown at the repo root starts no run and deploys nothing.
+
+## Testing cadence (G38)
+
+| When | What runs |
+|---|---|
+| Before pushing | `pnpm typecheck`, `pnpm lint`, `pnpm test`, and the Playwright specs for what changed |
+| Every PR, and before every deploy | **Checks**, in CI |
+| Each phase's end, and a risky PR | A **checkpoint**, on top of Checks: `gh workflow run checkpoint.yml --ref <branch>` |
+| Anything that moves | Josh's phone, through a preview |
+
+A checkpoint runs `pnpm test:perf` and `pnpm test:lighthouse:full`, and keeps their results for 30 days. A risky PR is one that touches the transition, the Worker, CI or the deploy, or upgrades Astro, React or Wrangler. Link its checkpoint in the PR before asking Josh to merge. Nothing enforces this, so the agent opening the PR is responsible for it.
 
 ## Folders
 

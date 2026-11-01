@@ -4,7 +4,7 @@
 
 - **Sources:** strategy v1 in [`strategy/decisions.md`](strategy/decisions.md) (the S, P and N numbers) and [`strategy/strategy.md`](strategy/strategy.md). Planning decisions are below as G1, G2…; where they differ from the strategy, they win.
 - **Vocabulary:** [`../GLOSSARY.md`](../GLOSSARY.md).
-- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Each ticket gets a PR. Before merge, every PR gets an independent review: `/code-review` with fresh agents given only the diff and the ticket, told to look for what's wrong. Its findings go on the PR and are fixed or answered before Josh is asked to merge (G21). The one exception is a pure revert (G25).
+- **Work tracking:** each phase starts with `/to-spec`, then `/to-tickets` into GitHub Issues, with one milestone per phase. Tickets ship in small batches, one PR per batch with one commit per ticket (G38). Before merge, every PR gets an independent review: `/code-review` with fresh agents given only the diff and the ticket, told to look for what's wrong. Its findings go on the PR and are fixed or answered before Josh is asked to merge (G21). The one exception is a pure revert (G25).
 - **Time:** there's no hours budget; the launch bar is what matters. When Josh's "too much work, too little substance" signal shows up, apply the cut list (S26) and ship.
 
 ## Status
@@ -35,7 +35,7 @@
   - Playwright for integration tests against the built site
   - `@axe-core/playwright` on every route
   - Lighthouse CI
-- **CI/CD (G3):** GitHub Actions runs typecheck and lint → unit and component tests → build → Playwright and axe → Lighthouse. A merge to `main` runs `wrangler deploy`.
+- **CI/CD (G3):** GitHub Actions runs one fast job (G38): typecheck and lint → unit and component tests → build → Playwright and axe → one Lighthouse run. A merge to `main` runs `wrangler deploy`.
 - **Privacy (G24):** a small Worker in front of the static files gives every response an `X-Robots-Tag: noindex` header. A Playwright test checks it on every route (P7), and it was checked by hand on a preview. There's no gate: anyone who visits the domain can read the site.
 - **Lorem is public too (G24):** from here on, every merge puts the lorem pieces and style tests on the live domain, noindexed.
 - **Routing:** `joshua.win` 301s to `/skill` (S8); `www.joshua.win` 301s to the same path on the bare domain, and http to https (G19).
@@ -108,7 +108,7 @@
   - a glass of milk for the milk-drinking Socialist Labour brigade
 
   Josh draws and an agent traces (G37): hand-cleaned SVG and a hand-tuned walk, with photos outside the repo and Josh approving each cleaned SVG. It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
-- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
+- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; Josh says the hand-made cast looks right; and a checkpoint passes.
 
 ## Phase 4: Style (bake-off 2)
 
@@ -189,6 +189,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G35 | **The spiral goes in unchanged.** The Swirl pattern goes into piece 3's treatment as it stands (Josh: "let's just incorporate the spiral pattern unchanged into the heavy treatment"). All iteration, and making it reusable, waits until after V1 ships. Phase 3's exit needs the Swirl on piece 3 and checked on Josh's phone, not a further round of design. | Changes phase 3's "configurable" spiral |
 | G36 | Write-ups get their own route, `/skill/write-ups/<slug>/`, with the same card transition as an essay. | |
 | G37 | **Josh draws, an agent traces.** Photos stay outside the repo, and Josh approves each cleaned SVG. | Sharpens S7's hand-made step |
+| G38 | **Swift by default, thorough at checkpoints.** One required CI job, **Checks**, runs on every PR and before every deploy, in about two minutes: typecheck, lint, format, unit tests, build, Playwright and axe, and one Lighthouse run of the heavy page. A **checkpoint** adds Lighthouse on every page, three runs each, and the throttled checks. It runs at the end of each phase and on a PR that touches the transition, the Worker, CI or the deploy, or upgrades Astro, React or Wrangler. Tickets ship in small batches, one PR per batch with a commit per ticket, and those risky changes get a PR of their own. Agents start the next ticket once one is pushed, Josh signs off motion on previews from local builds, and PRs merge without waiting for each other's deploys. The independent review and Josh's OK stay. Josh: "We need that level of thoroughness only at specified checkpoints, like the completion of each phase." | Changes "each ticket gets a PR", and moves S1's and G30's Lighthouse and INP lines from every PR to checkpoints |
 
 ## Change log
 
@@ -217,3 +218,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: a retro on phase 2 added merge steps and a way to check motion to `agents/local-dev.md`. Phase 3's moving charts should use the contact-sheet check and go to Josh's phone for sign-off.
 - 2026-10-31: Josh added a scroll-driven text spiral to piece 3, so a treatment now has to drive one section from the scroll position while the page scrolls normally. Phase 3's exit includes it.
 - 2026-11-01: phase 3 spec (#51) added G35–G37 (the Swirl goes in unchanged, write-ups get their own route, Josh draws and an agent traces), and phase 3 is in progress. #52 refreshed the treatment research: Firefox 159 shipped scroll-driven animations and Safari 26.4 threads them, so piece 2's robot can try CSS only, once a phone check shows how `view()` behaves as the iOS toolbar collapses. Its recommendation for piece 3 keeps the card's text in the house font, so the new font can't disturb the transition.
+- 2026-11-01: G38 cuts CI to one job of about two minutes, and moves the full Lighthouse runs and the throttled checks to checkpoints, at the end of each phase and on risky PRs. Each phase ends with a passing checkpoint. Phase 3's remaining tickets ship as #53 and #57, then #54 to #56, then #58 and #62, then #60 and #61.
