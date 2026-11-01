@@ -2,13 +2,13 @@
 :root {
   --bar-height: 96px;
   --cast-width: 44px;
-  --bar-background: rgb(246 241 231 / 85%);
+  --bar-background: rgb(239 232 218 / 85%);
   --bar-shadow: 0 -8px 24px rgb(31 28 24 / 8%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bar-background: rgb(23 21 15 / 85%);
+    --bar-background: rgb(32 29 22 / 85%);
     --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
   }
 }

@@ -79,7 +79,7 @@ test.describe('the card transition', () => {
     await expect.poll(() => groupsSeen(page)).toEqual(expect.arrayContaining([morph, ...pieces]));
   });
 
-  test('crossfades instead of flying in when going back from the bottom of the essay', async ({
+  test('shrinks into the card, with no text flying in, going back from the bottom of the essay', async ({
     page,
   }) => {
     await page.goto('./');
@@ -92,8 +92,8 @@ test.describe('the card transition', () => {
     await forgetTransitions(page);
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
-    await expect.poll(() => groupsSeen(page)).toContain('::view-transition-group(root)');
-    for (const name of [morph, ...pieces]) expect(await groupsSeen(page)).not.toContain(name);
+    await expect.poll(() => groupsSeen(page)).toContain(morph);
+    for (const name of pieces) expect(await groupsSeen(page)).not.toContain(name);
 
     // The next tap on the card morphs again.
     await forgetTransitions(page);
@@ -109,6 +109,41 @@ test.describe('the card transition', () => {
     await expect.poll(() => groupsSeen(page)).toContain('::view-transition-group(root)');
     await page.waitForTimeout(600);
     expect(await groupsSeen(page)).not.toContain(morph);
+  });
+
+  test('only the piece’s own card moves', async ({ page }) => {
+    await page.goto('./');
+    await openPiece(page);
+    await page.goBack();
+    await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+    await expect(page.locator('.piece-card[href$="lorem-ipsum/"]')).not.toHaveAttribute(
+      'data-no-morph',
+    );
+    await expect(page.locator('.piece-card[href$="amet-consectetur/"]')).toHaveAttribute(
+      'data-no-morph',
+    );
+  });
+
+  test('the parade waits below the screen, then slides in once the card has landed', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await page.evaluate(() => {
+      document.addEventListener(
+        'astro:after-swap',
+        () => {
+          const parade = document.querySelector('.parade');
+          if (parade) sessionStorage.setItem('paradeAtSwap', getComputedStyle(parade).translate);
+        },
+        { once: true },
+      );
+    });
+    await openPiece(page);
+    await expect(page.locator('.parade')).toHaveCSS('translate', 'none');
+    expect(await page.evaluate(() => sessionStorage.getItem('paradeAtSwap'))).toMatch(
+      /100%|\d+px$/,
+    );
+    await expect(page.locator('html')).not.toHaveAttribute('data-card');
   });
 
   test('morphs back through the link home, and forward again', async ({ page }) => {

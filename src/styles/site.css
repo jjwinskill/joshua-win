@@ -57,6 +57,8 @@ p {
 }
 
 .dek {
+  /* The same width on the card and the page, so it breaks into the same lines and only has to move. */
+  max-width: min(34rem, calc(100vw - 34px - 2 * clamp(1.5rem, 5vw, 3rem)));
   font-size: 1.25rem;
   color: var(--ink-soft);
   margin: 0;
@@ -103,6 +105,8 @@ a:focus-visible {
 
 .piece-card {
   display: block;
+  /* Safari darkens a tapped link, which would show on the card just as it starts to grow. */
+  -webkit-tap-highlight-color: transparent;
   padding: clamp(1.5rem, 5vw, 3rem);
   border: 1px solid var(--rule);
   border-radius: 20px;
@@ -132,11 +136,21 @@ a:focus-visible {
   overflow: visible;
 }
 
-/* The essay template */
+/* The essay template. The whole page is the card's color, because the card becomes it. */
+body:has(.piece-sheet) {
+  background: var(--paper-2);
+}
+
+/* Nothing to see: this is what the card grows into, so the morph has the whole screen as its target. */
+.piece-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
 .essay-head {
   padding: 4.5rem max(16px, calc((100% - 40rem) / 2)) 2rem;
-  background: var(--paper-2);
-  border-block-end: 1px solid var(--rule);
 }
 
 /* Morphing text is only as wide as its words, so it doesn't stretch in flight. */
@@ -214,7 +228,7 @@ span[id^='cast-']:target {
   padding: 1rem 0.5rem 0.9rem;
   border: 1px solid var(--rule);
   border-radius: 14px;
-  background: var(--paper-2);
+  background: var(--paper);
   color: var(--ink);
   text-decoration: none;
   font-family: var(--sans);
@@ -249,12 +263,173 @@ span[id^='cast-']:target {
   view-transition-name: none !important;
 }
 
+/* What the transition's styles select on, since each name has its piece's slug in it. */
+.piece-card,
+.piece-sheet {
+  view-transition-class: piece-box;
+}
+
+.piece-card .kicker,
+.piece-card .dek,
+.essay-head .kicker,
+.essay-head .dek {
+  view-transition-class: piece-text;
+}
+
 /* The card that expands into its piece (N1), run by Astro's <ClientRouter /> as a same-document view
    transition. Browsers without support swap the page with no morph. See docs/research/ios-chrome-view-transitions.md. */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-group(*) {
     animation-duration: 420ms;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* The card, 500ms in all. Opening, it grows for 380ms over a home page that holds still, then fades to
+     show the essay under it. Closing runs the other way. The box is painted here rather than from
+     snapshots, which would stretch. */
+  [data-card]::view-transition-old(root),
+  [data-card]::view-transition-new(root) {
+    mix-blend-mode: normal;
+    animation-duration: 500ms;
+    animation-timing-function: step-end;
+    animation-fill-mode: both;
+  }
+
+  [data-card='opening']::view-transition-old(root) {
+    animation-name: card-until-covered;
+  }
+
+  [data-card='opening']::view-transition-new(root) {
+    animation-name: card-once-covered;
+  }
+
+  [data-card='closing']::view-transition-old(root) {
+    animation-name: card-until-sheet;
+  }
+
+  [data-card='closing']::view-transition-new(root) {
+    animation-name: card-once-sheet;
+  }
+
+  [data-card='opening']::view-transition-group(*) {
+    animation-duration: 380ms;
+  }
+
+  [data-card='closing']::view-transition-group(*) {
+    animation-duration: 380ms;
+    animation-delay: 120ms;
+  }
+
+  [data-card]::view-transition-group(root) {
+    animation: none;
+  }
+
+  [data-card]::view-transition-image-pair(.piece-box) {
+    background: var(--paper-2);
+    /* These would otherwise inherit from the group, whose movement is shorter and may wait. */
+    animation-duration: 500ms;
+    animation-delay: 0s;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+
+  [data-card='opening']::view-transition-image-pair(.piece-box) {
+    animation-name: card-grows;
+  }
+
+  [data-card='closing']::view-transition-image-pair(.piece-box) {
+    animation-name: card-shrinks;
+  }
+
+  [data-card]::view-transition-old(.piece-box),
+  [data-card]::view-transition-new(.piece-box) {
+    display: none;
+  }
+
+  /* One copy of the text in flight, not two crossfading. */
+  [data-card]::view-transition-old(.piece-text) {
+    display: none;
+  }
+
+  [data-card]::view-transition-new(.piece-text) {
+    animation: none;
+    opacity: 1;
+  }
+
+  /* The real bar, not a snapshot of it, so it comes in solid once the morph is done. */
+  .parade {
+    transition: translate 280ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  [data-card='opening'] .parade {
+    translate: 0 100%;
+    transition: none;
+  }
+
+  @keyframes card-until-covered {
+    from {
+      opacity: 1;
+    }
+    76% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes card-once-covered {
+    from {
+      opacity: 0;
+    }
+    76% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes card-until-sheet {
+    from {
+      opacity: 1;
+    }
+    24% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes card-once-sheet {
+    from {
+      opacity: 0;
+    }
+    24% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes card-grows {
+    from {
+      border-radius: 20px;
+      opacity: 1;
+    }
+    76% {
+      border-radius: 0;
+      opacity: 1;
+    }
+    to {
+      border-radius: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes card-shrinks {
+    from {
+      border-radius: 0;
+      opacity: 0;
+    }
+    24% {
+      border-radius: 0;
+      opacity: 1;
+    }
+    to {
+      border-radius: 20px;
+      opacity: 1;
+    }
   }
 
   html {

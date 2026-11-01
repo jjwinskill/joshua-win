@@ -13,7 +13,7 @@
 |---|---|---|---|
 | 0 | Planning | **done** | This plan, the glossary and the repo set up |
 | 1 | Pipeline | **done** | A hello page at joshua.win/skill, noindexed, deployed on every merge with all checks running; mail to `@joshua.win` reaching Josh's Gmail |
-| 2 | Lorem piece 1 and bake-off 1 | **in progress** (spec #27; Astro chosen, #45 still to land) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
+| 2 | Lorem piece 1 and bake-off 1 | **done** (spec #27; Astro chosen, ADR 0001; #11 stays open for Josh's hello copy) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | not started | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
 | 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, sending from `@joshua.win`, share images, RSS and the sitemap |
@@ -74,7 +74,7 @@
   - **Result:** Astro, in [`adr/0001-astro-over-next.md`](adr/0001-astro-over-next.md). The Next build is deleted.
 - **No JS cap (G30).** Lighthouse CI adds the essay page and the heavy page, and JS size is reported. The throttled checks enforce INP, which Lighthouse can't measure.
 - **Hooks lint (G32)** lands before the parade.
-- **The transition (#45):** before this phase ends, the card must feel like it becomes the page. Josh checks it on his phone.
+- **The transition (#45):** the card grows to fill the screen and becomes the page, with each piece of text moving to its place and the parade sliding up afterward. Josh checked it on his phone.
 - **Exit:** the ADR is merged, #45 has landed, piece 1 and the heavy page pass every check on the winning framework, and the parade passes the interaction check (TBT, INP and CLS after the lazy JS loads).
 
 ## Phase 3: Lorem pieces 2 and 3, and the hand-made cast
@@ -204,3 +204,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: phone tests in Chrome on iOS found the jump comes from full-page navigation itself, so G34 moves the transition to `<ClientRouter />`. Scripts and islands now live through page swaps, so later phases' effects must clean up on unmount and have a test that reaches them from another page.
 - 2026-10-31: Josh chose Astro (ADR 0001), and the Next build is deleted. Phase 2 stays open until #45 lands, which Josh asked for before the phase ends. Phase 3 can start planning from Astro with `<ClientRouter />`, and its pieces must clean up across page swaps.
 - 2026-10-31: the heavy page (#34) marks its figures with an empty element in Markdown until phase 3's MDX decision (S15). If MDX wins, the figures become components in the prose and the marker goes. Phase 6 removes the page with the lorem pieces.
+- 2026-10-31: the transition (#45) landed, and phase 2 is done. Essay pages are now the card's color. A piece's treatment must work on that background, and its parade must stay out of the transition until the card has landed. Chrome's back arrow on iOS still jumps before morphing, which comes from the browser.
