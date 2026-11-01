@@ -1,0 +1,44 @@
+# The thorough checks (G38): Lighthouse on every page, three runs each, and the throttled checks.
+# Nothing runs this on its own. Start it at the end of each phase and for a risky change:
+# gh workflow run checkpoint.yml --ref <branch>
+name: Checkpoint
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  checkpoint:
+    name: Checkpoint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          cache: true
+          require-lockfile: true
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps --only-shell chromium
+        # It has stalled before. Fail fast rather than use up the job's limit.
+        timeout-minutes: 5
+      - run: pnpm test:perf
+      # Runs even if the throttled checks failed, so one checkpoint reports everything.
+      - if: ${{ !cancelled() }}
+        run: pnpm test:lighthouse:full
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: checkpoint-results
+          path: |
+            perf-results/
+            lighthouse-reports/
+          if-no-files-found: ignore
+          retention-days: 30

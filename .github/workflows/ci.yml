@@ -1,12 +1,9 @@
-# The check pipeline (G3, G38). Typecheck and lint and the unit tests run side by side, and the build
-# runs only if both passed, so slow checks never run on broken code. Playwright and axe, and Lighthouse,
-# then run side by side against that build through the Worker. Actions are pinned to commit SHAs; the comment gives the release.
+# The fast gate (G3, G38): one job on every PR and before every deploy, kept to about two minutes.
+# The cheapest checks run first, so slow ones never run on broken code. The thorough checks are in
+# checkpoint.yml. Actions are pinned to commit SHAs; the comment gives the release.
 # Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
 #
-# A change to docs alone can't change the site, so it runs no checks (G38). On main, `paths-ignore`
-# means it starts no run at all, so it can't cancel a pending run that still has code to deploy. A PR
-# can't use `paths-ignore`, because its required checks would stay pending forever. The `changes` job
-# skips them instead, and GitHub counts a skipped job as passed.
+# A merge of docs alone starts no run and no deploy, because its PR already passed this gate.
 name: CI
 
 on:
@@ -28,36 +25,10 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  changes:
-    name: Find what changed
+  checks:
+    name: Checks
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      site: ${{ steps.diff.outputs.site }}
-    steps:
-      # A PR checks out a merge commit, so its first parent is the base branch.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 2
-      - id: diff
-        env:
-          EVENT: ${{ github.event_name }}
-        run: |
-          site=true
-          if [ "$EVENT" = "pull_request" ]; then
-            changed=$(git diff --name-only HEAD^1 HEAD)
-            if ! grep -qvE '^(docs/|[^/]+\.md$)' <<< "$changed"; then site=false; fi
-          fi
-          echo "site=$site" >> "$GITHUB_OUTPUT"
-
-  check:
-    name: Typecheck and lint
-    needs: changes
-    # Runs unless docs alone changed, so a failure in `changes` can't skip the checks and pass them.
-    if: ${{ !cancelled() && needs.changes.outputs.site != 'false' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -70,36 +41,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm format:check
-
-  test:
-    name: Unit and component tests
-    needs: changes
-    if: ${{ !cancelled() && needs.changes.outputs.site != 'false' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
       - run: pnpm test
-
-  build:
-    name: Build
-    needs: [check, test]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
       - run: pnpm build
         env:
           # Only production builds count visits (G18). The token is public by design: it's in every page.
@@ -115,84 +57,36 @@ jobs:
           elif grep -q cloudflareinsights dist/skill/index.html; then
             echo "A non-main build has the beacon"; exit 1
           fi
-      # Later jobs (Playwright, Lighthouse, deploy) test and ship this exact build.
+      - run: pnpm exec playwright install --with-deps --only-shell chromium
+        # It has stalled before. Fail fast rather than use up the job's limit.
+        timeout-minutes: 5
+      # Against the exact build above, served by the real Worker (wrangler dev).
+      - run: pnpm test:e2e
+      # One run of the heavy page. Uses the runner's preinstalled Chrome.
+      - run: pnpm test:lighthouse
+      # The deploy ships this exact build.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dist
           path: dist/
           if-no-files-found: error
           retention-days: 7
-
-  e2e:
-    name: Playwright
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      # Test the exact build the build job made, served by the real Worker (wrangler dev).
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: dist
-          path: dist/
-      - run: pnpm exec playwright install --with-deps --only-shell chromium
-        # It has stalled before. Fail fast rather than use up the job's limit.
-        timeout-minutes: 5
-      - run: pnpm test:e2e
-      - run: pnpm test:perf
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-report
+          name: reports
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
-      - if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: perf-results
-          path: perf-results/
+            lighthouse-reports/
           if-no-files-found: ignore
-          retention-days: 30
-
-  lighthouse:
-    name: Lighthouse
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: dist
-          path: dist/
-      # Uses the runner's preinstalled Chrome.
-      - run: pnpm test:lighthouse
-      - if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: lighthouse-reports
-          path: lighthouse-reports/
           retention-days: 7
 
   deploy:
     name: Deploy to production
-    # After every check, and only for main. List every check job here. The secrets
-    # live in the production environment, which only main can deploy to, so no PR can reach them.
-    needs: [check, test, build, e2e, lighthouse]
+    # After the checks, and only for main. The secrets live in the production environment, which only
+    # main can deploy to, so no PR can reach them.
+    needs: checks
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
