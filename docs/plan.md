@@ -94,6 +94,10 @@
   - **Accessibility:** moving charts follow the S16 pattern (an `aria-hidden` visual, a visually hidden list, real buttons, and a snap instead of a spin under reduced motion).
   - Card Arm Flow is a visual reference for shape only. Its labels never enter this repo.
 - **Lorem piece 3:** a heavy treatment with its own font, in MDX. The MDX verdict (S15) goes in an ADR if MDX gets in the way.
+  - **The text spiral (Josh's idea):** a configurable section of 3 to 4 paragraphs that sinks into a spiral as you scroll, like the vertigo in Hitchcock's *Vertigo* or the spirals tied to hypnosis. It applies only to that part of the piece.
+    - **The motion:** scrolling down curls the previous text upward and around, smaller as it goes, so it looks like it's sinking into the middle. The next sentence appears in normal text below it, then gets rolled in too.
+    - **The way out:** past the section, the finished spiral stays in the page's flow and scrolls away with it, and the rest of the piece scrolls as normal.
+    - **Accessibility:** the text stays real and readable to a screen reader, and under reduced motion it's plain paragraphs (S16).
 - **The template sheet (P5):** a printable page with a fixed box and a hip line that matches the shared legs' hip.
 - **The first hand-made cast (S7, G8):** the *Too Loud a Solitude* cast, drawn by Josh on the template sheet:
   - a crumpled sheet of paper (the intro)
@@ -102,7 +106,7 @@
   - a glass of milk for the milk-drinking Socialist Labour brigade
 
   Hand-cleaned SVG and a hand-tuned walk. It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
-- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
+- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the text spiral, and Josh has checked it on his phone; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
 
 ## Phase 4: Style (bake-off 2)
 
@@ -206,3 +210,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: the heavy page (#34) marks its figures with an empty element in Markdown until phase 3's MDX decision (S15). If MDX wins, the figures become components in the prose and the marker goes. Phase 6 removes the page with the lorem pieces.
 - 2026-10-31: the transition (#45) landed, and phase 2 is done. Essay pages are now the card's color. A piece's treatment must work on that background, and its parade must stay out of the transition until the card has landed. Chrome's back arrow on iOS still jumps before morphing, which comes from the browser.
 - 2026-10-31: a retro on phase 2 added merge steps and a way to check motion to `agents/local-dev.md`. Phase 3's moving charts should use the contact-sheet check and go to Josh's phone for sign-off.
+- 2026-10-31: Josh added a scroll-driven text spiral to piece 3, so a treatment now has to take over scrolling for one section and hand it back. Phase 3's exit includes it.
