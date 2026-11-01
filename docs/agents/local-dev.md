@@ -57,25 +57,26 @@ gh pr merge <number> --repo jjwinskill/joshua-win --squash --match-head-commit <
 Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands:** any merge to `main` redeploys the bad code over the rollback.
 
 1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version of the page came back, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. Cloudflare can refuse a rollback if a binding the old version uses was deleted, or after certain Durable Object changes; this site has neither today. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
-2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the five required checks pass, squash-merge and delete the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
+2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the five required checks pass, squash-merge with the author email from Merging a PR. GitHub deletes the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
 
 If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward in a new PR. Turning off the rule on `main` is Josh's call and a last resort: turn it back on straight away, and review what went in without it.
 
 ## Checking motion
 
-Check a transition or animation in this order, so it costs as few images as possible.
+Check a transition or animation in this order, so it costs as few images as possible. Checked with ffmpeg 7.1 and qrcode 1.5.4 on 2026-10-31. Run these from your scratchpad or another folder outside the repo, so a recording or a QR code for a preview never gets committed.
 
-1. **Assert it in a test** where a fact can be read off the page. `recordMidTransition` in `tests/e2e/home.spec.ts` reads the page in the middle of a transition, so a broken one fails CI.
-2. **Read one contact sheet in the iOS Simulator**, not a frame per image. Record while you trigger the motion, stop the recording with `SIGINT`, then tile the frames that changed into one image. Raise the `scene` number if the grid overflows, and enlarge single frames only when the sheet leaves a question.
+1. **Assert it in a test** where a fact can be read off the page. `recordMidTransition` in `tests/e2e/home.spec.ts` shows how: it reads the running animations and the parade's position as a transition starts, so a missing animation fails CI. It can't judge the look.
+2. **Read a contact sheet from the iOS Simulator**, not a frame per image. Start the recording and wait for `Recording started`, trigger the motion, then stop it with `SIGINT`. Tile the frames that changed:
 
    ```bash
    xcrun simctl io booted recordVideo --codec=h264 --force motion.mp4
    ```
 
    ```bash
-   ffmpeg -v error -y -i motion.mp4 -vf "select='gt(scene,0.003)',scale=150:-1,tile=12x3" -fps_mode vfr -frames:v 1 motion.jpg
+   ffmpeg -v error -y -i motion.mp4 -vf "select='gt(scene,0.003)',scale=150:-1,tile=12x3" -fps_mode vfr motion-%d.jpg
    ```
 
+   Each sheet holds 36 frames. Read every sheet it writes, because the motion's end is in the last one. If there are too many, raise the `scene` number. Enlarge single frames only when a sheet leaves a question.
 3. **Send it to Josh's phone.** He signs off on how motion feels. The throttled checks reported no layout shift for a jump he could see on his phone, and the Simulator can't run Chrome on iOS. Upload a preview (see Previews), then make a QR code for its URL. `</dev/null` stops the command waiting on input.
 
    ```bash
