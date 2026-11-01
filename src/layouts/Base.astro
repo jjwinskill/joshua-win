@@ -23,19 +23,49 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <ClientRouter />
     <script is:inline>
       // An element off screen doesn't morph, or going back from far down an essay would fly its header in
-      // from thousands of pixels away. Each page is checked just before it's captured. The router doesn't
-      // re-run an inline script it has already seen, so these listeners are only added once.
-      const syncMorphs = () => {
+      // from thousands of pixels away. Neither do other cards, which stay in the page behind the one that's
+      // moving. Each page is checked just before it's captured. The router doesn't re-run an inline script
+      // it has already seen, so these listeners are only added once.
+      const syncMorphs = (isMoving) => {
         for (const el of document.querySelectorAll('[data-morph]')) {
           const { top, bottom } = el.getBoundingClientRect();
-          el.toggleAttribute('data-no-morph', bottom <= 0 || top >= innerHeight);
+          const card = el.closest('.piece-card');
+          const offScreen = bottom <= 0 || top >= innerHeight;
+          el.toggleAttribute('data-no-morph', offScreen || (!!card && !isMoving(card)));
         }
       };
-      document.addEventListener('astro:after-preparation', syncMorphs);
-      document.addEventListener('astro:after-swap', syncMorphs);
+      // The boxes that can morph on this page, then which way the card is going, for site.css.
+      const shownBoxes = () =>
+        [...document.querySelectorAll('.piece-card:not([data-no-morph]), .piece-sheet')].map(
+          (el) => el.style.viewTransitionName,
+        );
+      let destination;
+      let leavingBoxes = [];
+      let leavingSheet = false;
+      document.addEventListener('astro:before-preparation', (event) => {
+        destination = event.to.pathname;
+      });
+      document.addEventListener('astro:after-preparation', () => {
+        syncMorphs((card) => new URL(card.href).pathname === destination);
+        leavingBoxes = shownBoxes();
+        leavingSheet = !!document.querySelector('.piece-sheet');
+      });
+      document.addEventListener('astro:after-swap', () => {
+        syncMorphs((card) => leavingBoxes.includes(card.style.viewTransitionName));
+        document.documentElement.dataset.swapping = '';
+        if (shownBoxes().some((box) => leavingBoxes.includes(box))) {
+          document.documentElement.dataset.card = leavingSheet ? 'closing' : 'opening';
+        }
+      });
       // The router still runs a transition under reduced motion, so skip it. Skipping needs its own
       // listener because the transition only exists from this event on.
       document.addEventListener('astro:before-swap', (event) => {
+        event.viewTransition.finished
+          .catch(() => undefined)
+          .finally(() => {
+            delete document.documentElement.dataset.card;
+            delete document.documentElement.dataset.swapping;
+          });
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
           event.viewTransition.ready.catch(() => undefined);
           event.viewTransition.skipTransition();

@@ -27,8 +27,9 @@ const cast = castInOrderOfAppearance(html, piece.data.cast);
 ---
 
 <Base title={title}>
+  <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
   <article>
-    <header class="essay-head" data-morph style={{ viewTransitionName: names.box }}>
+    <header class="essay-head">
       <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
         {essayKicker}
       </p>
