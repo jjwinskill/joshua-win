@@ -108,7 +108,7 @@
   - a glass of milk for the milk-drinking Socialist Labour brigade
 
   Josh draws and an agent traces (G37): hand-cleaned SVG and a hand-tuned walk, with photos outside the repo and Josh approving each cleaned SVG. It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
-- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; and Josh says the hand-made cast looks right.
+- **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; Josh says the hand-made cast looks right; and a checkpoint passes.
 
 ## Phase 4: Style (bake-off 2)
 
@@ -218,4 +218,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-10-31: a retro on phase 2 added merge steps and a way to check motion to `agents/local-dev.md`. Phase 3's moving charts should use the contact-sheet check and go to Josh's phone for sign-off.
 - 2026-10-31: Josh added a scroll-driven text spiral to piece 3, so a treatment now has to drive one section from the scroll position while the page scrolls normally. Phase 3's exit includes it.
 - 2026-11-01: phase 3 spec (#51) added G35–G37 (the Swirl goes in unchanged, write-ups get their own route, Josh draws and an agent traces), and phase 3 is in progress. #52 refreshed the treatment research: Firefox 159 shipped scroll-driven animations and Safari 26.4 threads them, so piece 2's robot can try CSS only, once a phone check shows how `view()` behaves as the iOS toolbar collapses. Its recommendation for piece 3 keeps the card's text in the house font, so the new font can't disturb the transition.
-- 2026-11-01: G38 cuts CI to one job of about two minutes, and moves the full Lighthouse runs and the throttled checks to checkpoints, at the end of each phase and on risky PRs. Each phase's exit now includes a passing checkpoint. Phase 3's remaining tickets ship as #53 and #57, then #54 to #56, then #58 and #62, then #60 and #61.
+- 2026-11-01: G38 cuts CI to one job of about two minutes, and moves the full Lighthouse runs and the throttled checks to checkpoints, at the end of each phase and on risky PRs. Each phase ends with a passing checkpoint. Phase 3's remaining tickets ship as #53 and #57, then #54 to #56, then #58 and #62, then #60 and #61.

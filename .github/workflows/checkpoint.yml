@@ -39,6 +39,7 @@ jobs:
           name: checkpoint-results
           path: |
             perf-results/
+            test-results/
             lighthouse-reports/
           if-no-files-found: ignore
           retention-days: 30

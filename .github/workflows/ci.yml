@@ -1,5 +1,5 @@
 # The fast gate (G3, G38): one job on every PR and before every deploy, kept to about two minutes.
-# The cheapest checks run first, so slow ones never run on broken code. The thorough checks are in
+# The build comes first and the slowest checks last. The thorough checks are in
 # checkpoint.yml. Actions are pinned to commit SHAs; the comment gives the release.
 # Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
 #
@@ -38,10 +38,6 @@ jobs:
         with:
           cache: true
           require-lockfile: true
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm test
       - run: pnpm build
         env:
           # Only production builds count visits (G18). The token is public by design: it's in every page.
@@ -57,6 +53,17 @@ jobs:
           elif grep -q cloudflareinsights dist/skill/index.html; then
             echo "A non-main build has the beacon"; exit 1
           fi
+      # The deploy ships this exact build. It's uploaded before any other tool runs, so none can alter it.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
       - run: pnpm exec playwright install --with-deps --only-shell chromium
         # It has stalled before. Fail fast rather than use up the job's limit.
         timeout-minutes: 5
@@ -64,13 +71,6 @@ jobs:
       - run: pnpm test:e2e
       # One run of the heavy page. Uses the runner's preinstalled Chrome.
       - run: pnpm test:lighthouse
-      # The deploy ships this exact build.
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: dist
-          path: dist/
-          if-no-files-found: error
-          retention-days: 7
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
