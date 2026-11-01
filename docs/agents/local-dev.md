@@ -39,14 +39,49 @@ pnpm exec wrangler preview delete --name my-test --skip-confirmation
 
 Don't run these in CI or paste `--json` output anywhere public: when tested, it included the account's email.
 
+## Merging a PR
+
+A merge to `main` deploys, so it waits for Josh's OK and an independent review.
+
+```bash
+gh pr merge <number> --repo jjwinskill/joshua-win --squash --match-head-commit <sha> --author-email jjwinskill@github.com
+```
+
+- **The author email:** GitHub accepts only addresses it lists for the account, and it refuses the private noreply address that local commits use. `jjwinskill@github.com` is the one to use. The account's other address is an old work email, which must stay out of history.
+- **Wait for the result:** `gh run watch <id> --exit-status` on the `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch.
+- **Check the live site with `curl -L`:** pages redirect to a trailing slash, so a plain `curl` reads an empty 307.
+- **Clean up:** delete any preview for the PR. GitHub deletes the PR's branch on merge, and local worktrees and branches are yours to remove.
+
 ## Rolling back
 
 Tested end to end on 2026-10-30 (#18, #19), against Cloudflare's [rollback docs](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/) (updated 2026-07-15). If a deploy breaks the live site, do both steps, in this order. Josh runs them. **Merge nothing else until the revert lands:** any merge to `main` redeploys the bad code over the rollback.
 
 1. **Fix the live site on Cloudflare.** In the dashboard, go to **Workers & Pages**, select `joshua-win`, then **Deployments**. Open the three-dot menu on the last good version and select **Rollback**. The site changed by the time Josh reloaded, and the old version of the page came back, which Cloudflare's docs don't mention. This doesn't touch GitHub, so a failing check can't block it. Cloudflare can refuse a rollback if a binding the old version uses was deleted, or after certain Durable Object changes; this site has neither today. `pnpm exec wrangler rollback` should do the same, but wasn't tested.
-2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the four checks pass, squash-merge and delete the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
+2. **Fix `main` on GitHub, or the next merge brings the bad code back.** On the merged PR, select **Revert**, then **Create pull request**. When the five required checks pass, squash-merge with the author email from Merging a PR. GitHub deletes the branch. The merge deploys a new version over the rollback. A PR containing only GitHub's revert skips the independent review (G25).
 
 If a revert can't pass its checks, the site stays safe on the rolled-back version. Fix forward in a new PR. Turning off the rule on `main` is Josh's call and a last resort: turn it back on straight away, and review what went in without it.
+
+## Checking motion
+
+Check a transition or animation in this order, so it costs as few images as possible. Checked with ffmpeg 7.1 and qrcode 1.5.4 on 2026-10-31. Run these from your scratchpad or another folder outside the repo, so a recording or a QR code for a preview never gets committed.
+
+1. **Assert it in a test** where a fact can be read off the page. `recordMidTransition` in `tests/e2e/home.spec.ts` shows how: it reads the running animations and the parade's position as a transition starts, so a missing animation fails CI. It can't judge the look.
+2. **Read a contact sheet from the iOS Simulator**, not a frame per image. Start the recording and wait for `Recording started`, trigger the motion, then stop it with `SIGINT`. Tile the frames that changed:
+
+   ```bash
+   xcrun simctl io booted recordVideo --codec=h264 --force motion.mp4
+   ```
+
+   ```bash
+   ffmpeg -v error -y -i motion.mp4 -vf "select='gt(scene,0.003)',scale=150:-1,tile=12x3" -fps_mode vfr motion-%d.jpg
+   ```
+
+   Each sheet holds 36 frames. Read every sheet it writes, because the motion's end is in the last one. If there are too many, raise the `scene` number. Enlarge single frames only when a sheet leaves a question.
+3. **Send it to Josh's phone.** He signs off on how motion feels. The throttled checks reported no layout shift for a jump he could see on his phone, and the Simulator can't run Chrome on iOS. Upload a preview (see Previews), then make a QR code for its URL. `</dev/null` stops the command waiting on input.
+
+   ```bash
+   pnpm dlx qrcode@1.5.4 -o qr.png -w 400 <preview-url> </dev/null
+   ```
 
 ## Commands
 
@@ -76,7 +111,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 | `src/layouts/` | Page shells (`Base.astro`) |
 | `src/dev/` | Pages that only exist under `astro dev`, injected from `astro.config.mjs` |
 | `src/styles/` | The site's plain CSS, until phase 4 chooses the house style |
-| `src/components/` | The shared React component library. No Astro or framework APIs, so the bake-off can reuse it in Next. |
+| `src/components/` | The shared React component library, free of Astro and framework APIs |
 | `src/lib/` | Plain TypeScript helpers |
 | `worker/` | The Worker in front of the static files, with its own `tsconfig.json` |
 | `tests/build/` | Tests that run `astro build` on a copy of the site (in `pnpm test`) |

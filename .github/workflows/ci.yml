@@ -107,6 +107,8 @@ jobs:
           name: dist
           path: dist/
       - run: pnpm exec playwright install --with-deps --only-shell chromium
+        # It has stalled before. Fail fast rather than use up the job's limit.
+        timeout-minutes: 5
       - run: pnpm test:e2e
       - run: pnpm test:perf
       - if: failure()
