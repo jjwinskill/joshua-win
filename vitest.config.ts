@@ -18,7 +18,7 @@ export default getViteConfig({
         extends: true,
         test: {
           name: 'component',
-          include: ['src/**/*.test.tsx'],
+          include: ['src/**/*.test.tsx', 'content/**/*.test.tsx'],
           environment: 'jsdom',
           setupFiles: ['./vitest.setup.ts'],
         },

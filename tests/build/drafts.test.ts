@@ -18,6 +18,15 @@ beforeAll(async () => {
     await cp(file, join(root, file), { recursive: true });
   }
   await writeFile(join(root, 'drafts', 'lorem.md'), `---\ntitle: Lorem\n---\n\n${marker}\n`);
+  // An MDX draft with a one-off that hydrates, the way Josh's real pieces may use it (S15).
+  await writeFile(
+    join(root, 'drafts', 'one-off.tsx'),
+    `export const OneOff = () => <p>${marker}-component</p>;\n`,
+  );
+  await writeFile(
+    join(root, 'drafts', 'with-one-off.mdx'),
+    `---\ntitle: Lorem MDX\n---\n\nimport { OneOff } from './one-off';\n\n${marker}-mdx\n\n<OneOff client:load />\n`,
+  );
   // A public page that prints the collection, so the test sees it if a build ever loads drafts.
   await writeFile(
     join(root, 'src', 'pages', 'reads-collection.astro'),
@@ -27,7 +36,7 @@ beforeAll(async () => {
 
 afterAll(() => rm(root, { recursive: true, force: true }));
 
-it('astro build leaves drafts and the template sheet out, even with the drafts folder present', async () => {
+it('astro build leaves drafts, MDX ones too, and the template sheet out, even with the drafts folder present', async () => {
   // NODE_ENV=development is the risky case: it makes import.meta.env.DEV true in a build.
   await run(process.execPath, ['node_modules/astro/bin/astro.mjs', 'build', '--root', root], {
     env: { ...process.env, NODE_ENV: 'development' },

@@ -14,7 +14,8 @@ import {
 // Throttled checks of what Lighthouse can't see (S1): scrolling, interaction and transitions (#33).
 const essay = 'essays/lorem-ipsum/';
 const heavy = 'essays/amet-consectetur/';
-const scrolled = [essay, heavy];
+const mdx = 'essays/ut-labore/';
+const scrolled = [essay, heavy, mdx];
 
 test.describe('scrolling', () => {
   for (const route of scrolled) {
@@ -44,6 +45,18 @@ test.describe('interaction', () => {
     await report('interaction', essay, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(essay).inp);
     expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(essay).cls);
+  });
+});
+
+test.describe('piece 3', () => {
+  test('its one-off hydrates without shifting the page', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(mdx);
+    await expect(page.locator('.scroll-tally')).toHaveText(/%$/);
+    await page.waitForTimeout(500);
+    const metrics = await readMetrics(page);
+    await report('one-off', mdx, { ...metrics, inp: undefined });
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(mdx).cls);
   });
 });
 

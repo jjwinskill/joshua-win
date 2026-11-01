@@ -8,13 +8,15 @@ import { castKeys } from './components/cast/registry';
 // here, one that CI can't turn on.
 const drafts = defineCollection({
   loader:
-    process.env.LOAD_DRAFTS === 'yes' ? glob({ pattern: '**/*.md', base: './drafts' }) : () => [],
+    process.env.LOAD_DRAFTS === 'yes'
+      ? glob({ pattern: '**/*.{md,mdx}', base: './drafts' })
+      : () => [],
   schema: z.object({ title: z.string().optional() }),
 });
 
 // Lorem pieces test the stack and styling, and are removed before publishing.
 const lorem = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './content/lorem' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './content/lorem' }),
   schema: z.object({
     title: z.string(),
     dek: z.string(),

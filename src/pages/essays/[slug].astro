@@ -3,15 +3,12 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { CastList } from '../../components/cast/CastList';
-import { HeavyChart } from '../../components/figures/HeavyChart';
-import { HeavyScene } from '../../components/figures/HeavyScene';
 import { Parade } from '../../components/parade/Parade';
-import { hasFigures, splitAtFigures } from '../../lib/figures';
 import '../../styles/figures.css';
 import '../../styles/parade.css';
-import { castInOrderOfAppearance } from '../../components/cast/mentions';
 import { morphNames } from '../../components/morph';
 import { essayKicker } from '../../lib/pieces';
+import { pieceCast } from '../../lib/piece-cast';
 
 export async function getStaticPaths() {
   const pieces = await getCollection('lorem');
@@ -20,10 +17,9 @@ export async function getStaticPaths() {
 
 const { piece } = Astro.props;
 const { Content } = await render(piece);
-const html = piece.rendered?.html ?? '';
 const { title, dek, date, citedWork } = piece.data;
 const names = morphNames(piece.id);
-const cast = castInOrderOfAppearance(html, piece.data.cast);
+const cast = await pieceCast(piece);
 ---
 
 <Base title={title}>
@@ -46,19 +42,7 @@ const cast = castInOrderOfAppearance(html, piece.data.cast);
       </p>
     </header>
     <div class="essay-body">
-      {hasFigures(html) ? (
-        splitAtFigures(html).map((part) =>
-          'html' in part ? (
-            <Fragment set:html={part.html} />
-          ) : part.figure === 'scene' ? (
-            <HeavyScene client:idle />
-          ) : (
-            <HeavyChart client:idle />
-          ),
-        )
-      ) : (
-        <Content />
-      )}
+      <Content />
       <p class="end-mark" id="parade-end" aria-hidden="true">
         · · ·
       </p>

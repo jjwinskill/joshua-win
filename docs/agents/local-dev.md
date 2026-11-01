@@ -97,7 +97,7 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y, React hooks and leak rules), failing on any warning |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home, essay, contents and heavy pages. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: three runs on a throttled phone profile, failing if the median LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. It measures the home, essay, contents and heavy pages and piece 3. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
 | `pnpm test:perf` | Throttled checks in headless Chromium at a phone viewport with 4x CPU throttling (`tests/perf/`): a touch scroll, a tap on a parade dot, the card transition from a cold and a warm navigation, and on the heavy page the running scene and scrubbing the chart. CLS over 0.1 or INP over 200 ms fails; frame timing is reported only. Build first. Results append to `perf-results/results.jsonl`, and CI keeps that file. To measure a deployed site, set `PERF_BASE_URL` to its URL ending in `/skill/`. A page's own limit goes in `tests/perf/limits.ts`, with Josh's OK and a reason. Headless Chromium draws WebGL in software, so frame rates don't tell you about a phone. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
@@ -119,7 +119,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and format check, then the 
 | `tests/e2e/` | Playwright tests against the built site through the Worker |
 | `tests/perf/` | Throttled scrolling, interaction and transition checks |
 | `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
-| `content/lorem/` | Lorem pieces, free to edit |
+| `content/lorem/` | Lorem pieces, free to edit, in Markdown or MDX, with their one-off components in `one-offs/` |
 
 ## Tests
 
