@@ -42,6 +42,8 @@ it('astro build leaves drafts and the template sheet out, even with the drafts f
     const path = join(file.parentPath, file.name);
     expect(relative(dist, path)).not.toContain('drafts');
     expect(relative(dist, path)).not.toContain('template-sheet');
-    expect(await readFile(path, 'utf8'), path).not.toContain(marker);
+    const contents = await readFile(path, 'utf8');
+    expect(contents, path).not.toContain(marker);
+    expect(contents, path).not.toContain('Cast template sheet');
   }
 }, 60_000);
