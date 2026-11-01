@@ -89,6 +89,7 @@ Check a transition or animation in this order, so it costs as few images as poss
 |---|---|
 | `pnpm install` | Installs dependencies and the pinned Node 26 |
 | `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. `astro preview` detaches too. |
+| `pnpm dev`, then print `/skill/template-sheet/` | The cast template sheet (P5), which exists only under `astro dev`. Print it from a browser to save a PDF, with headers and footers off. It's one US Letter page. |
 | `pnpm build` | Static build into `dist/skill/` |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |

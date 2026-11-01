@@ -27,7 +27,7 @@ beforeAll(async () => {
 
 afterAll(() => rm(root, { recursive: true, force: true }));
 
-it('astro build leaves drafts out, even with the folder present', async () => {
+it('astro build leaves drafts and the template sheet out, even with the drafts folder present', async () => {
   // NODE_ENV=development is the risky case: it makes import.meta.env.DEV true in a build.
   await run(process.execPath, ['node_modules/astro/bin/astro.mjs', 'build', '--root', root], {
     env: { ...process.env, NODE_ENV: 'development' },
@@ -41,6 +41,9 @@ it('astro build leaves drafts out, even with the folder present', async () => {
   for (const file of built) {
     const path = join(file.parentPath, file.name);
     expect(relative(dist, path)).not.toContain('drafts');
-    expect(await readFile(path, 'utf8'), path).not.toContain(marker);
+    expect(relative(dist, path)).not.toContain('template-sheet');
+    const contents = await readFile(path, 'utf8');
+    expect(contents, path).not.toContain(marker);
+    expect(contents, path).not.toContain('Cast template sheet');
   }
 }, 60_000);

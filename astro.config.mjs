@@ -12,6 +12,7 @@ const draftsInDev = {
       process.env.LOAD_DRAFTS = command === 'dev' ? 'yes' : 'no';
       if (command === 'dev') {
         injectRoute({ pattern: '/drafts/[...slug]', entrypoint: './src/dev/drafts.astro' });
+        injectRoute({ pattern: '/template-sheet', entrypoint: './src/dev/template-sheet.astro' });
       }
     },
   },
