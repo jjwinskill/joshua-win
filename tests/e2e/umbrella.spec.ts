@@ -29,7 +29,7 @@ test('reached from another page, a tap twists a panel forward and expands only t
   }).toPass();
   await expect.poll(() => openness(page)).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0]);
 
-  // Tap the panel that's now at the back: the visual lines up with its button.
+  // The open panel is bigger than one at the back.
   const box = await page.locator('.umbrella-panel').nth(5).boundingBox();
   const front = await page.locator('.umbrella-panel').nth(1).boundingBox();
   expect(front?.width).toBeGreaterThan(box?.width ?? 0);
@@ -83,19 +83,43 @@ test('it fits a phone', async ({ page }) => {
   expect(Math.max(...overflows)).toBeLessThanOrEqual(0);
 });
 
-test('it launches when it comes into view, and not before', async ({ page }) => {
+const lit = (page: Page) =>
+  page
+    .locator('.umbrella-panel')
+    .evaluateAll((panels) =>
+      panels.map((panel) => (panel as HTMLElement).style.getPropertyValue('--lit')),
+    );
+const allLit = Array.from({ length: 9 }, () => '1');
+
+/** Puts the top of the umbrella this far up from the bottom of the screen, and waits for it to hydrate. */
+async function peek(page: Page, pixels: number) {
+  await page.locator('.umbrella').evaluate((umbrella, up) => {
+    const y = umbrella.getBoundingClientRect().top + scrollY - innerHeight + up;
+    scrollTo({ top: y, behavior: 'instant' });
+  }, pixels);
+  await expect
+    .poll(() =>
+      page
+        .locator('.umbrella-panel')
+        .first()
+        .evaluate((panel) => (panel as HTMLElement).style.getPropertyValue('--open')),
+    )
+    .toBe('0.000');
+}
+
+test('it stays folded while it only peeks in, and launches when it comes into view', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto(writeUp);
-  const lit = () =>
-    page
-      .locator('.umbrella-panel')
-      .evaluateAll((panels) =>
-        panels.map((panel) => (panel as HTMLElement).style.getPropertyValue('--lit')),
-      );
-  // Far down the page, hydration may not have happened, and either way nothing has launched.
-  expect((await lit()).every((value) => value === '0')).toBe(true);
-  await page.locator('.umbrella').scrollIntoViewIfNeeded();
-  await expect.poll(lit).toEqual(Array.from({ length: 9 }, () => '1'));
+  await peek(page, 60);
+  await page.waitForTimeout(300);
+  expect(await lit(page)).toEqual(Array.from({ length: 9 }, () => '0'));
+
+  await page.locator('.umbrella').evaluate((umbrella) => {
+    umbrella.scrollIntoView({ block: 'center', behavior: 'instant' });
+  });
+  await expect.poll(() => lit(page)).toEqual(allLit);
   await expect.poll(() => openness(page)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0]);
   const right = await page
     .locator('.umbrella-panel')
@@ -103,6 +127,25 @@ test('it launches when it comes into view, and not before', async ({ page }) => 
       Math.max(...panels.map((panel) => panel.getBoundingClientRect().right)),
     );
   expect(right).toBeLessThanOrEqual(390);
+});
+
+test('a screen too short to show most of it still launches it', async ({ page }) => {
+  await page.setViewportSize({ width: 844, height: 240 });
+  await page.goto(writeUp);
+  await page.locator('.umbrella').evaluate((umbrella) => {
+    scrollTo({ top: umbrella.getBoundingClientRect().top + scrollY, behavior: 'instant' });
+  });
+  await expect.poll(() => lit(page)).toEqual(allLit);
+});
+
+test('focusing a panel’s button launches it, so focus never lands on nothing', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(writeUp);
+  await peek(page, 60);
+  await page
+    .getByRole('button', { name: 'Agent A' })
+    .evaluate((button) => (button as HTMLElement).focus({ preventScroll: true }));
+  await expect.poll(() => lit(page)).toEqual(allLit);
 });
 
 test.describe('under reduced motion', () => {

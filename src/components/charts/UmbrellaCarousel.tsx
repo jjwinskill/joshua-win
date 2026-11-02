@@ -68,6 +68,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     // The panels also say how many cards are left, so the list must too.
     return lines.map((line, i) => {
       const cards = run.stages[i]?.cards;
+      if (!cards) return `${line} No cards yet.`;
       return `${line} ${cards === 1 ? '1 card' : `${cards} cards`} left after it.`;
     });
   }, [run]);
@@ -79,6 +80,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
   const strings = useRef<(SVGPathElement | null)[]>([]);
   const gores = useRef<(SVGPathElement | null)[]>([]);
   const moveTo = useRef<(index: number) => void>(() => {});
+  const launchNow = useRef<() => void>(() => {});
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -162,6 +164,8 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       clock ??= 0;
       wake();
     };
+    // A button reached by keyboard, or pressed by a screen reader, shouldn't wait for the scroll.
+    launchNow.current = launch;
 
     let watcher: IntersectionObserver | undefined;
     if (reduced) {
@@ -175,7 +179,8 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
           watcher?.disconnect();
           launch();
         },
-        { threshold: 0.4 },
+        // By distance rather than a share of its height, which a short screen might never show.
+        { rootMargin: '0px 0px -25% 0px' },
       );
       if (root.current) watcher.observe(root.current);
     }
@@ -183,6 +188,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       watcher?.disconnect();
       cancelAnimationFrame(frame);
       moveTo.current = () => {};
+      launchNow.current = () => {};
     };
   }, [agents, count]);
 
@@ -293,7 +299,11 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
               className="umbrella-button"
               style={{ transform: panelTransform(pose, 0), zIndex: pose.depth }}
               aria-pressed={i === selected}
-              onClick={() => setSelected(i)}
+              onFocus={() => launchNow.current()}
+              onClick={() => {
+                launchNow.current();
+                setSelected(i);
+              }}
             >
               <span className="visually-hidden">
                 {agent.of > 1 ? `${agent.name}, ${agent.nth} of ${agent.of}` : agent.name}
@@ -303,8 +313,9 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
         })}
       </div>
       <figcaption>
-        The umbrella: {run.orchestrator} launches its {count} agents. Tap a panel to twist it
-        forward and open it.
+        The umbrella: {run.orchestrator} launches{' '}
+        {count === 1 ? 'its 1 agent' : `its ${count} agents`}. Tap a panel to twist it forward and
+        open it.
       </figcaption>
       <ol className="visually-hidden">
         {list.map((line) => (
