@@ -39,3 +39,68 @@ article[data-piece='ut-labore'] .piece-body {
   font-size: 1.0625rem;
   line-height: calc(27 / 17);
 }
+
+/* The Swirl. With no JavaScript, or under reduced motion, it's just its paragraphs. */
+.swirl-stage {
+  display: none;
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .swirl {
+    /* The prototype's height: the text's scrolling, plus the stage. CSS holds it from the start, so hydrating
+       changes nothing and Back can restore a scroll position past the section. Swirl.tsx sets the measured
+       value, and a test holds this one close to it. */
+    --swirl-wind: 3339px;
+    --swirl-stage-height: calc(100svh - var(--bar-height));
+    position: relative;
+    height: calc(var(--swirl-wind) + var(--swirl-stage-height));
+    /* Out to the page's edge on a phone, as in the prototype, whose lines have their own 20px margin. */
+    margin-inline: -16px;
+  }
+
+  .swirl-stage {
+    display: block;
+    position: sticky;
+    top: 0;
+    height: var(--swirl-stage-height);
+    overflow: hidden;
+  }
+
+  .swirl-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Until the first draw, the paragraphs pin in turn over the tall section, so a slow or failed bundle still
+     shows all of the text. Each is sticky inside its own row. */
+  .swirl-text {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-auto-rows: 1fr;
+    padding-inline: 20px;
+  }
+
+  .swirl-text p {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    margin: 0;
+  }
+
+  /* Drawn: the canvas is what's seen, and the same paragraphs stay for screen readers. */
+  .swirl[data-drawn] .swirl-text {
+    inset: auto;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .swirl[data-drawn] .swirl-text p {
+    position: static;
+  }
+}
