@@ -8,6 +8,7 @@ A personal site of essays on media and the software zeitgeist, plus technical wr
 2. Use the vocabulary in `GLOSSARY.md`.
 3. Strategy and its reasons are in `docs/strategy/` (start with `decisions.md`).
 4. Read `docs/agents/local-dev.md` before running the site, merging a PR, or checking motion.
+5. Read `docs/cast/README.md` before making or changing a cast member.
 
 ## Packages: pnpm only
 
