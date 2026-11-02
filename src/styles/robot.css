@@ -167,7 +167,7 @@
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .robot-track {
-      height: 190svh;
+      height: 150svh;
       view-timeline: --robot block;
     }
 
