@@ -20,11 +20,11 @@ Judgement calls for the code on this site. The **reviewer** enforces them, and a
 
 ## Anything that moves
 
-Check each of these in a test or on the PR. Every one was a real bug in phase 3.
+Go through every line below for any part that moves, against the code, and say on the PR or in a test how each one holds. Every one was a real bug in phase 3.
 
 - **Screen sizes:** it starts and finishes on a phone, and on a screen too short to show all of it.
 - **Input:** a mostly vertical swipe still scrolls the page. A cancelled pointer, a second finger and a mouse that loses its button all leave it working. A slipped tap still counts as a tap.
-- **Focus:** keyboard focus can reach it and can be seen, including on anything scaled down.
+- **Focus:** Tab can reach each control in every state, including folded or zero-sized ones, and the focus can be seen there.
 - **Reduced motion:** it holds still, and switching it on mid-play stops the motion and leaves the content reachable.
 - **Bounds:** nothing clips at its most extreme pose, and the longest label stays on screen at phone width.
 - **Dark mode:** every color and edge holds up on a dark page.
@@ -33,18 +33,14 @@ Check each of these in a test or on the PR. Every one was a real bug in phase 3.
 
 ## Site code
 
-- Keep to what the ticket asks. A prototype stays a prototype.
-- Pages stay static HTML, and an island ships JavaScript only where it earns it.
 - Anything set up on a page survives the card transition and Back, and cleans up after itself on a page swap.
 - Links go through `sitePath()`, so they stay under `/skill/`.
 - This repo is public: no drafts, personal details or private test material. Cast photos go through `docs/cast/tools/convert-photo.py`.
-- American spelling.
 
 ## Agent files
 
 - A fact an agent must always have goes behind a pointer in `CLAUDE.md`. A model-invoked skill alone is unreliable, so a skill suits a workflow that gets asked for (G49).
 - Add a skill or a rule only after a baseline run fails in a way you can name, then rerun it to see the change. Rerun after a model change, and remove what no longer helps.
-- Say what to do, rather than what to avoid, unless it's a hard guardrail.
 
 ## Worktrees
 

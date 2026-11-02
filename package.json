@@ -15,6 +15,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "charts": "node scripts/render-run-charts.ts",
+    "prepare": "git config core.hooksPath .githooks",
     "phone": "pnpm build && wrangler preview --name",
     "check:selected": "node scripts/check-selected.ts",
     "preview": "astro preview",
