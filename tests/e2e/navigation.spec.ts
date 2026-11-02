@@ -163,14 +163,15 @@ test('back during the jump to a mention still returns to the card', async ({ pag
   await transitionOver(page);
   const card = page.getByRole('link', { name: /The Cheshire Cat/ });
   await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
   const before = await page.evaluate(() => scrollY);
   await card.click();
   await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(before - 200);
   await page.goBack();
   await expect(page).not.toHaveURL(/#cast-cat$/);
-  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
-  // The scroll that restored it has to be what's saved, not the frame of the jump that landed after it.
-  await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(before);
+  // Long enough for the jump's last frame to land, or this reads the position before it moves.
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => [scrollY, history.state.scrollY])).toEqual([before, before]);
 });
 
 test('the new page is announced, and keeps its heading and styles', async ({ page }) => {
