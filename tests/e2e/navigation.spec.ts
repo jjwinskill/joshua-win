@@ -158,3 +158,52 @@ test('the new page is announced, and keeps its heading and styles', async ({ pag
   // The essay's own stylesheet arrived with the swap.
   await expect(page.locator('.parade')).toHaveCSS('position', 'fixed');
 });
+
+test('a tap uses the copy fetched ahead of time, with one history entry per page', async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.endsWith('/essays/lorem-ipsum/'))
+      requests.push(request.url());
+  });
+  await page.goto('./');
+  await expect.poll(() => requests.length).toBe(1);
+  const before = await page.evaluate(() => history.length);
+  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(requests).toHaveLength(1);
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole('article')).toBeVisible();
+});
+
+test('the pages under the card swap before it starts to fade, and after it has faded in', async ({
+  page,
+}) => {
+  await page.goto('./');
+  const offsets = await page.evaluate(() => {
+    const rules = [...document.styleSheets].flatMap((sheet) => [...sheet.cssRules]);
+    const find = (name: string, rule: CSSRule): CSSKeyframesRule[] => {
+      if (rule instanceof CSSKeyframesRule && rule.name === name) return [rule];
+      return rule instanceof CSSGroupingRule
+        ? [...rule.cssRules].flatMap((r) => find(name, r))
+        : [];
+    };
+    const second = (name: string) => {
+      const rule = rules.flatMap((r) => find(name, r))[0];
+      return Number.parseFloat(rule?.cssRules[1]?.cssText ?? 'NaN');
+    };
+    return ['card-until-covered', 'card-grows', 'card-until-sheet', 'card-shrinks'].map(second);
+  });
+  const [swapOpening, fadeStart, swapClosing, fadedIn] = offsets as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  expect(swapOpening).toBeLessThan(fadeStart);
+  expect(swapClosing).toBeGreaterThan(fadedIn);
+});

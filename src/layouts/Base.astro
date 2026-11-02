@@ -20,6 +20,44 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <slot name="head" />
+    <script is:inline>
+      // Back in Chrome on iOS (Astro's #18377, whose fix is still open). WebKit hides from Back any entry a
+      // page adds without a recent tap, and there a tap only counts while its event is being handled. The
+      // router adds its entry later, so Back left the site. So this adds the entry during the tap, as a copy
+      // of the current one, and the router's push fills it in. It goes before the router, which reads
+      // pushState once. Remove it when Astro ships the fix.
+      (() => {
+        const activation = navigator.userActivation;
+        if (!activation) return;
+        const push = history.pushState;
+        const replace = history.replaceState;
+        let waiting = false;
+        history.pushState = function (state, unused, url) {
+          if (!waiting) return push.call(this, state, unused, url);
+          waiting = false;
+          return replace.call(this, state, unused, url);
+        };
+        addEventListener('popstate', () => (waiting = false), true);
+        document.addEventListener('astro:before-preparation', (event) => {
+          if (event.navigationType !== 'push' || event.formData || !activation.isActive) return;
+          // The router always loads a file in full.
+          if (/\.\w+$/.test(event.to.pathname) || location.href === event.to.href) return;
+          if (!waiting) {
+            push.call(history, history.state, '', location.href);
+            waiting = true;
+          }
+          const load = event.loader;
+          event.loader = async () => {
+            await load();
+            // The router will load the address in full, from this entry.
+            if (event.defaultPrevented && waiting && !event.signal.aborted) {
+              waiting = false;
+              replace.call(history, history.state, '', event.to.href);
+            }
+          };
+        });
+      })();
+    </script>
     <ClientRouter />
     <script is:inline>
       // An element off screen doesn't morph, or going back from far down an essay would fly its header in
@@ -81,6 +119,10 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
     <main>
       <slot />
     </main>
+    <script>
+      import { warmPages } from '../lib/warm-pages';
+      warmPages();
+    </script>
     {analyticsToken && (
       <script
         is:inline
