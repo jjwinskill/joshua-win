@@ -36,7 +36,7 @@ Where this repo's versions differ from what a model's training data suggests. Re
 |---|---|
 | `playwright test --only-changed` picks what a site change affects | It follows a spec's own imports, and these specs import nothing from `src/`, so it selects nothing and exits 0. Use `pnpm check:selected` |
 | Vitest `--changed` covers it | It misses `tests/build/`, and bare `--changed` compares only uncommitted work. The whole suite is about 23 s, so run it all |
-| `retries` as a safety net | A flaky pass exits 0. `failOnFlakyTests` turns it into a failure |
+| `retries` as a safety net | A flaky pass exits 0. `failOnFlakyTests` turns it into a failure, which here is on at checkpoints only |
 | Vitest 3 or 4 behavior | In Vitest 5, `clearMocks` defaults to true, and an unawaited `resolves` or `rejects` fails the test |
 | `page.clock` controls animation | It fakes timers and `requestAnimationFrame`, and CSS animations keep running |
 

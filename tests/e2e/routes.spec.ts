@@ -22,4 +22,13 @@ for (const route of routes) {
     const { violations } = await new AxeBuilder({ page }).analyze();
     expect(violations).toEqual([]);
   });
+
+  test(`${route} has no sideways scroll on a phone`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(route, { waitUntil: 'networkidle' });
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 }

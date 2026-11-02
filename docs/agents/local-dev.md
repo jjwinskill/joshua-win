@@ -28,7 +28,7 @@ A merge to `main` deploys: CI runs every check, runs `wrangler deploy` on the bu
 Previews are on demand from Josh's machine, signed in with `wrangler login` (G26). CI has no preview credential on purpose: a token PR branches can reach could also overwrite production. Checked against the [Worker Previews docs](https://developers.cloudflare.com/workers/previews/) (updated 2026-09-24) and Wrangler 4.155.0, whose help calls the command an open beta.
 
 ```bash
-pnpm build && pnpm exec wrangler preview --name my-test
+pnpm phone my-test
 ```
 
 It prints a URL, which always shows that name's latest upload. Anyone with the URL can read it, and it carries noindex from the Worker, as well as Cloudflare's own on `workers.dev`. It doesn't affect production, and it serves whatever is in your local `dist/`. Delete it when you're done; past the plan's limit, Cloudflare deletes the least recently used:
@@ -41,15 +41,21 @@ Don't run these in CI or paste `--json` output anywhere public: when tested, it 
 
 ## Merging a PR
 
-A merge to `main` deploys, so it waits for Josh's OK and an independent review.
+Auto-merge is the default before launch (G48). When `pnpm check:selected` has passed locally and the independent review's findings are answered on the PR, arm it as the last step, after the final push:
 
 ```bash
-gh pr merge <number> --repo jjwinskill/joshua-win --squash --match-head-commit <sha> --author-email jjwinskill@github.com
+gh pr merge <number> --repo jjwinskill/joshua-win --auto --squash --match-head-commit <sha> --author-email jjwinskill@github.com
 ```
+
+It merges when **Checks** passes, or at once if it already has, and the merge deploys. Move on rather than waiting.
+
+- **Wait for Josh on:** a one-way door, a change to the card transition, or anything he asked to see first.
+- **Run a checkpoint first on:** a risky PR (see Testing cadence), and link it on the PR.
+- **Motion:** send Josh the preview or live link when it's up. He checks on his phone, and any changes go in a new PR.
 
 - **The author email:** GitHub accepts only addresses it lists for the account, and it refuses the private noreply address that local commits use. `jjwinskill@github.com` is the one to use. The account's other address is an old work email, which must stay out of history.
 - **Merge a batch together (G38):** PRs that are ready and approved merge one after another, without waiting for each other's deploys. `main` runs one workflow at a time and keeps one pending, so runs queued in between may be cancelled, and the latest one tests and deploys everything merged. A run reads "cancelled" for this reason, and that's fine as long as a later run passes.
-- **Wait for the result:** `gh run watch <id> --exit-status` on the latest `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch. A merge of docs alone starts no run and deploys nothing, so it won't repair a failed run: production stays behind `main` until a site change merges, or you re-run the failed run. Re-run it only if it's the newest run on `main`, because an older one deploys its older build over newer code.
+- **Check the result when it matters,** such as before work that depends on the deploy: `gh run watch <id> --exit-status` on the latest `main` run. Clean up only once **Deploy to production** and **Smoke test production** pass, because a failed run may still need the preview and the branch. A merge of docs alone starts no run and deploys nothing, so it won't repair a failed run: production stays behind `main` until a site change merges, or you re-run the failed run. Re-run it only if it's the newest run on `main`, because an older one deploys its older build over newer code.
 - **Check the live site with `curl -L`:** pages redirect to a trailing slash, so a plain `curl` reads an empty 307.
 - **Clean up:** delete any preview for the PR. GitHub deletes the PR's branch on merge, and local worktrees and branches are yours to remove.
 
@@ -64,7 +70,7 @@ If a revert can't pass its checks, the site stays safe on the rolled-back versio
 
 ## Checking motion
 
-Check a transition or animation in this order, so it costs as few images as possible. Checked with ffmpeg 7.1 and qrcode 1.5.4 on 2026-10-31. Run these from your scratchpad or another folder outside the repo, so a recording or a QR code for a preview never gets committed.
+Check a transition or animation in this order, so it costs as few images as possible. Checked with ffmpeg 7.1 on 2026-10-31. Run these from your scratchpad or another folder outside the repo, so a recording never gets committed.
 
 1. **Assert it in a test** where a fact can be read off the page. `recordMidTransition` in `tests/e2e/home.spec.ts` shows how: it reads the running animations and the parade's position as a transition starts, so a missing animation fails CI. It can't judge the look.
 2. **Read a contact sheet from the iOS Simulator**, not a frame per image. Start the recording and wait for `Recording started`, trigger the motion, then stop it with `SIGINT`. Tile the frames that changed:
@@ -81,11 +87,7 @@ Check a transition or animation in this order, so it costs as few images as poss
 
    Each sheet holds 36 frames. Read every sheet it writes, because the motion's end is in the last one. If there are too many, raise the `scene` number. Enlarge single frames only when a sheet leaves a question.
    A font or other file that arrives late needs a real first visit: Safari keeps it in memory, so terminate it first (`xcrun simctl terminate <udid> com.apple.mobilesafari`), and serve the file through a small proxy that holds it back and sends `no-store`. With more than one Simulator booted, `booted` can mean any of them, so name the UDID, and shut yours down afterward.
-3. **Send it to Josh's phone.** He signs off on how motion feels. The throttled checks reported no layout shift for a jump he could see on his phone, and the Simulator can't run Chrome on iOS. Upload a preview (see Previews), then make a QR code for its URL. `</dev/null` stops the command waiting on input.
-
-   ```bash
-   pnpm dlx qrcode@1.5.4 -o qr.png -w 400 <preview-url> </dev/null
-   ```
+3. **Send it to Josh's phone.** He signs off on how motion feels. The throttled checks reported no layout shift for a jump he could see on his phone, and the Simulator can't run Chrome on iOS. Upload a preview (`pnpm phone <name>`), then put the URL alone in a fenced code block in your message, so he can copy it from the Claude app into the browser he's testing. Links opened from the app land in its built-in browser.
 
 ## Commands
 
@@ -95,6 +97,8 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. `astro preview` detaches too. |
 | `pnpm dev`, then print `/skill/template-sheet/` | The cast template sheet (P5), which exists only under `astro dev`. Print it from a browser to save a PDF, with headers and footers off. It's one US Letter page. |
 | `pnpm build` | Static build into `dist/skill/` |
+| `pnpm check:selected` | What must pass before a PR auto-merges (G48): typecheck, lint, format, all unit tests, a build, then the Playwright specs for what this branch changed (`scripts/select-e2e.ts`). A path the map doesn't know runs every spec. Needs Playwright's browser (see `pnpm test:e2e`). |
+| `pnpm phone <name>` | Builds and uploads a preview, and prints its URL (see Previews) |
 | `pnpm charts` | Renders the Mermaid floor from the run file into `src/components/charts/mermaid/`, using Playwright's Chromium (G40). Run it after changing `src/content/run.json` or how charts are generated, and commit the SVGs. Unit tests fail until you do if the Mermaid text changed, but not if only render settings or Mermaid's version did. Checked against Mermaid 12.2.0 on 2026-11-01. |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
@@ -107,18 +111,18 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
 
-CI (`.github/workflows/ci.yml`) runs one job, **Checks**, on every PR and before every deploy: typecheck, lint and format check, the tests, the build, Playwright and axe against that build, then one Lighthouse run. It should take about two minutes, so keep it there. A merge of only `docs/` or Markdown at the repo root starts no run and deploys nothing.
+CI (`.github/workflows/ci.yml`) runs one job, **Checks**, on every PR and before every deploy: the build, typecheck, lint and format check, the unit tests, then `routes` and `worker` in Playwright, which guard noindex and run axe on every page. A merge of only `docs/` or Markdown at the repo root starts no run and deploys nothing. Keep **Checks** free of path filters and `if:` on PRs, because it's required: a filtered workflow stays pending forever, and a job skipped by `if:` counts as passing.
 
-## Testing cadence (G38)
+## Testing cadence (G38, G48)
 
 | When | What runs |
 |---|---|
-| Before pushing | `pnpm typecheck`, `pnpm lint`, `pnpm test`, and the Playwright specs for what changed |
+| Before a PR auto-merges | `pnpm check:selected` |
 | Every PR, and before every deploy | **Checks**, in CI |
-| Each phase's end, and a risky PR | A **checkpoint**, on top of Checks: `gh workflow run checkpoint.yml --ref <branch>` |
+| Each phase's end, and a risky PR | A **checkpoint**, with all of Playwright, full Lighthouse and the throttled checks: `gh workflow run checkpoint.yml --ref <branch>` |
 | Anything that moves | Josh's phone, through a preview |
 
-A checkpoint runs `pnpm test:perf` and `pnpm test:lighthouse:full`, and keeps their results for 30 days. A risky PR is one that touches the transition, the Worker, CI or the deploy, or upgrades Astro, React or Wrangler. Link its checkpoint in the PR before asking Josh to merge. Nothing enforces this, so the agent opening the PR is responsible for it.
+A checkpoint keeps its results for 30 days. A risky PR is one that touches the transition, the Worker, CI or the deploy, or upgrades Astro, React or Wrangler. Nothing enforces this, so the agent opening the PR is responsible for it.
 
 ## Folders
 
