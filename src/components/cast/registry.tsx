@@ -148,7 +148,7 @@ export const castRegistry = {
     name: 'A crumpled sheet of paper',
     role: 'Object',
     Torso: CrumpledPaper,
-    gait: { beat: 480, bob: 2, lean: 3 },
+    gait: { beat: 480, bob: 1.5, lean: 3 },
   },
   // Thirty-five years in a cellar, and tired.
   hanta: { name: 'Haňťa', role: 'Character', Torso: Hanta, gait: { beat: 700, bob: 1, lean: 2 } },

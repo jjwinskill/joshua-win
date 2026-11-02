@@ -22,6 +22,13 @@
   }
 }
 
+/* Ink lines and dark hair need a light edge on a dark page. The parade sets its own. */
+@media (prefers-color-scheme: dark) {
+  .cast-figure {
+    filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
+  }
+}
+
 * {
   box-sizing: border-box;
 }

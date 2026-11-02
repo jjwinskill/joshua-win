@@ -103,6 +103,35 @@ test('a highlight clears even when a jump starts during the curtain call', async
   await expect(mention).not.toHaveClass(/flash/, { timeout: 5_000 });
 });
 
+test('a long name stays on screen wherever its dot is, on a phone and a desktop', async ({
+  page,
+}) => {
+  for (const width of [320, 1280]) {
+    await page.setViewportSize({ width, height: 700 });
+    await page.goto('essays/ut-labore/');
+    await page.evaluate(() => scrollBy({ top: 300, behavior: 'instant' }));
+    const slots = page.locator('.slot');
+    await expect(slots.first()).toHaveAttribute('aria-label', /.+/);
+    for (let i = 0; i < (await slots.count()); i += 1) {
+      await slots.nth(i).focus();
+      const box = await slots.nth(i).locator('.label span').boundingBox();
+      expect(box?.x).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(width);
+    }
+  }
+});
+
+test('each cast member walks at their own pace', async ({ page }) => {
+  await page.goto(essay);
+  await page.evaluate(() =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
+  );
+  const thigh = (name: RegExp) => dot(page, name).locator('.thigh').first();
+  await expect(dot(page, /A crumpled sheet of paper/)).toHaveClass(/walking/);
+  await expect(thigh(/A crumpled sheet of paper/)).toHaveCSS('animation-duration', '0.48s');
+  await expect(thigh(/hydraulic press/)).toHaveCSS('animation-duration', '0.88s');
+});
+
 test('focusing a dot peeks at the cast member too', async ({ page }) => {
   await waitForParade(page);
   const milk = dot(page, /A glass of milk/);

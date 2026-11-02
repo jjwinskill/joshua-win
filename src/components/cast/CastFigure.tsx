@@ -31,6 +31,7 @@ export function CastFigure({ castKey }: { castKey: CastKey }) {
   const { Torso, gait } = castRegistry[castKey];
   return (
     <svg
+      className="cast-figure"
       viewBox={`0 0 ${RIG.width} ${RIG.height}`}
       aria-hidden="true"
       focusable="false"

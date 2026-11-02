@@ -66,7 +66,7 @@ export function Parade({ cast, endId }: ParadeProps) {
               </span>
               <span className="dot" aria-hidden="true" />
               <span className="label" aria-hidden="true">
-                {castRegistry[key].name}
+                <span>{castRegistry[key].name}</span>
               </span>
             </button>
           ))}
