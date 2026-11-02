@@ -1,0 +1,420 @@
+/* The scroll-driven robot (#55). Everything outside the block at the bottom is the finished robot, which is
+   what reduced motion and browsers without scroll timelines get. Only transform and opacity animate. */
+.robot-chart {
+  margin: 2.5rem 0;
+}
+
+.robot-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.robot-stage figcaption {
+  max-width: 34rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.robot {
+  position: relative;
+  aspect-ratio: 360 / 470;
+  width: min(100%, 26rem);
+}
+
+.robot-whole,
+.robot-part {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 97%;
+}
+
+.robot-part {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.robot-metal {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.robot-dark {
+  fill: var(--ink);
+  opacity: 0.16;
+}
+
+.robot-brain-fill {
+  fill: #ec9aa8;
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.robot-brain-fold {
+  fill: none;
+  stroke: #8a3b4c;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.robot-face-off {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.robot-face-patch {
+  fill: var(--paper);
+}
+
+.robot-eye {
+  fill: var(--accent);
+}
+
+.robot-eye-glow {
+  fill: var(--accent);
+  opacity: 0.25;
+}
+
+.robot-smile {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.robot-plate,
+.robot-stage-name,
+.robot-clack-word {
+  font-family: var(--sans);
+  fill: var(--ink);
+}
+
+.robot-plate {
+  font-size: 15px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.robot-lamp-off {
+  fill: var(--ink);
+  opacity: 0.2;
+}
+
+.robot-lamp {
+  position: absolute;
+  width: 3.3%;
+  aspect-ratio: 1;
+  margin: -1.65% 0 0 -1.65%;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* It tumbles around its own middle. */
+.robot-brain {
+  transform-origin: 50% 35%;
+}
+
+/* The hinge is at the right end of the dome. */
+.robot-lid {
+  transform-origin: calc(254 / 360 * 100%) calc(190 / 470 * 100%);
+}
+
+.robot-dome {
+  fill: color-mix(in srgb, var(--ink) 7%, transparent);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.robot-dome-shine {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.robot-arm {
+  transform-origin: calc(260 / 360 * 100%) calc(322 / 470 * 100%);
+}
+
+.robot-clack {
+  opacity: 0;
+  transform-origin: 50% 25%;
+}
+
+.robot-spark {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.robot-clack-word {
+  fill: var(--accent);
+  font-size: 44px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+/* The moving version: a tall track with a sticky stage, so the page really scrolls while the robot holds
+   still in front of the reader. svh doesn't change as the iOS toolbar collapses. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .robot-track {
+      height: 190svh;
+      view-timeline: --robot block;
+    }
+
+    .robot-stage {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      justify-content: center;
+      /* The brain starts above the stage, out of sight until the robot is pinned. */
+      overflow: clip;
+    }
+
+    .robot {
+      /* Narrower than the column, because the open lid reaches past the robot's own box. */
+      width: min(90%, 26rem, calc((100svh - 7rem) * 360 / 470));
+    }
+
+    .robot-whole,
+    .robot-arm,
+    .robot-brain,
+    .robot-lid,
+    .robot-face-on,
+    .robot-clack,
+    .robot-lamp {
+      animation-duration: auto;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: --robot;
+      animation-range: contain 0% contain 100%;
+    }
+
+    .robot-brain {
+      animation-name: robot-brain;
+    }
+
+    .robot-lid {
+      animation-name: robot-lid;
+    }
+
+    .robot-whole {
+      animation-name: robot-whole;
+    }
+
+    .robot-face-on {
+      animation-name: robot-face-on;
+    }
+
+    .robot-clack {
+      animation-name: robot-clack;
+    }
+
+    .robot-arm {
+      animation-name: robot-arm;
+    }
+
+    .robot-lamp {
+      animation-name: robot-lamp;
+      animation-range: contain var(--lamp-from) contain var(--lamp-to);
+    }
+  }
+}
+
+/* Gravity: it starts just out of sight, whatever the screen's height (the robot's centered, so the brain's
+   resting place is about half a screen down). It speeds up all the way down, lands at 38%, and bounces once before
+   the lid comes down. */
+@keyframes robot-brain {
+  0% {
+    transform: translateY(-58svh) rotate(-14deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.95, 0.55);
+  }
+  38% {
+    transform: translateY(0) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  42% {
+    transform: translateY(-7%) rotate(5deg);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
+  }
+  46%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* It hangs open, shudders as the brain lands, and then shuts in almost no scrolling at all. */
+@keyframes robot-lid {
+  0%,
+  37% {
+    transform: rotate(122deg);
+  }
+  39% {
+    transform: rotate(132deg);
+  }
+  42% {
+    transform: rotate(116deg);
+  }
+  46%,
+  49% {
+    transform: rotate(124deg);
+    animation-timing-function: cubic-bezier(0.7, 0, 1, 0.7);
+  }
+  51% {
+    transform: rotate(0deg);
+    animation-timing-function: ease-out;
+  }
+  52.5% {
+    transform: rotate(7deg);
+    animation-timing-function: ease-in;
+  }
+  54%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* It takes the brain's weight, takes the lid's, and hops for joy once it's on. */
+@keyframes robot-whole {
+  0%,
+  37.5% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  39.5% {
+    transform: scale(1.05, 0.92);
+    animation-timing-function: ease-out;
+  }
+  44%,
+  50.5% {
+    transform: none;
+  }
+  52% {
+    transform: scale(1.09, 0.88);
+  }
+  55% {
+    transform: scale(0.97, 1.03);
+  }
+  58%,
+  76% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  80% {
+    transform: translateY(-7%) scale(0.98, 1.03);
+    animation-timing-function: ease-in;
+  }
+  84% {
+    transform: scale(1.05, 0.95);
+    animation-timing-function: ease-out;
+  }
+  87%,
+  100% {
+    transform: none;
+  }
+}
+
+/* A fluorescent tube's stutter, so it reads as a switch and not a fade. */
+@keyframes robot-face-on {
+  0%,
+  57% {
+    opacity: 0;
+    animation-timing-function: steps(1, end);
+  }
+  58% {
+    opacity: 1;
+    animation-timing-function: steps(1, end);
+  }
+  59.5% {
+    opacity: 0;
+    animation-timing-function: steps(1, end);
+  }
+  61% {
+    opacity: 1;
+    animation-timing-function: steps(1, end);
+  }
+  62% {
+    opacity: 0;
+    animation-timing-function: steps(1, end);
+  }
+  64%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes robot-clack {
+  0%,
+  50.5% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-6deg);
+    animation-timing-function: cubic-bezier(0.2, 1.6, 0.5, 1);
+  }
+  52.5% {
+    opacity: 1;
+    transform: scale(1.1) rotate(-3deg);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1) rotate(-3deg);
+  }
+  61%,
+  100% {
+    opacity: 0;
+    transform: scale(1.06) rotate(-3deg);
+  }
+}
+
+/* A wave: up with the hop, twice side to side. */
+@keyframes robot-arm {
+  0%,
+  76% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  81% {
+    transform: rotate(-132deg);
+    animation-timing-function: ease-in-out;
+  }
+  85% {
+    transform: rotate(-108deg);
+    animation-timing-function: ease-in-out;
+  }
+  89% {
+    transform: rotate(-132deg);
+    animation-timing-function: ease-in-out;
+  }
+  93% {
+    transform: rotate(-108deg);
+    animation-timing-function: ease-in-out;
+  }
+  97%,
+  100% {
+    transform: rotate(-122deg);
+  }
+}
+
+@keyframes robot-lamp {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+    animation-timing-function: cubic-bezier(0.2, 1.8, 0.5, 1);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
