@@ -179,9 +179,9 @@ export function parseRun(input: unknown): Run {
     .flatMap((card, i) => parseCard(check, card, `cards[${i}]`) ?? []);
   const last = stages.at(-1);
   stages.forEach((stage, i) => {
-    const previous = stages[i - 1];
-    // A first stage may have made no cards yet, so 0 can rise.
-    if (previous && previous.cards > 0 && stage.cards > previous.cards) {
+    // Early stages may have made no cards yet, so 0 doesn't count.
+    const previous = stages.slice(0, i).findLast(({ cards }) => cards > 0);
+    if (previous && stage.cards > previous.cards) {
       check.add(
         `stages[${i}].cards`,
         `can't rise from ${previous.cards}: stages only narrow cards`,

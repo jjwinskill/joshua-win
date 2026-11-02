@@ -141,3 +141,31 @@ it('under reduced motion, it stays on the menu and a button snaps between rounds
   expect(drawing(container)).toBe(round);
   expect(screen.getByRole('button', { name: 'Next round' })).toBeInTheDocument();
 });
+
+it('turning on reduced motion mid-play stops it on the menu', () => {
+  let reduce = false;
+  let notify = () => {};
+  stubBrowser();
+  vi.stubGlobal('matchMedia', () => ({
+    get matches() {
+      return reduce;
+    },
+    addEventListener: (_: string, listener: () => void) => {
+      notify = listener;
+    },
+    removeEventListener: () => {},
+  }));
+  const { container } = render(<PixelBattle run={run} />);
+  const menu = drawing(container);
+  act(() => seen?.([{ isIntersecting: true }]));
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
+  expect(drawing(container)).not.toBe(menu);
+  act(() => {
+    reduce = true;
+    notify();
+  });
+  expect(drawing(container)).toBe(menu);
+  expect(screen.queryByRole('button', { name: 'Pause' })).toBeNull();
+});

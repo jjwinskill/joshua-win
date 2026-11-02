@@ -23,7 +23,14 @@ const dots = (count: number) => '•'.repeat(Math.min(count, 12));
 export function UmbrellaCarousel({ run }: { run: Run }) {
   const { stages } = run;
   const count = stages.length;
-  const list = useMemo(() => runCharts(run).find(({ id }) => id === 'fan-out')?.list ?? [], [run]);
+  const list = useMemo(() => {
+    const lines = runCharts(run).find(({ id }) => id === 'fan-out')?.list ?? [];
+    // The panels also say how many cards are left, so the list must too.
+    return lines.map((line, i) => {
+      const cards = run.stages[i]?.cards;
+      return `${line} ${cards === 1 ? '1 card' : `${cards} cards`} left after it.`;
+    });
+  }, [run]);
   const [selected, setSelected] = useState(0);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);

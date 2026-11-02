@@ -33,11 +33,13 @@ export function PixelBattle({ run }: { run: Run }) {
   );
   const figure = useRef<HTMLElement>(null);
   const reduced = useSyncExternalStore(subscribeToMotion, prefersReducedMotion, () => false);
-  const [tick, setTick] = useState(script.total);
+  const [storedTick, setTick] = useState(script.total);
   const [playing, setPlaying] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
+  // Turning on reduced motion mid-play snaps to the menu, since it hides the Pause button.
+  const tick = reduced && playing ? script.total : storedTick;
   const finished = tick >= script.total;
-  const running = playing && onScreen && !finished;
+  const running = playing && onScreen && !finished && !reduced;
 
   // The first sight of it starts it. Scrolling away only pauses it.
   useEffect(() => {
