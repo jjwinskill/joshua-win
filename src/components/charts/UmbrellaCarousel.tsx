@@ -22,12 +22,12 @@ import {
   type PanelPose,
 } from './umbrella-pose';
 
-const stiffness = 110;
-const damping = 14;
+const stiffness = 45;
+const damping = 10;
 /** How much of its width a drag crosses to move the ring on by one panel. */
 const dragPerPanel = 0.25;
 /** How far a pointer moves before it's a drag, not a tap, in pixels. */
-const dragStart = 6;
+const dragStart = 12;
 
 function panelTransform({ x, y, scale, twist }: PanelPose, swing: number): string {
   return `translate(calc(${x}cqi - 50%), ${y}cqi) perspective(60cqi) rotateY(${twist}deg) rotate(${swing}deg) scale(${scale})`;
@@ -143,7 +143,9 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       frame = requestAnimationFrame(step);
     };
 
+    let current = 0;
     moveTo.current = (index) => {
+      current = index;
       target = nearestTurn(turn, index, count);
       if (reduced) {
         turn = target;
@@ -154,20 +156,39 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     };
 
     // A drag turns the ring directly, and letting go settles on the panel nearest the front.
-    let grip: { id: number; x: number; turn: number; dragging: boolean } | null = null;
+    let grip: { id: number; x: number; y: number; turn: number; dragging: boolean } | null = null;
     let lastMove = { x: 0, at: 0, speed: 0 };
     const element = root.current;
     const onDown = (event: PointerEvent) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || !event.isPrimary || grip) return;
       launch();
       skipClick = false;
-      grip = { id: event.pointerId, x: event.clientX, turn, dragging: false };
+      grip = { id: event.pointerId, x: event.clientX, y: event.clientY, turn, dragging: false };
       lastMove = { x: event.clientX, at: event.timeStamp, speed: 0 };
+    };
+    /** Lets go without choosing anything: the ring goes back to the panel it was on. */
+    const abandon = () => {
+      const wasDragging = grip?.dragging;
+      grip = null;
+      if (!wasDragging) return;
+      element?.classList.remove('is-dragging');
+      moveTo.current(current);
     };
     const onMove = (event: PointerEvent) => {
       if (grip?.id !== event.pointerId || !element) return;
+      // The button came up somewhere we couldn't see it.
+      if (!event.buttons) {
+        abandon();
+        return;
+      }
       const moved = event.clientX - grip.x;
       if (!grip.dragging) {
+        const movedUp = Math.abs(event.clientY - grip.y);
+        // Mostly up or down is the page scrolling, whatever a thumb drifts sideways as it goes.
+        if (movedUp >= dragStart && movedUp >= Math.abs(moved)) {
+          grip = null;
+          return;
+        }
         if (Math.abs(moved) < dragStart) return;
         grip.dragging = true;
         grip.turn = turn + moved / (element.clientWidth * dragPerPanel);
@@ -196,6 +217,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       const stale = event.timeStamp - lastMove.at > 80;
       const thrown = turn + (stale ? 0 : Math.max(-1.5, Math.min(1.5, lastMove.speed * 180)));
       const index = panelAt(thrown, count);
+      current = index;
       target = Math.round(thrown);
       if (reduced) {
         turn = target;
@@ -205,6 +227,9 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       }
       skipClick = true;
       setSelected(index);
+    };
+    const onCancel = (event: PointerEvent) => {
+      if (grip?.id === event.pointerId) abandon();
     };
     // The click that ends a drag isn't a tap on whatever panel it ended on.
     let skipClick = false;
@@ -218,7 +243,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     element?.addEventListener('pointerdown', onDown);
     element?.addEventListener('pointermove', onMove);
     element?.addEventListener('pointerup', onUp);
-    element?.addEventListener('pointercancel', onUp);
+    element?.addEventListener('pointercancel', onCancel);
     element?.addEventListener('click', onClick, true);
 
     const launch = () => {
@@ -250,7 +275,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       element?.removeEventListener('pointerdown', onDown);
       element?.removeEventListener('pointermove', onMove);
       element?.removeEventListener('pointerup', onUp);
-      element?.removeEventListener('pointercancel', onUp);
+      element?.removeEventListener('pointercancel', onCancel);
       element?.removeEventListener('click', onClick, true);
       watcher?.disconnect();
       cancelAnimationFrame(frame);
@@ -363,8 +388,8 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       </div>
       <figcaption>
         The umbrella: {run.orchestrator} launches{' '}
-        {count === 1 ? 'its 1 agent' : `its ${count} agents`}. Tap a panel to twist it forward and
-        open it.
+        {count === 1 ? 'its 1 agent' : `its ${count} agents`}. Swipe the ring or tap a panel to
+        bring it forward and open it.
       </figcaption>
       <ol className="visually-hidden">
         {list.map((line) => (

@@ -178,6 +178,57 @@ test('dragging sideways turns the ring, and doesn’t count as a tap', async ({ 
   await expect(page.locator('.umbrella')).toHaveCSS('touch-action', 'pan-y pinch-zoom');
 });
 
+test('a tap that slips a little still taps', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(writeUp);
+  await page.locator('.umbrella').evaluate((umbrella) => {
+    umbrella.scrollIntoView({ block: 'center', behavior: 'instant' });
+  });
+  await expect.poll(() => lit(page)).toEqual(allLit);
+  const box = await page.getByRole('button', { name: 'Agent B' }).boundingBox();
+  const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+  const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 8, y);
+  await page.mouse.up();
+  await expect(page.getByRole('button', { name: 'Agent B', pressed: true })).toHaveCount(1);
+});
+
+test.describe('on a touch screen', () => {
+  test.use({ hasTouch: true });
+
+  test('a swipe up scrolls the page and leaves the ring alone, even with some drift', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto(writeUp);
+    await page.locator('.umbrella').evaluate((umbrella) => {
+      umbrella.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
+    await expect.poll(() => lit(page)).toEqual(allLit);
+    const before = await page.evaluate(() => scrollY);
+    const cdp = await page.context().newCDPSession(page);
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) =>
+      cdp.send('Input.dispatchTouchEvent', {
+        type,
+        touchPoints: x === undefined ? [] : [{ x, y: y ?? 0 }],
+      });
+    let x = 120;
+    let y = 600;
+    await touch('touchStart', x, y);
+    for (let i = 0; i < 20; i += 1) {
+      x += 4;
+      y -= 14;
+      await touch('touchMove', x, y);
+    }
+    await touch('touchEnd');
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before);
+    await expect(page.getByRole('button', { name: 'Agent A', pressed: true })).toHaveCount(1);
+    await expect.poll(() => openness(page)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0]);
+  });
+});
+
 test.describe('under reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

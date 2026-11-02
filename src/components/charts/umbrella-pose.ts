@@ -1,7 +1,7 @@
 // Where the umbrella carousel's parts sit, as a pure function of how far it has turned and how far it has
 // launched. A turn of 1 moves the ring on by one panel. Units are percent of the carousel's width.
 export interface PanelPose {
-  /** The tip of its rib, on the umbrella's rim. */
+  /** The point on the ring it sits at, before an open panel drops. */
   rimX: number;
   rimY: number;
   /** Where the panel's top middle hangs from. */

@@ -55,13 +55,19 @@ test('reached from another page, scrolling opens, catches, snaps shut and switch
 
   // It came on and stayed on: no flicker on the way.
   for (const [at, lowest] of [
-    [0.38, 1],
+    [0.4, 1],
     [0.45, 1],
     [0.7, 1],
   ] as const) {
     await scrollThrough(page, at);
     await expect.poll(() => opacityOf(page, '.robot-face-on')).toBeGreaterThanOrEqual(lowest);
   }
+
+  // The wave ends with the hand above the shoulder: the forearm comes up, not the whole arm over.
+  await scrollThrough(page, 1);
+  const shoulder = await page.locator('.robot-arm .robot-bolt').first().boundingBox();
+  const hand = await page.locator('.robot-forearm g').boundingBox();
+  expect((hand?.y ?? 0) + (hand?.height ?? 0)).toBeLessThan(shoulder?.y ?? 0);
 
   // Scrolling back runs it backward.
   await scrollThrough(page, 0);

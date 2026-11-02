@@ -169,6 +169,10 @@
   transform-origin: calc(264 / 360 * 100%) calc(322 / 470 * 100%);
 }
 
+.robot-forearm {
+  transform-origin: calc(292 / 360 * 100%) calc(358 / 470 * 100%);
+}
+
 .robot-clack {
   opacity: 0;
   transform-origin: 50% 25%;
@@ -213,6 +217,7 @@
 
     .robot-whole,
     .robot-arm,
+    .robot-forearm,
     .robot-brain,
     .robot-lid,
     .robot-face-on,
@@ -247,6 +252,10 @@
 
     .robot-arm {
       animation-name: robot-arm;
+    }
+
+    .robot-forearm {
+      animation-name: robot-forearm;
     }
 
     .robot-lamp {
@@ -383,32 +392,45 @@
   }
 }
 
-/* A wave: up with the hop, twice side to side. */
+/* A wave: with the hop, the upper arm swings out and the forearm comes up from the elbow, and then only the
+   forearm goes side to side. */
 @keyframes robot-arm {
-  0.0%,
+  0%,
+  60.6% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  68.8%,
+  100% {
+    transform: rotate(-55deg);
+  }
+}
+
+@keyframes robot-forearm {
+  0%,
   60.6% {
     transform: none;
     animation-timing-function: ease-out;
   }
   68.8% {
-    transform: rotate(-132deg);
+    transform: rotate(-125deg);
     animation-timing-function: ease-in-out;
   }
   75.4% {
-    transform: rotate(-108deg);
+    transform: rotate(-95deg);
     animation-timing-function: ease-in-out;
   }
   81.9% {
-    transform: rotate(-132deg);
+    transform: rotate(-125deg);
     animation-timing-function: ease-in-out;
   }
   88.5% {
-    transform: rotate(-108deg);
+    transform: rotate(-95deg);
     animation-timing-function: ease-in-out;
   }
   95.1%,
-  100.0% {
-    transform: rotate(-122deg);
+  100% {
+    transform: rotate(-110deg);
   }
 }
 
