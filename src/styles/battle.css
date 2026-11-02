@@ -1,0 +1,51 @@
+/* The pixel-art battle (#56). The screen is its own dark game screen in both themes. */
+.battle-chart {
+  margin: 2.5rem auto;
+  max-width: 26rem;
+}
+
+.battle-screen {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 160 / 156;
+  background: #181425;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+}
+
+.battle-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-block-start: 0.6rem;
+}
+
+.battle-controls button {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  /* A double tap on a button shouldn't zoom the page. */
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.battle-chart figcaption {
+  margin-block-start: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* With no JavaScript the buttons can't work, and the menu is still there to read. */
+@media (scripting: none) {
+  .battle-controls {
+    display: none;
+  }
+}
