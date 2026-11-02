@@ -26,11 +26,13 @@ export function PieceCard({ href, slug, kicker, title, dek, cast }: PieceCardPro
       <p className="dek" data-morph style={{ viewTransitionName: names.dek }}>
         {dek}
       </p>
-      <span className="piece-card-cast" data-morph style={{ viewTransitionName: names.cast }}>
-        {cast.map((key) => (
-          <CastFigure key={key} castKey={key} />
-        ))}
-      </span>
+      {cast.length > 0 && (
+        <span className="piece-card-cast" data-morph style={{ viewTransitionName: names.cast }}>
+          {cast.map((key) => (
+            <CastFigure key={key} castKey={key} />
+          ))}
+        </span>
+      )}
     </a>
   );
 }

@@ -14,7 +14,9 @@ import {
 // Throttled checks of what Lighthouse can't see (S1): scrolling, interaction and transitions (#33).
 const essay = 'essays/lorem-ipsum/';
 const heavy = 'essays/amet-consectetur/';
-const scrolled = [essay, heavy];
+const mdx = 'essays/ut-labore/';
+const writeUp = 'write-ups/excepteur-sint/';
+const scrolled = [essay, heavy, mdx];
 
 test.describe('scrolling', () => {
   for (const route of scrolled) {
@@ -32,6 +34,29 @@ test.describe('scrolling', () => {
   }
 });
 
+test.describe('the write-up', () => {
+  test('stays stable through a touch scroll, with no parade', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(writeUp);
+    await expect(page.locator('.run-chart svg').first()).toBeVisible();
+    await resetFrames(page);
+    await swipeToBottom(page);
+    const metrics = await readMetrics(page);
+    await report('scroll', writeUp, { ...metrics, inp: undefined });
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(writeUp).cls);
+  });
+
+  test('its card transition runs', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto('./');
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: /Excepteur sint occaecat/ }).tap();
+    const result = await settledTransition(page, /Excepteur sint occaecat/);
+    await report('transition-write-up', writeUp, result);
+    expect(result.morphed).toBe(true);
+  });
+});
+
 test.describe('interaction', () => {
   test('tapping a parade dot responds in time', async ({ context }) => {
     const page = await throttledPage(context);
@@ -44,6 +69,18 @@ test.describe('interaction', () => {
     await report('interaction', essay, metrics);
     expect(metrics.inp, 'INP').toBeLessThanOrEqual(limitsFor(essay).inp);
     expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(essay).cls);
+  });
+});
+
+test.describe('piece 3', () => {
+  test('its one-off hydrates without shifting the page', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(mdx);
+    await expect(page.locator('.scroll-tally')).toHaveText(/%$/);
+    await page.waitForTimeout(500);
+    const metrics = await readMetrics(page);
+    await report('one-off', mdx, { ...metrics, inp: undefined });
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(mdx).cls);
   });
 });
 

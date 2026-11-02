@@ -18,6 +18,8 @@ module.exports = {
             `http://127.0.0.1:${port}/skill/essays/lorem-ipsum/`,
             `http://127.0.0.1:${port}/skill/contents/`,
             heavyPage,
+            `http://127.0.0.1:${port}/skill/essays/ut-labore/`,
+            `http://127.0.0.1:${port}/skill/write-ups/excepteur-sint/`,
           ]
         : [heavyPage],
       numberOfRuns: full ? 3 : 1,

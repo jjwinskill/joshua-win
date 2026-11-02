@@ -1,0 +1,14 @@
+---
+// A write-up, on the template every piece shares (G36).
+import { getCollection } from 'astro:content';
+import Piece from '../../layouts/Piece.astro';
+
+export async function getStaticPaths() {
+  const pieces = await getCollection('lorem', ({ data }) => data.kind === 'write-up');
+  return pieces.map((piece) => ({ params: { slug: piece.id }, props: { piece } }));
+}
+
+const { piece } = Astro.props;
+---
+
+<Piece piece={piece} />

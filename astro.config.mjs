@@ -1,6 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+import { satteri } from '@astrojs/markdown-satteri';
 import react from '@astrojs/react';
+import { castMentionsPlugin } from './src/lib/mdx-mentions.ts';
 
 // Drafts exist under `astro dev` only (#9). Keyed on the command, because `import.meta.env.DEV` can
 // be true in a build (NODE_ENV=development). No build has the route or the collection's contents.
@@ -27,5 +30,9 @@ export default defineConfig({
   outDir: './dist/skill',
   trailingSlash: 'always',
   build: { format: 'directory' },
-  integrations: [react(), draftsInDev],
+  integrations: [
+    react(),
+    mdx({ processor: satteri({ mdastPlugins: [castMentionsPlugin] }) }),
+    draftsInDev,
+  ],
 });

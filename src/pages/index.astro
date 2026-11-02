@@ -4,11 +4,16 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { PieceCard } from '../components/PieceCard';
-import { castInOrderOfAppearance } from '../components/cast/mentions';
 import { sitePath } from '../lib/paths';
-import { essayKicker, essayPath, newestFirst } from '../lib/pieces';
+import { pieceCast } from '../lib/piece-cast';
+import { newestFirst, pieceKicker, piecePath } from '../lib/pieces';
 
-const pieces = newestFirst(await getCollection('lorem'));
+const pieces = await Promise.all(
+  newestFirst(await getCollection('lorem')).map(async (piece) => ({
+    piece,
+    cast: await pieceCast(piece),
+  })),
+);
 ---
 
 <Base title="Josh Winskill">
@@ -20,15 +25,15 @@ const pieces = newestFirst(await getCollection('lorem'));
       </p>
     </header>
     <ol class="piece-cards">
-      {pieces.map((piece) => (
+      {pieces.map(({ piece, cast }) => (
         <li>
           <PieceCard
-            href={sitePath(essayPath(piece.id))}
+            href={sitePath(piecePath(piece.data.kind, piece.id))}
             slug={piece.id}
-            kicker={essayKicker}
+            kicker={pieceKicker(piece.data.kind)}
             title={piece.data.title}
             dek={piece.data.dek}
-            cast={castInOrderOfAppearance(piece.rendered?.html ?? '', piece.data.cast)}
+            cast={cast}
           />
         </li>
       ))}

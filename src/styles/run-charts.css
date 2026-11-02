@@ -1,0 +1,47 @@
+/* The committed Mermaid SVGs carry no colors (G40). These give them the page's, in both themes. Mermaid
+   measured the labels in a wider font, so the page's own sans always fits the boxes. */
+.run-chart {
+  margin: 2.5rem 0;
+}
+
+.run-chart-visual svg {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+  font-family: var(--sans);
+}
+
+.run-chart-visual text {
+  fill: var(--ink);
+  font-family: var(--sans);
+  /* What Mermaid measured at. Its own stylesheet, which set this, isn't committed. */
+  font-size: 14px;
+  text-anchor: middle;
+}
+
+.run-chart-visual .node rect,
+.run-chart-visual .node path,
+.run-chart-visual .node polygon {
+  fill: var(--paper);
+  stroke: var(--ink-soft);
+  stroke-width: 1.5px;
+}
+
+.run-chart-visual .flowchart-link {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1.5px;
+}
+
+.run-chart-visual .marker,
+.run-chart-visual .arrowMarkerPath {
+  fill: var(--ink-soft);
+  stroke: var(--ink-soft);
+}
+
+.run-chart figcaption {
+  margin-block-start: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}

@@ -1,81 +1,15 @@
 ---
-// The essay template: complete and semantic, with no treatment.
-import { getCollection, render } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import { CastList } from '../../components/cast/CastList';
-import { HeavyChart } from '../../components/figures/HeavyChart';
-import { HeavyScene } from '../../components/figures/HeavyScene';
-import { Parade } from '../../components/parade/Parade';
-import { hasFigures, splitAtFigures } from '../../lib/figures';
+// An essay, on the template every piece shares.
+import { getCollection } from 'astro:content';
+import Piece from '../../layouts/Piece.astro';
 import '../../styles/figures.css';
-import '../../styles/parade.css';
-import { castInOrderOfAppearance } from '../../components/cast/mentions';
-import { morphNames } from '../../components/morph';
-import { essayKicker } from '../../lib/pieces';
 
 export async function getStaticPaths() {
-  const pieces = await getCollection('lorem');
+  const pieces = await getCollection('lorem', ({ data }) => data.kind === 'essay');
   return pieces.map((piece) => ({ params: { slug: piece.id }, props: { piece } }));
 }
 
 const { piece } = Astro.props;
-const { Content } = await render(piece);
-const html = piece.rendered?.html ?? '';
-const { title, dek, date, citedWork } = piece.data;
-const names = morphNames(piece.id);
-const cast = castInOrderOfAppearance(html, piece.data.cast);
 ---
 
-<Base title={title}>
-  <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
-  <article>
-    <header class="essay-head">
-      <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
-        {essayKicker}
-      </p>
-      <h1 data-morph style={{ viewTransitionName: names.title }}>
-        {title}
-      </h1>
-      <p class="dek" data-morph style={{ viewTransitionName: names.dek }}>
-        {dek}
-      </p>
-      <p class="essay-date">
-        <time datetime={date.toISOString().slice(0, 10)}>
-          {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
-        </time>
-      </p>
-    </header>
-    <div class="essay-body">
-      {hasFigures(html) ? (
-        splitAtFigures(html).map((part) =>
-          'html' in part ? (
-            <Fragment set:html={part.html} />
-          ) : part.figure === 'scene' ? (
-            <HeavyScene client:idle />
-          ) : (
-            <HeavyChart client:idle />
-          ),
-        )
-      ) : (
-        <Content />
-      )}
-      <p class="end-mark" id="parade-end" aria-hidden="true">
-        · · ·
-      </p>
-    </div>
-  </article>
-  <CastList cast={cast} citedWork={citedWork} />
-  <Parade client:idle cast={cast} endId="parade-end" />
-  <noscript slot="head">
-    <style>
-      .parade,
-      .replay-row,
-      .heavy-scene,
-      .heavy-chart,
-      .heavy-figure figcaption {
-        /* This loads before the stylesheets, which would otherwise win. */
-        display: none !important;
-      }
-    </style>
-  </noscript>
-</Base>
+<Piece piece={piece} />

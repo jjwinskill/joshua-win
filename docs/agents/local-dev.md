@@ -92,13 +92,14 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm dev` | Dev server with hot reload at http://localhost:4321/skill/. **When an agent runs it, Astro 7 detaches it into the background:** stop it with `pnpm exec astro dev stop`, because killing the process you started won't. `--ignore-lock` keeps it in the foreground. `astro preview` detaches too. |
 | `pnpm dev`, then print `/skill/template-sheet/` | The cast template sheet (P5), which exists only under `astro dev`. Print it from a browser to save a PDF, with headers and footers off. It's one US Letter page. |
 | `pnpm build` | Static build into `dist/skill/` |
+| `pnpm charts` | Renders the Mermaid floor from the run file into `src/components/charts/mermaid/`, using Playwright's Chromium (G40). Run it after changing `src/content/run.json` or how charts are generated, and commit the SVGs. Unit tests fail until you do if the Mermaid text changed, but not if only render settings or Mermaid's version did. Checked against Mermaid 12.2.0 on 2026-11-01. |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |
 | `pnpm typecheck` | `wrangler types` (regenerates the git-ignored `worker-configuration.d.ts`), then `astro check` for the site, then `tsc -p worker` for the Worker (Workers types, not DOM) |
 | `pnpm lint` | ESLint (typescript-eslint, the Astro plugin, jsx-a11y, React hooks and leak rules), failing on any warning |
 | `pnpm format` / `pnpm format:check` | Prettier, writing or checking. Markdown and `docs/` are excluded, so prose is never reflowed. |
 | `pnpm test` / `pnpm test:watch` | Vitest: unit and component tests |
-| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: one run of the heavy page on a throttled phone profile, failing if LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. `pnpm test:lighthouse:full` runs the home, essay, contents and heavy pages three times each, and judges the median. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
+| `pnpm test:lighthouse` | Lighthouse CI on `dist/` through the Worker, on port 8789: one run of the heavy page on a throttled phone profile, failing if LCP is over 2.5 s, CLS over 0.1 or TBT over 200 ms. `pnpm test:lighthouse:full` runs the home, essay, contents and heavy pages and pieces 2 and 3 three times each, and judges the median. It finds an installed Chrome. Run `pnpm build` first. Reports go to `lighthouse-reports/`. |
 | `pnpm test:perf` | Throttled checks in headless Chromium at a phone viewport with 4x CPU throttling (`tests/perf/`): a touch scroll, a tap on a parade dot, the card transition from a cold and a warm navigation, and on the heavy page the running scene and scrubbing the chart. CLS over 0.1 or INP over 200 ms fails; frame timing is reported only. Build first. Results append to `perf-results/results.jsonl`, and a checkpoint keeps that file. To measure a deployed site, set `PERF_BASE_URL` to its URL ending in `/skill/`. A page's own limit goes in `tests/perf/limits.ts`, with Josh's OK and a reason. Headless Chromium draws WebGL in software, so frame rates don't tell you about a phone. |
 | `pnpm test:smoke` | Playwright against the live https://joshua.win/skill/, as the public gets it (no browser). CI runs it after every deploy. |
 | `pnpm test:e2e` | Playwright against `dist/` through the Worker (it starts `wrangler dev` itself, on port 8788, so it can run beside your own `wrangler dev`). Run `pnpm build` first. The first time, install the browser: `pnpm exec playwright install --only-shell chromium`. |
@@ -130,8 +131,9 @@ A checkpoint runs `pnpm test:perf` and `pnpm test:lighthouse:full`, and keeps th
 | `tests/build/` | Tests that run `astro build` on a copy of the site (in `pnpm test`) |
 | `tests/e2e/` | Playwright tests against the built site through the Worker |
 | `tests/perf/` | Throttled scrolling, interaction and transition checks |
-| `src/content/` | Content that lives with the code (later phases). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
-| `content/lorem/` | Lorem pieces, free to edit |
+| `scripts/` | Tools run by hand, such as `pnpm charts` |
+| `src/content/` | Content that lives with the code, such as the run file (`run.json`). Collections are configured in `src/content.config.ts`. The old `src/content/config.ts` path is removed in Astro 7: the build fails with `LegacyContentConfigError`. |
+| `content/lorem/` | Lorem pieces, free to edit, in Markdown or MDX, with their one-off components in `one-offs/` |
 
 ## Tests
 

@@ -1,0 +1,43 @@
+{
+  "orchestrator": "Orchestrator",
+  "stages": [
+    {
+      "id": "lorem",
+      "name": "Lorem",
+      "cards": 0,
+      "agents": [
+        { "id": "agent-a", "name": "Agent A", "count": 1 },
+        { "id": "agent-b", "name": "Agent B", "count": 1, "optional": true }
+      ]
+    },
+    {
+      "id": "ipsum",
+      "name": "Ipsum",
+      "cards": 24,
+      "agents": [
+        { "id": "agent-c", "name": "Agent C", "count": { "default": 6, "min": 3, "max": 8 } }
+      ]
+    },
+    {
+      "id": "dolor",
+      "name": "Dolor",
+      "cards": 8,
+      "optional": true,
+      "agents": [
+        { "id": "agent-d", "name": "Agent D", "count": 3 },
+        { "id": "agent-e", "name": "Agent E", "count": 1 }
+      ]
+    },
+    {
+      "id": "amet",
+      "name": "Amet",
+      "cards": 3,
+      "agents": [{ "id": "agent-f", "name": "Agent F", "count": 2 }]
+    }
+  ],
+  "cards": [
+    { "id": "card-one", "name": "Card one" },
+    { "id": "card-two", "name": "Card two" },
+    { "id": "card-three", "name": "Card three" }
+  ]
+}

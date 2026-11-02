@@ -53,7 +53,8 @@ export default defineConfig(
     extends: [jsxA11y.flatConfigs.recommended],
   },
   {
-    files: ['src/**/*.{js,jsx,ts,tsx}'],
+    // Lorem one-offs (content/) are site code too.
+    files: ['src/**/*.{js,jsx,ts,tsx}', 'content/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks, '@eslint-react': eslintReact },
     rules: { ...hookRules, ...leakRules },
   },

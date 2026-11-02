@@ -1,4 +1,5 @@
 ---
+kind: essay
 title: Lorem ipsum dolor
 dek: Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 date: 2026-10-31
