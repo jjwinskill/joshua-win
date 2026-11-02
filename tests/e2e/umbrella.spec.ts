@@ -148,6 +148,36 @@ test('focusing a panel’s button launches it, so focus never lands on nothing',
   await expect.poll(() => lit(page)).toEqual(allLit);
 });
 
+test('dragging sideways turns the ring, and doesn’t count as a tap', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(writeUp);
+  await page.locator('.umbrella').evaluate((umbrella) => {
+    umbrella.scrollIntoView({ block: 'center', behavior: 'instant' });
+  });
+  await expect.poll(() => lit(page)).toEqual(allLit);
+  const box = await page.locator('.umbrella').boundingBox();
+  const y = (box?.y ?? 0) + (box?.height ?? 0) * 0.75;
+  const middle = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+  const drag = async (by: number) => {
+    await page.mouse.move(middle, y);
+    await page.mouse.down();
+    await page.mouse.move(middle + by / 2, y, { steps: 4 });
+    await page.mouse.move(middle + by, y, { steps: 4 });
+    // Hold still, so that this isn't a flick.
+    await page.waitForTimeout(150);
+    await page.mouse.up();
+  };
+  // A quarter of its width to the left brings on the next panel, which starts on the right.
+  await drag(-(box?.width ?? 0) * 0.25);
+  await expect(page.getByRole('button', { name: 'Agent B', pressed: true })).toHaveCount(1);
+  await expect.poll(() => openness(page)).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0]);
+  // And the other way, past the first and round to the last.
+  await drag((box?.width ?? 0) * 0.5);
+  await expect(page.getByRole('button', { name: 'Agent F', pressed: true })).toHaveCount(1);
+  await expect.poll(() => openness(page)).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 1]);
+  await expect(page.locator('.umbrella')).toHaveCSS('touch-action', 'pan-y pinch-zoom');
+});
+
 test.describe('under reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

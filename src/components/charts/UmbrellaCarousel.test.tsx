@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { run } from '../../lib/run-file';
-import { launchAt, launchLasts, nearestTurn, panelPose, unfoldAt } from './umbrella-pose';
+import { launchAt, launchLasts, nearestTurn, panelAt, panelPose, unfoldAt } from './umbrella-pose';
 import { UmbrellaCarousel } from './UmbrellaCarousel';
 
 const stubMotion = (reduced: boolean) => vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
@@ -109,6 +109,13 @@ it('keeps all nine panels inside its width and clear of the open one', () => {
     expect(depth).toBeLessThan(open.depth);
   }
   expect(open.y + 54).toBeLessThanOrEqual(138);
+});
+
+it('finds the panel nearest the front, either way round', () => {
+  expect(panelAt(0.4, 9)).toBe(0);
+  expect(panelAt(1.6, 9)).toBe(2);
+  expect(panelAt(-1, 9)).toBe(8);
+  expect(panelAt(10, 9)).toBe(1);
 });
 
 it('goes the short way round', () => {

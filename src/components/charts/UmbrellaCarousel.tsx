@@ -1,6 +1,6 @@
 // A cheap prototype (#54, N5): the fan-out as an umbrella. When it comes into view, the orchestrator launches
-// its agents one after another, each out along its own rib. Clicking a panel twists it forward and expands
-// only that one. The real buttons sit outside the `aria-hidden` visual, placed over its panels (S16). Under
+// its agents one after another, each out along its own rib. Clicking a panel or dragging the ring twists one
+// forward and expands only that one. The real buttons sit outside the `aria-hidden` visual, placed over its panels (S16). Under
 // reduced motion it snaps. It's first on the cut list (S26).
 //
 // A small spring drives it, writing transforms straight to the panels, because each panel's twist depends
@@ -10,27 +10,28 @@ import '../../styles/umbrella.css';
 import type { Run, RunStage } from '../../lib/run';
 import { runCharts } from '../../lib/run-mermaid';
 import {
-  goreOutline,
   height,
   hub,
   launchAt,
   launchLasts,
   nearestTurn,
+  panelAt,
   panelPose,
   ribCurve,
   unfoldAt,
   type PanelPose,
 } from './umbrella-pose';
 
-const stiffness = 170;
-const damping = 15;
+const stiffness = 110;
+const damping = 14;
+/** How much of its width a drag crosses to move the ring on by one panel. */
+const dragPerPanel = 0.25;
+/** How far a pointer moves before it's a drag, not a tap, in pixels. */
+const dragStart = 6;
 
 function panelTransform({ x, y, scale, twist }: PanelPose, swing: number): string {
   return `translate(calc(${x}cqi - 50%), ${y}cqi) perspective(60cqi) rotateY(${twist}deg) rotate(${swing}deg) scale(${scale})`;
 }
-
-const stringPath = ({ rimX, rimY, x, y }: PanelPose) =>
-  `M${rimX.toFixed(2)} ${rimY.toFixed(2)}L${x.toFixed(2)} ${y.toFixed(2)}`;
 
 interface RingAgent {
   key: string;
@@ -77,8 +78,6 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   const ribs = useRef<(SVGPathElement | null)[]>([]);
-  const strings = useRef<(SVGPathElement | null)[]>([]);
-  const gores = useRef<(SVGPathElement | null)[]>([]);
   const moveTo = useRef<(index: number) => void>(() => {});
   const launchNow = useRef<() => void>(() => {});
 
@@ -115,16 +114,10 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
           button.style.zIndex = String(pose.depth);
         }
         const rib = ribs.current[i];
-        rib?.setAttribute('d', `M${hub.x} ${hub.y}${ribCurve(pose.rimX, pose.rimY)}`);
-        rib?.style.setProperty('opacity', (1 - pose.far * 0.65).toFixed(3));
-        strings.current[i]?.setAttribute('d', stringPath(pose));
-        const next = poses[(i + 1) % count];
-        const gore = gores.current[i];
-        if (next && gore) {
-          gore.setAttribute('d', goreOutline(pose, next));
-          // The near side of the canopy hides the far side, so the far side fades out.
-          gore.style.setProperty('opacity', (1 - (pose.far + next.far) / 2).toFixed(3));
-        }
+        rib?.setAttribute('d', `M${hub.x} ${hub.y}${ribCurve(pose.x, pose.y)}`);
+        // The open panel's rib stands out, which says who's being looked at.
+        rib?.style.setProperty('opacity', (0.3 + pose.open * 0.7).toFixed(3));
+        rib?.style.setProperty('stroke-width', (0.45 + pose.open * 0.6).toFixed(3));
       });
     };
 
@@ -160,6 +153,74 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       }
     };
 
+    // A drag turns the ring directly, and letting go settles on the panel nearest the front.
+    let grip: { id: number; x: number; turn: number; dragging: boolean } | null = null;
+    let lastMove = { x: 0, at: 0, speed: 0 };
+    const element = root.current;
+    const onDown = (event: PointerEvent) => {
+      if (event.button !== 0) return;
+      launch();
+      skipClick = false;
+      grip = { id: event.pointerId, x: event.clientX, turn, dragging: false };
+      lastMove = { x: event.clientX, at: event.timeStamp, speed: 0 };
+    };
+    const onMove = (event: PointerEvent) => {
+      if (grip?.id !== event.pointerId || !element) return;
+      const moved = event.clientX - grip.x;
+      if (!grip.dragging) {
+        if (Math.abs(moved) < dragStart) return;
+        grip.dragging = true;
+        grip.turn = turn + moved / (element.clientWidth * dragPerPanel);
+        element.setPointerCapture(event.pointerId);
+        element.classList.add('is-dragging');
+      }
+      const span = element.clientWidth * dragPerPanel;
+      const gap = Math.max(event.timeStamp - lastMove.at, 1);
+      lastMove = {
+        x: event.clientX,
+        at: event.timeStamp,
+        speed: -(event.clientX - lastMove.x) / gap / span,
+      };
+      turn = grip.turn - moved / span;
+      velocity = 0;
+      target = turn;
+      draw();
+    };
+    const onUp = (event: PointerEvent) => {
+      if (grip?.id !== event.pointerId) return;
+      const { dragging } = grip;
+      grip = null;
+      if (!dragging) return;
+      element?.classList.remove('is-dragging');
+      // A flick carries on a little past where it was let go. Speed is in panels a millisecond.
+      const stale = event.timeStamp - lastMove.at > 80;
+      const thrown = turn + (stale ? 0 : Math.max(-1.5, Math.min(1.5, lastMove.speed * 180)));
+      const index = panelAt(thrown, count);
+      target = Math.round(thrown);
+      if (reduced) {
+        turn = target;
+        draw();
+      } else {
+        wake();
+      }
+      skipClick = true;
+      setSelected(index);
+    };
+    // The click that ends a drag isn't a tap on whatever panel it ended on.
+    let skipClick = false;
+    const onClick = (event: MouseEvent) => {
+      const skip = skipClick && event.detail > 0;
+      skipClick = false;
+      if (!skip) return;
+      event.stopPropagation();
+      event.preventDefault();
+    };
+    element?.addEventListener('pointerdown', onDown);
+    element?.addEventListener('pointermove', onMove);
+    element?.addEventListener('pointerup', onUp);
+    element?.addEventListener('pointercancel', onUp);
+    element?.addEventListener('click', onClick, true);
+
     const launch = () => {
       if (reduced) return;
       clock ??= 0;
@@ -186,6 +247,11 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       if (root.current) watcher.observe(root.current);
     }
     return () => {
+      element?.removeEventListener('pointerdown', onDown);
+      element?.removeEventListener('pointermove', onMove);
+      element?.removeEventListener('pointerup', onUp);
+      element?.removeEventListener('pointercancel', onUp);
+      element?.removeEventListener('click', onClick, true);
       watcher?.disconnect();
       cancelAnimationFrame(frame);
       moveTo.current = () => {};
@@ -202,31 +268,13 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
       <div className="umbrella" ref={root} style={{ aspectRatio: `100 / ${height}` }}>
         <div className="umbrella-visual" aria-hidden="true">
           <svg className="umbrella-frame" viewBox={`0 0 100 ${height}`}>
-            {agents.map(({ key }, i) => (
-              <path
-                key={key}
-                ref={(gore) => {
-                  gores.current[i] = gore;
-                }}
-                className="umbrella-gore"
-              />
-            ))}
-            {agents.map(({ key }, i) => (
+            {agents.map(({ key, stageIndex }, i) => (
               <path
                 key={key}
                 ref={(rib) => {
                   ribs.current[i] = rib;
                 }}
-                className="umbrella-rib"
-              />
-            ))}
-            {agents.map(({ key }, i) => (
-              <path
-                key={key}
-                ref={(line) => {
-                  strings.current[i] = line;
-                }}
-                className="umbrella-string"
+                className={`umbrella-rib umbrella-stage-${stageIndex % 4}`}
               />
             ))}
           </svg>

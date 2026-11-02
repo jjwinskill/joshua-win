@@ -41,7 +41,7 @@ test('reached from another page, scrolling opens, catches, snaps shut and switch
   expect((brain?.y ?? 0) + (brain?.height ?? 0)).toBeLessThan(0);
 
   // The brain's in, and the lid hasn't shut yet.
-  await scrollThrough(page, 0.47);
+  await scrollThrough(page, 0.2);
   await expect.poll(() => rotationOf(page, '.robot-lid')).toBeGreaterThan(100);
   expect(await opacityOf(page, '.robot-face-on')).toBe(0);
 
@@ -51,6 +51,16 @@ test('reached from another page, scrolling opens, catches, snaps shut and switch
   expect(await opacityOf(page, '.robot-face-on')).toBe(1);
   for (const lamp of await page.locator('.robot-lamp').all()) {
     await expect(lamp).toHaveCSS('opacity', '1');
+  }
+
+  // It came on and stayed on: no flicker on the way.
+  for (const [at, lowest] of [
+    [0.38, 1],
+    [0.45, 1],
+    [0.7, 1],
+  ] as const) {
+    await scrollThrough(page, at);
+    await expect.poll(() => opacityOf(page, '.robot-face-on')).toBeGreaterThanOrEqual(lowest);
   }
 
   // Scrolling back runs it backward.

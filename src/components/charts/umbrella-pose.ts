@@ -69,18 +69,16 @@ export function panelPose(
   };
 }
 
-/** The curve of a rib from the hub to a point on the rim: up and over, like a canopy. */
+/** The curve of a rib from the hub to a panel: up and over. */
 export function ribCurve(x: number, y: number): string {
   const bendX = hub.x + (x - hub.x) * 0.66;
   const bendY = hub.y + (y - hub.y) * 0.22;
   return `Q${bendX.toFixed(2)} ${bendY.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)}`;
 }
 
-/** One panel of the canopy, between two ribs, with its edge scalloped in toward the hub. */
-export function goreOutline(a: PanelPose, b: PanelPose): string {
-  const edgeX = hub.x + ((a.rimX + b.rimX) / 2 - hub.x) * 0.97;
-  const edgeY = hub.y + ((a.rimY + b.rimY) / 2 - hub.y) * 0.97;
-  return `M${hub.x} ${hub.y}${ribCurve(a.rimX, a.rimY)}Q${edgeX.toFixed(2)} ${edgeY.toFixed(2)} ${b.rimX.toFixed(2)} ${b.rimY.toFixed(2)}Z`;
+/** Which panel is nearest the front at a turn. */
+export function panelAt(turn: number, count: number): number {
+  return ((Math.round(turn) % count) + count) % count;
 }
 
 /** The whole number nearest a turn that lands on a panel, going the short way round. */
@@ -90,7 +88,8 @@ export function nearestTurn(turn: number, index: number, count: number): number 
 
 /** How far panel `index` has launched, `clock` seconds in. They go out one after another. */
 const launchGap = 0.085;
-const launchLength = 0.55;
+const launchLength = 0.75;
+const unfoldLength = 0.44;
 
 export function launchAt(index: number, clock: number): number {
   const t = Math.min(1, Math.max(0, (clock - index * launchGap) / launchLength));
@@ -101,11 +100,11 @@ export function launchAt(index: number, clock: number): number {
 
 /** How far the front panel has opened, `clock` seconds in: it waits until the ring is nearly out. */
 export function unfoldAt(count: number, clock: number): number {
-  const t = (clock - (count - 1) * launchGap - launchLength * 0.8) / 0.4;
+  const t = (clock - (count - 1) * launchGap - launchLength * 0.8) / unfoldLength;
   const clamped = Math.min(1, Math.max(0, t));
   return clamped * clamped * (3 - 2 * clamped);
 }
 
 export function launchLasts(count: number): number {
-  return (count - 1) * launchGap + launchLength * 0.8 + 0.4;
+  return (count - 1) * launchGap + launchLength * 0.8 + unfoldLength;
 }
