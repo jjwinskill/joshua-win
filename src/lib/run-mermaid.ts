@@ -36,7 +36,7 @@ class Flowchart {
 
 const stageLabel = ({ name, optional }: RunStage) => (optional ? `${name} (optional)` : name);
 
-function agentLabel({ name, count, optional }: RunAgent): string {
+export function agentLabel({ name, count, optional }: RunAgent): string {
   const notes = [
     ...(count.min === count.max ? [] : [`${count.min}–${count.max}`]),
     ...(optional ? ['optional'] : []),

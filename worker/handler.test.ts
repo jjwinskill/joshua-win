@@ -20,6 +20,23 @@ describe('handle', () => {
     expect(await response.text()).toBe('<h1>hi</h1>');
   });
 
+  it('caches Astro’s hashed files outright, and nothing else', async () => {
+    const cacheControl = async (path: string, status = 200) => {
+      const asset = new Response(status === 404 ? null : 'x', {
+        status,
+        headers: { 'Cache-Control': 'public, max-age=0, must-revalidate' },
+      });
+      const response = await handle(
+        new Request(`https://joshua.win${path}`),
+        assetsReturning(asset),
+      );
+      return response.headers.get('Cache-Control');
+    };
+    expect(await cacheControl('/skill/_astro/a.1b2c.css')).toContain('immutable');
+    expect(await cacheControl('/skill/essays/a/')).not.toContain('immutable');
+    expect(await cacheControl('/skill/_astro/gone.css', 404)).not.toContain('immutable');
+  });
+
   it('redirects with a 301 and noindex, without touching the assets', async () => {
     const response = await handle(new Request('https://joshua.win/'), failingAssets);
     expect(response.status).toBe(301);

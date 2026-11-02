@@ -77,6 +77,8 @@ Check a transition or animation in this order, so it costs as few images as poss
    ffmpeg -v error -y -i motion.mp4 -vf "select='gt(scene,0.003)',scale=150:-1,tile=12x3" -fps_mode vfr motion-%d.jpg
    ```
 
+   Agents may share a booted Simulator, and one can navigate another's page. If so, `xcrun simctl create` your own, name it in place of `booted`, and delete it when you're done. Start a swipe above the bottom 80 points, or Safari may take it for its own gesture.
+
    Each sheet holds 36 frames. Read every sheet it writes, because the motion's end is in the last one. If there are too many, raise the `scene` number. Enlarge single frames only when a sheet leaves a question.
    A font or other file that arrives late needs a real first visit: Safari keeps it in memory, so terminate it first (`xcrun simctl terminate <udid> com.apple.mobilesafari`), and serve the file through a small proxy that holds it back and sends `no-store`. With more than one Simulator booted, `booted` can mean any of them, so name the UDID, and shut yours down afterward.
 3. **Send it to Josh's phone.** He signs off on how motion feels. The throttled checks reported no layout shift for a jump he could see on his phone, and the Simulator can't run Chrome on iOS. Upload a preview (see Previews), then make a QR code for its URL. `</dev/null` stops the command waiting on input.

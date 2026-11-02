@@ -66,7 +66,7 @@ it('a piece with no cast builds with no parade, cast list or space on its card',
   const dist = join(root, 'dist', 'skill');
   const page = await readFile(join(dist, 'write-ups', 'excepteur-sint', 'index.html'), 'utf8');
   expect(page).toContain('Excepteur sint occaecat');
-  expect(page).not.toContain('astro-island');
+  expect(page).not.toMatch(/component-url="[^"]*Parade/);
   expect(page).not.toContain('cast-section');
   const home = await readFile(join(dist, 'index.html'), 'utf8');
   const card = home.slice(home.indexOf('href="/skill/write-ups/excepteur-sint/"'));

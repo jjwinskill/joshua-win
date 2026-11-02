@@ -180,3 +180,16 @@ it('lets cards rise from a first stage that made none', () => {
   at(fromNone.stages, 0).cards = 0;
   expect(() => parseRun(fromNone)).not.toThrow();
 });
+
+it('fails when cards rise past a stage of 0 that came after some', () => {
+  const rising = good();
+  at(rising.stages, 0).cards = 1;
+  at(rising.stages, 1).cards = 0;
+  rising.stages.push({
+    id: 'after',
+    name: 'After',
+    cards: 2,
+    agents: [{ id: 'd', name: 'Agent D', count: 1 }],
+  });
+  expect(() => parseRun(rising)).toThrow(/stages\[2\]\.cards.*can't rise from 1/s);
+});
