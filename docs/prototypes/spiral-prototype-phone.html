@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>PROTOTYPE: text spiral</title>
+<style>
+  :root { --ink:#1f1d1a; --paper:#f6f1e7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:17px/27px "Iowan Old Style", Palatino, Georgia, serif; }
+  main p, main h1 { margin:0 20px 20px; }
+  main h1 { font-size:30px; line-height:36px; padding-top:40px; }
+  #section { position:relative; }
+  #stage { position:sticky; top:0; height:100svh; overflow:hidden; }
+  #stage canvas { display:block; width:100%; height:100%; }
+  nav { position:fixed; left:8px; right:8px; bottom:calc(8px + env(safe-area-inset-bottom)); display:flex; gap:4px; align-items:center;
+        background:#1f1d1aee; color:#fff; border-radius:12px; padding:6px; font:13px/1 system-ui,sans-serif; z-index:2; }
+  nav button { flex:1; font:inherit; color:inherit; background:none; border:0; border-radius:8px; padding:10px 2px; }
+  nav button[aria-pressed=true] { background:#fff; color:#1f1d1a; }
+  nav output { min-width:44px; text-align:right; opacity:.7; font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Prototype: text spiral</h1>
+  <p>Throwaway. Scroll down normally. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+  <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem.</p>
+  <p>Accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
+  <div id="section"><div id="stage"><canvas id="cv" aria-hidden="true"></canvas></div></div>
+  <p style="margin-top:24px">The rest of the piece scrolls as normal. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>
+  <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.</p>
+  <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
+  <p>Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.</p>
+  <p style="height:90px"></p>
+</main>
+<nav>
+  <button data-v="reel">Reel</button>
+  <button data-v="picture">Picture</button>
+  <button data-v="swirl">Swirl</button>
+  <button data-v="orbit">Orbit</button>
+  <output id="ms"></output>
+</nav>
+<script>
+// PROTOTYPE, throwaway. Everything is a function of one number: how far the section has scrolled.
+const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.';
+const PX = 17, LH = 27, M = 20, K = 0.14, PACE = 0.75, FONT = PX + 'px "Iowan Old Style", Palatino, Georgia, serif', INK = '#1f1d1a';
+const section = document.getElementById('section'), stage = document.getElementById('stage');
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), out = document.getElementById('ms');
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const ease = (t) => t * t * (3 - 2 * t);
+
+let variant = new URLSearchParams(location.search).get('v') || 'reel';
+let W, H, D, R, RP, cx, cy, base, glyphs, spans, total, windScroll;
+
+function layout() {
+  W = stage.clientWidth; H = stage.clientHeight; D = Math.min(3, devicePixelRatio || 1);
+  cv.width = W * D; cv.height = H * D;
+  R = Math.min(W * 0.27, 130); RP = R * Math.sqrt(1 + K * K);
+  const reel = variant === 'reel' || variant === 'picture';
+  cx = reel ? M + R + 2 : W / 2;
+  cy = Math.max(30, H * 0.06) + R; base = cy + R;
+  const left = reel ? cx : M, width = W - left - M;
+  ctx.font = FONT;
+  const lines = []; let cur = '';
+  for (const w of TEXT.split(' ')) {
+    const t = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(t).width > width && cur) { lines.push(cur); cur = w; } else cur = t;
+  }
+  lines.push(cur);
+  glyphs = []; spans = []; let U = 0;
+  lines.forEach((line, i) => {
+    const len = ctx.measureText(line + ' ').width;
+    spans.push({ start: U, len });
+    let wordStart = 0;
+    for (let c = 0; c <= line.length; c++) {
+      if (c === line.length || line[c] === ' ') {
+        const a = ctx.measureText(line.slice(0, wordStart)).width, b = ctx.measureText(line.slice(0, c)).width;
+        for (let g = wordStart; g < c; g++) {
+          const x = ctx.measureText(line.slice(0, g)).width;
+          glyphs.push({ ch: line[g], i, x, U: U + x, mid: (a + b) / 2, midU: U + (a + b) / 2, left });
+        }
+        wordStart = c + 1;
+      }
+    }
+    U += len;
+  });
+  total = U; windScroll = total * PACE;
+  section.style.height = windScroll + H + 'px';
+}
+
+function coil(u) {
+  const phi = u / RP, s = Math.exp(-K * phi), r = R * s;
+  return { x: cx - r * Math.sin(phi), y: cy + r * Math.cos(phi), rot: phi - Math.atan(K), s, phi, r };
+}
+
+function draw() {
+  const start = performance.now();
+  const p = clamp(-section.getBoundingClientRect().top / windScroll, 0, 1), O = total * p;
+  ctx.setTransform(D, 0, 0, D, 0, 0); ctx.clearRect(0, 0, W, H);
+  ctx.font = FONT; ctx.fillStyle = INK;
+  let a = spans.findIndex((s) => O < s.start + s.len); if (a < 0) a = spans.length;
+  const sp = spans[Math.min(a, spans.length - 1)];
+  const within = a < spans.length ? clamp((O - sp.start) / sp.len, 0, 1) : 1;
+  const shift = a + ease(clamp((within - 0.8) / 0.2, 0, 1)) - (a < spans.length ? 0 : 1);
+  if (variant === 'picture') {
+    const top = base + 14, w = cx - M - 12;
+    ctx.fillStyle = '#d9cfba'; ctx.fillRect(M, top, w, Math.min(H - top - 90, 260)); ctx.fillStyle = INK;
+  }
+  for (const g of glyphs) {
+    const u = O - g.U, row = g.i - shift;
+    let x, y, rot = 0, s = 1;
+    if (variant === 'reel' || variant === 'picture') {
+      if (u > 0) { const c = coil(u); x = c.x; y = c.y; rot = c.rot; s = c.s; }
+      else { x = g.i === a ? cx - u : g.left + g.x; y = base + LH * row; }
+    } else {
+      const span = Math.min(W * 0.75, 300), fx = g.left + g.x, fy = base + LH * Math.max(row, 0), c = coil(Math.max(0, u));
+      if (variant === 'swirl') {
+        const t = clamp(u / span, 0, 1);
+        if (t <= 0) { x = fx; y = fy; }
+        else { x = fx + (c.x - fx) * t; y = fy + (c.y - fy) * t; rot = c.rot * t; s = 1 + (c.s - 1) * t; }
+      } else {
+        // Orbit: whole words fly as words, curving around the outside of the coil, then settle letter by letter.
+        const t = clamp((O - g.midU) / span, 0, 1);
+        if (t <= 0) { x = fx; y = fy; }
+        else {
+          const mx = g.left + g.mid, dx = mx - cx, dy = fy - cy;
+          const phi0 = Math.atan2(-dx, dy), r0 = Math.hypot(dx, dy);
+          const w = coil(Math.max(0, O - g.midU));
+          const et = ease(t), phi = phi0 + (w.phi - phi0) * et, r = r0 + (w.r - r0) * et;
+          const wx = cx - r * Math.sin(phi), wy = cy + r * Math.cos(phi);
+          const wr = w.rot * et; const ws = 1 + (w.s - 1) * et;
+          const off = (g.x - g.mid) * ws;
+          const rx = wx + off * Math.cos(wr), ry = wy + off * Math.sin(wr);
+          const settle = Math.pow(t, 6);
+          x = rx + (c.x - rx) * settle; y = ry + (c.y - ry) * settle;
+          rot = wr + (c.rot - wr) * settle; s = ws + (c.s - ws) * settle;
+        }
+      }
+    }
+    if (y < -30 || y > H + 30 || x < -30 || x > W + 30 || s * PX < 1) continue;
+    ctx.setTransform(D * s * Math.cos(rot), D * s * Math.sin(rot), -D * s * Math.sin(rot), D * s * Math.cos(rot), D * x, D * y);
+    ctx.fillText(g.ch, 0, 0);
+  }
+  return performance.now() - start;
+}
+
+// Reads the scroll position every frame while the section is near the screen. Nothing touches scrolling itself.
+let visible = true, avg = 0, frames = 0, lastW = 0;
+function loop() {
+  if (visible) {
+    avg += draw(); frames++;
+    if (frames === 30) { out.textContent = (avg / 30).toFixed(1) + 'ms'; avg = 0; frames = 0; }
+  }
+  requestAnimationFrame(loop);
+}
+new IntersectionObserver((e) => { visible = e[0].isIntersecting; }, { rootMargin: '200px' }).observe(section);
+addEventListener('resize', () => { if (innerWidth !== lastW) { lastW = innerWidth; layout(); } });
+function setVariant(v) {
+  variant = v;
+  document.querySelectorAll('nav button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  const before = clamp(-section.getBoundingClientRect().top / (windScroll || 1), 0, 1), inside = section.getBoundingClientRect().top < 0;
+  layout();
+  if (inside && before < 1) scrollTo(0, section.offsetTop + before * windScroll);
+  history.replaceState(null, '', '?v=' + v);
+}
+document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => setVariant(b.dataset.v)));
+function start() { lastW = innerWidth; setVariant(variant); loop(); window.__ready = true; }
+document.fonts.ready.then(start);
+</script>
+</body>
+</html>
