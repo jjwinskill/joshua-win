@@ -23,21 +23,21 @@ beforeEach(() => {
     },
   );
   document.body.innerHTML = `
-    <span id="cast-cat">Cat</span>
-    <span id="cast-rabbit">Rabbit</span>
+    <span id="cast-press">Press</span>
+    <span id="cast-paper">Paper</span>
     <p id="end"></p>`;
-  ['cast-cat', 'cast-rabbit', 'end'].forEach(belowTheFold);
+  ['cast-press', 'cast-paper', 'end'].forEach(belowTheFold);
   Element.prototype.scrollIntoView = vi.fn();
 });
 
 afterEach(() => vi.unstubAllGlobals());
 
 const renderParade = () =>
-  render(<Parade cast={['cat', 'rabbit']} endId="end" />, {
+  render(<Parade cast={['press', 'paper']} endId="end" />, {
     container: document.body.appendChild(document.createElement('div')),
   });
 
-const rabbit = () => screen.getByRole('button', { name: /The White Rabbit/ });
+const paper = () => screen.getByRole('button', { name: /A crumpled sheet of paper/ });
 const replay = () => screen.getByRole('button', { name: 'Replay the curtain call' });
 
 describe('Parade', () => {
@@ -47,15 +47,15 @@ describe('Parade', () => {
       .getAllByRole('button', { name: /first appearance/ })
       .map((button) => button.getAttribute('aria-label'));
     expect(names).toEqual([
-      'The Cheshire Cat: jump to their first appearance',
-      'The White Rabbit: jump to their first appearance',
+      'The giant new hydraulic press at Bubny: jump to their first appearance',
+      'A crumpled sheet of paper: jump to their first appearance',
     ]);
   });
 
   it('jumps to a cast member’s first mention, moves focus there and highlights it', async () => {
     renderParade();
-    await userEvent.click(rabbit());
-    const mention = document.getElementById('cast-rabbit');
+    await userEvent.click(paper());
+    const mention = document.getElementById('cast-paper');
     expect(mention?.scrollIntoView).toHaveBeenCalled();
     expect(mention).toHaveFocus();
     expect(mention).toHaveClass('flash');
@@ -63,19 +63,19 @@ describe('Parade', () => {
 
   it('stays still until the curtain call, and replay walks the cast', async () => {
     renderParade();
-    expect(rabbit()).not.toHaveClass('walking');
+    expect(paper()).not.toHaveClass('walking');
     await userEvent.click(replay());
-    expect(rabbit()).toHaveClass('walking');
+    expect(paper()).toHaveClass('walking');
     expect(replay()).toHaveFocus();
   });
 
   it('shows the still state under reduced motion: everyone appears and nothing walks', async () => {
     reducedMotion = true;
     renderParade();
-    expect(rabbit()).not.toHaveClass('in');
+    expect(paper()).not.toHaveClass('in');
     await userEvent.click(replay());
-    expect(rabbit()).toHaveClass('in');
-    expect(rabbit()).not.toHaveClass('walking');
+    expect(paper()).toHaveClass('in');
+    expect(paper()).not.toHaveClass('walking');
   });
 
   it('stops listening when it’s removed', () => {

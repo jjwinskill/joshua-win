@@ -1,114 +1,171 @@
-// The cast registry: each cast member's name, role and drawing. These are the demo's code-drawn *Alice*
-// placeholders (docs/demo/parade.html); hand-drawn casts replace them in phase 3. No framework APIs,
-// so the phase 2 bake-off can reuse this in Next.
+// The cast registry: each cast member's name, role, drawing and walk. Josh drew them on the template sheet,
+// and they were inked from his drawings by hand (G37). No framework APIs, so the phase 2 bake-off could
+// reuse this in Next.
 import type { ComponentType } from 'react';
+import { hantaLines } from './hanta-lines';
 
-function Eyes({
-  cx,
-  cy,
-  gap = 3.2,
-  r = 1.4,
-}: {
-  cx: number;
-  cy: number;
-  gap?: number;
-  r?: number;
-}) {
+function Hanta() {
   return (
     <>
-      <circle cx={cx - gap} cy={cy} r={r} fill="#231f1a" stroke="none" />
-      <circle cx={cx + gap} cy={cy} r={r} fill="#231f1a" stroke="none" />
+      <g transform="translate(20 33) scale(.965) translate(-20 -33)">
+        <path
+          d="M.6 25.3 6.6 23.9 7.9 21.2 12 20.3 26.2 21.2 29.7 23.6 39.6 25.7Q39.8 30 38 34.6 20 35.3 2.2 34.6 .2 30 .6 25.3Z"
+          fill="#8d8672"
+          strokeWidth="1.3"
+        />
+        <path
+          d="M11 22.6Q10.6 27 12.3 30 13 32 13 34 20 34.3 24 34 25.5 28 25.9 24.6 18 27 11 22.6Z"
+          fill="#ece5d3"
+          stroke="none"
+        />
+        <path d="M12.2 20 11 22.6Q18 27.6 25.9 24.6L26.2 19.5Z" fill="#d2ab82" stroke="none" />
+        <path
+          d="M10 9.6 7.2 9.6C6.2 12 6.6 15 7.4 16.6 8 17.6 9.2 17.6 10.4 16.8Z"
+          fill="#e6c6a0"
+          stroke="none"
+        />
+        <path
+          d="M28 10.4 29.6 10.6C30 12 29.6 14 28.6 15.6 28 16 27.4 16.2 26.8 16.2Z"
+          fill="#e6c6a0"
+          stroke="none"
+        />
+        <path
+          d="M10.4 4.8C10.4 12 10.8 17 12 20.3 14 22 15.5 23.3 17 24.6 20 25.2 22.8 23.8 24.4 22 25.5 19.6 26 17.4 26.6 16.4 27 13 27.4 11 27 4.8Z"
+          fill="#e6c6a0"
+          stroke="none"
+        />
+        <path
+          d="M13.2 11.8 17 12.1 17.2 13.6 13.2 13.8ZM21.4 12.5 25.2 12 25.2 13.7 21.4 13.9Z"
+          fill="#fffaf3"
+          stroke="none"
+        />
+        <path
+          d="M16.55 11.75a1 1 0 1 0 .01 0ZM24.3 11.95a1 1 0 1 0 .01 0Z"
+          fill="#7a4a24"
+          stroke="none"
+        />
+        <path
+          d="M16.55 12.3a.45 .45 0 1 0 .01 0ZM24.3 12.5a.45 .45 0 1 0 .01 0Z"
+          fill="#231f1a"
+          stroke="none"
+        />
+        <path
+          d="M6 7 6.5 3.5 10 1 20 .8 27 1 32 3 32.2 6.4 28 8.6 25.4 8.6 21.5 6.6 19 5.8 15.5 8.2 11 8.6 8 9.2Z"
+          fill="#33261b"
+          stroke="none"
+        />
+        <path d={hantaLines} fill="#231f1a" stroke="none" fillRule="evenodd" />
+      </g>
     </>
   );
 }
 
-function Rabbit() {
+function CrumpledPaper() {
   return (
     <>
-      <ellipse cx="16" cy="10" rx="2.8" ry="8.5" transform="rotate(-10 16 10)" fill="#f3f0ea" />
-      <ellipse
-        cx="16"
-        cy="10.5"
-        rx="1.1"
-        ry="5.5"
-        transform="rotate(-10 16 10.5)"
-        fill="#f6b6c3"
-        stroke="none"
-      />
-      <ellipse cx="24" cy="10" rx="2.8" ry="8.5" transform="rotate(10 24 10)" fill="#f3f0ea" />
-      <ellipse
-        cx="24"
-        cy="10.5"
-        rx="1.1"
-        ry="5.5"
-        transform="rotate(10 24 10.5)"
-        fill="#f6b6c3"
-        stroke="none"
-      />
-      <ellipse cx="20" cy="24" rx="10" ry="9" fill="#f3f0ea" />
-      <Eyes cx={20} cy={22} />
-      <path d="M18.6 26 h2.8 l-1.4 1.6z" fill="#f08aa0" stroke="none" />
-      <circle cx="29" cy="28" r="3.2" fill="#f4c430" />
-      <line x1="29" y1="28" x2="29" y2="26.2" strokeWidth="1.2" />
+      <g transform="translate(0 2.3)">
+        <path
+          d="M16.9 6.5 14 5.7 13.4 4.5 8.5 6.2 8.4 8.2 6.3 9.2 6.2 13 3.7 16.5 5.8 20.5 7.6 21.9 8 23 5.9 27 10 29 10 30.8 15.3 32.6 20 30.3 23.5 31 26.5 27.8 28.7 27.7 28.7 24 30.5 24 33 20 29.8 16 30 11.8 28.3 10.8 27.8 7.2 25 7.3 23 4.3Z"
+          fill="#f7f2e6"
+          strokeWidth="1.35"
+        />
+        <path
+          d="M7.7 10.3 15.5 8.3 16.2 11 12.5 11.5ZM18.2 10 24 13.5 24.2 20 21 18 19 12ZM19.5 21.8 26.8 25.7 27.8 23.5 26 21ZM12.8 23.7 11.8 30 14 30.4 15 25Z"
+          fill="#e2dac8"
+          stroke="none"
+        />
+        <path
+          d="M7.7 10.3 15.5 8.3 16.2 11 12.5 11.5M7.7 10.3 10 16 10 19 11.5 20.2M7.4 14.3 6.6 16.5 8.7 18.2M12.2 14.5 14.5 17.8 20 18.2M19.2 8.5 18.2 10 24 13.5 24.2 20M21.8 10 27.8 14.2 26.6 21M16.5 21.8 18.5 25 22.8 29.2 15 27M19.5 21.8 26.8 25.7 27.8 23.5M12.8 23.7 11.8 30 14 30.4M10.7 22.5 10.2 25.8"
+          strokeWidth="1"
+        />
+      </g>
     </>
   );
 }
 
-function Bottle() {
+function HydraulicPress() {
   return (
     <>
-      <rect x="16.5" y="1.5" width="7" height="3.5" rx="1" fill="#a47148" />
-      <rect x="17" y="5" width="6" height="5.5" fill="#bfe3da" />
-      <rect x="10" y="10" width="20" height="23" rx="6" fill="#9bd1c5" />
-      <rect x="12.5" y="16" width="15" height="9.5" rx="1.2" fill="#fffaf3" />
-      <Eyes cx={20} cy={19.6} gap={3} r={1.2} />
-      <line x1="15" y1="23" x2="25" y2="23" strokeWidth="1" />
-    </>
-  );
-}
-
-function Cat() {
-  return (
-    <>
-      <path d="M10 17 L11.5 7 L17 13 M30 17 L28.5 7 L23 13" fill="#c084fc" />
-      <ellipse cx="20" cy="23" rx="11" ry="9.5" fill="#c084fc" />
-      <path d="M12 19 l3 1.2 M28 19 l-3 1.2 M20 14 v3" stroke="#7e3fb8" strokeWidth="1.4" />
-      <path d="M14 20.5 q1.6-1.6 3.2 0 M22.8 20.5 q1.6-1.6 3.2 0" strokeWidth="1.6" />
-      <path d="M12.5 25 Q20 32.5 27.5 25 Z" fill="#fffaf3" />
-      <path d="M16 26.4 v2.6 M20 27 v3.4 M24 26.4 v2.6" strokeWidth="1" />
-    </>
-  );
-}
-
-function Queen() {
-  return (
-    <>
-      <path d="M12.5 8 L14.5 2.5 L17.5 6 L20 1.5 L22.5 6 L25.5 2.5 L27.5 8 Z" fill="#f4c430" />
-      <rect x="9.5" y="8" width="21" height="25" rx="2.5" fill="#fffaf3" />
+      <path d="M15 28 25 28 25 34.4 15 34.4Z" fill="#7c8a91" strokeWidth="1.4" />
+      <path d="M11 6 29 6 29 23 11 23Z" fill="#dde1df" stroke="none" />
+      <path d="M17.4 6.5V14M22.4 6.5V13.6" strokeWidth="1.2" />
       <path
-        d="M20 31 C 12 25.5, 11 21, 13 18 C 15 15.5, 18.5 16, 20 18.5 C 21.5 16, 25 15.5, 27 18 C 29 21, 28 25.5, 20 31 Z"
-        fill="#e63946"
+        d="M11.2 6.4 14.6 6.4 14.6 22.6 11.2 22.6ZM25.8 6.4 28.8 6.4 28.8 22.6 25.8 22.6Z"
+        fill="#9fadb3"
+        strokeWidth="1.2"
       />
-      <Eyes cx={20} cy={22.5} gap={3} r={1.3} />
-      <path d="M18 26.2 q2 1.2 4 0" strokeWidth="1.3" />
-      <text x="11.5" y="14" fontSize="5" fontFamily="Georgia, serif" fill="#e63946" stroke="none">
-        Q
-      </text>
+      <path d="M15.9 14.2 23.7 13.5 24.3 18.5 15.7 18.9Z" fill="#f4c430" strokeWidth="1.2" />
+      <path d="M17 18.5 18.6 15M19.7 18.4 21.3 14.8M22.2 18.4 23.5 15.4" strokeWidth="1.1" />
+      <path d="M9.7 2 30 1.6 30.1 5.9 9.8 6.5Z" fill="#9fadb3" strokeWidth="1.3" />
+      <path d="M8.8 23.1 30.2 22.8 30.3 27.9 9.5 28.8Z" fill="#9fadb3" strokeWidth="1.3" />
+      <path d="M7.8 29 13.5 28.8 13.5 31.2 7.9 32Z" fill="#7c8a91" strokeWidth="1.3" />
+      <path d="M27 28.8 32.8 28.4 32.8 30.6 27 31.2Z" fill="#7c8a91" strokeWidth="1.3" />
     </>
   );
+}
+
+function GlassOfMilk() {
+  return (
+    <>
+      <path d="M9.7 7.6 28.8 7C27 17 25 27 24.9 34.2L13.9 34.2Z" fill="#d9e8ea" stroke="none" />
+      <path d="M10.9 15.4 26.9 13.8C26 20 25 27 24.9 34L13.9 34Z" fill="#fffdf6" stroke="none" />
+      <path
+        d="M10.8 14.8Q14 12.8 18 12.3 24 11.9 26.9 13.1 27 14 26.9 14.6 19 16.2 11 15.9Z"
+        fill="#f1ecdd"
+        strokeWidth="1.1"
+      />
+      <path d="M14.7 18 16.2 27.5M23.4 18 21.3 27.5" strokeWidth="0.9" />
+      <path
+        d="M9.7 7.5Q15 5.2 20 4.4 27 4.5 28.7 6.8Q29 7 28.8 7.4 18 8.6 9.8 8.3Z"
+        fill="#d9e8ea"
+        strokeWidth="1.25"
+      />
+      <path d="M9.7 7.8 13.9 34.2Q20 33.7 24.9 34.2C25 27 27 17 28.8 7.2" strokeWidth="1.35" />
+    </>
+  );
+}
+
+/** How a cast member walks, on the same legs. */
+export interface Gait {
+  /** One full stride, in milliseconds. */
+  beat: number;
+  /** How far the body lifts at each step, in the viewBox's units. */
+  bob: number;
+  /** How far the body leans into each step, in degrees. */
+  lean: number;
 }
 
 export interface CastMember {
   name: string;
   role: string;
   Torso: ComponentType;
+  gait: Gait;
 }
 
 export const castRegistry = {
-  rabbit: { name: 'The White Rabbit', role: 'Character', Torso: Rabbit },
-  bottle: { name: 'The “Drink Me” bottle', role: 'Object', Torso: Bottle },
-  cat: { name: 'The Cheshire Cat', role: 'Character', Torso: Cat },
-  queen: { name: 'The Queen of Hearts', role: 'Character', Torso: Queen },
+  // Nearly weightless, so it skitters.
+  paper: {
+    name: 'A crumpled sheet of paper',
+    role: 'Object',
+    Torso: CrumpledPaper,
+    gait: { beat: 480, bob: 2, lean: 3 },
+  },
+  // Thirty-five years in a cellar, and tired.
+  hanta: { name: 'Haňťa', role: 'Character', Torso: Hanta, gait: { beat: 700, bob: 1, lean: 2 } },
+  // Far too heavy to lift itself.
+  press: {
+    name: 'The giant new hydraulic press at Bubny',
+    role: 'Object',
+    Torso: HydraulicPress,
+    gait: { beat: 880, bob: 0.5, lean: 0.5 },
+  },
+  // Trying not to spill.
+  milk: {
+    name: 'A glass of milk',
+    role: 'Object',
+    Torso: GlassOfMilk,
+    gait: { beat: 620, bob: 0.6, lean: 0 },
+  },
 } satisfies Record<string, CastMember>;
 
 export type CastKey = keyof typeof castRegistry;

@@ -25,10 +25,10 @@ const build = () =>
 it('astro build fails when a listed cast member has no mention', async () => {
   await copySite();
   const piece = join(root, 'content', 'lorem', 'lorem-ipsum.md');
-  await writeFile(piece, (await readFile(piece, 'utf8')).replace('id="cast-queen"', ''));
+  await writeFile(piece, (await readFile(piece, 'utf8')).replace('id="cast-milk"', ''));
 
   await expect(build()).rejects.toMatchObject({
-    stderr: expect.stringContaining('"queen" has no mention'),
+    stderr: expect.stringContaining('"milk" has no mention'),
   });
 }, 60_000);
 
@@ -36,13 +36,13 @@ it('the mentions check holds in MDX, where a marker quoted in code doesn’t cou
   await copySite();
   const piece = join(root, 'content', 'lorem', 'ut-labore.mdx');
   const quoted = (await readFile(piece, 'utf8')).replace(
-    '<span id="cast-queen">The Queen of Hearts</span>',
-    '`<span id="cast-queen">`',
+    '<span id="cast-milk">A glass of milk</span>',
+    '`<span id="cast-milk">`',
   );
   await writeFile(piece, quoted);
 
   await expect(build()).rejects.toMatchObject({
-    stderr: expect.stringContaining('"queen" has no mention'),
+    stderr: expect.stringContaining('"milk" has no mention'),
   });
 }, 60_000);
 
@@ -50,13 +50,13 @@ it('a component given a cast id doesn’t count as a mention, since it might not
   await copySite();
   const piece = join(root, 'content', 'lorem', 'ut-labore.mdx');
   const wrapped = (await readFile(piece, 'utf8')).replace(
-    '<span id="cast-queen">The Queen of Hearts</span>',
-    '<ScrollTally id="cast-queen" />',
+    '<span id="cast-milk">A glass of milk</span>',
+    '<ScrollTally id="cast-milk" />',
   );
   await writeFile(piece, wrapped);
 
   await expect(build()).rejects.toMatchObject({
-    stderr: expect.stringContaining('"queen" has no mention'),
+    stderr: expect.stringContaining('"milk" has no mention'),
   });
 }, 60_000);
 

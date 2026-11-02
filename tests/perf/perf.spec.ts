@@ -62,8 +62,8 @@ test.describe('interaction', () => {
     const page = await throttledPage(context);
     await page.goto(essay);
     await expect(page.locator('.parade .fill')).toHaveAttribute('style', /scaleX/);
-    await page.getByRole('button', { name: /The Cheshire Cat/ }).tap();
-    await expect(page.locator('#cast-cat')).toHaveClass(/flash/);
+    await page.getByRole('button', { name: /The giant new hydraulic press at Bubny/ }).tap();
+    await expect(page.locator('#cast-press')).toHaveClass(/flash/);
     await waitForInteractions(page, 1);
     const metrics = await readMetrics(page);
     await report('interaction', essay, metrics);

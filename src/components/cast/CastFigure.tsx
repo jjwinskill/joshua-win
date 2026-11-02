@@ -1,5 +1,6 @@
 // One cast member: a torso from the registry on the shared legs, whose measurements are in rig.ts. The
 // class names are what the parade's walk and bow will animate.
+import type { CSSProperties } from 'react';
 import { castRegistry, type CastKey } from './registry';
 import { RIG } from './rig';
 
@@ -27,7 +28,7 @@ export function Legs() {
 }
 
 export function CastFigure({ castKey }: { castKey: CastKey }) {
-  const { Torso } = castRegistry[castKey];
+  const { Torso, gait } = castRegistry[castKey];
   return (
     <svg
       viewBox={`0 0 ${RIG.width} ${RIG.height}`}
@@ -38,6 +39,13 @@ export function CastFigure({ castKey }: { castKey: CastKey }) {
       strokeWidth={RIG.strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
+      style={
+        {
+          '--beat': `${gait.beat}ms`,
+          '--bob': `${-gait.bob}px`,
+          '--lean': `${gait.lean}deg`,
+        } as CSSProperties
+      }
     >
       <Legs />
       <g className="torso" style={{ transformOrigin: `${RIG.torsoPivotX}px ${RIG.hipY}px` }}>

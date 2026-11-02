@@ -10,9 +10,9 @@ test('the essay is a complete article with its cast in order of appearance', asy
     .getByRole('region', { name: /Cast, in order of appearance/ })
     .getByRole('link');
   await expect(cards).toHaveCount(4);
-  await expect(cards.first()).toContainText('The White Rabbit');
-  await expect(cards.last()).toContainText('The Queen of Hearts');
-  for (const key of ['rabbit', 'bottle', 'cat', 'queen']) {
+  await expect(cards.first()).toContainText('A crumpled sheet of paper');
+  await expect(cards.last()).toContainText('A glass of milk');
+  for (const key of ['paper', 'hanta', 'press', 'milk']) {
     await expect(page.locator(`article span#cast-${key}`)).toHaveCount(1);
   }
 });
@@ -22,10 +22,10 @@ test.describe('without JavaScript', () => {
 
   test('a cast card jumps to its first mention and highlights it', async ({ page }) => {
     await page.goto(essay);
-    const mention = page.locator('#cast-cat');
+    const mention = page.locator('#cast-press');
     const before = await mention.evaluate((el) => getComputedStyle(el).backgroundColor);
-    await page.getByRole('link', { name: /The Cheshire Cat/ }).click();
-    await expect(page).toHaveURL(/#cast-cat$/);
+    await page.getByRole('link', { name: /The giant new hydraulic press at Bubny/ }).click();
+    await expect(page).toHaveURL(/#cast-press$/);
     await expect(mention).toBeInViewport();
     await expect(mention).not.toHaveCSS('background-color', before);
   });

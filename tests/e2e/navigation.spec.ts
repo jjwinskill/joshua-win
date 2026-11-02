@@ -25,8 +25,8 @@ test('the parade works on a piece reached from the home page, and after going ba
   const errors = failOnErrors(page);
   await openFromHome(page, /Lorem ipsum dolor/);
   await expect(fills(page)).toHaveAttribute('style', /scaleX/);
-  await page.getByRole('button', { name: /The Cheshire Cat/ }).click();
-  await expect(page.locator('#cast-cat')).toHaveClass(/flash/);
+  await page.getByRole('button', { name: /The giant new hydraulic press at Bubny/ }).click();
+  await expect(page.locator('#cast-press')).toHaveClass(/flash/);
 
   await page.goBack();
   await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
@@ -36,8 +36,8 @@ test('the parade works on a piece reached from the home page, and after going ba
   await expect(page.getByRole('article')).toBeVisible();
   await expect(page.locator('.parade')).toHaveCount(1);
   await expect(fills(page)).toHaveAttribute('style', /scaleX/);
-  await page.getByRole('button', { name: /The Queen of Hearts/ }).click();
-  await expect(page.locator('#cast-queen')).toHaveClass(/flash/);
+  await page.getByRole('button', { name: /A glass of milk/ }).click();
+  await expect(page.locator('#cast-milk')).toHaveClass(/flash/);
   expect(errors).toEqual([]);
 });
 
@@ -143,17 +143,17 @@ const transitionOver = (page: Page) =>
 test('a cast card jumps to its first mention, and back returns to the card', async ({ page }) => {
   await openFromHome(page, /Lorem ipsum dolor/);
   await transitionOver(page);
-  const mention = page.locator('#cast-cat');
-  const card = page.getByRole('link', { name: /The Cheshire Cat/ });
+  const mention = page.locator('#cast-press');
+  const card = page.getByRole('link', { name: /The giant new hydraulic press at Bubny/ });
   await card.scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   const before = await page.evaluate(() => scrollY);
   await card.click();
-  await expect(page).toHaveURL(/#cast-cat$/);
+  await expect(page).toHaveURL(/#cast-press$/);
   await expect(mention).toBeInViewport();
   await expect(page.getByRole('article')).toBeVisible();
   await page.goBack();
-  await expect(page).not.toHaveURL(/#cast-cat$/);
+  await expect(page).not.toHaveURL(/#cast-press$/);
   await expect(page.getByRole('article')).toBeVisible();
   await expect.poll(() => page.evaluate(() => scrollY)).toBeCloseTo(before, -2);
 });
@@ -161,14 +161,14 @@ test('a cast card jumps to its first mention, and back returns to the card', asy
 test('back during the jump to a mention still returns to the card', async ({ page }) => {
   await openFromHome(page, /Lorem ipsum dolor/);
   await transitionOver(page);
-  const card = page.getByRole('link', { name: /The Cheshire Cat/ });
+  const card = page.getByRole('link', { name: /The giant new hydraulic press at Bubny/ });
   await card.scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   const before = await page.evaluate(() => scrollY);
   await card.click();
   await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(before - 200);
   await page.goBack();
-  await expect(page).not.toHaveURL(/#cast-cat$/);
+  await expect(page).not.toHaveURL(/#cast-press$/);
   // Long enough for the jump's last frame to land, or this reads the position before it moves.
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => [scrollY, history.state.scrollY])).toEqual([before, before]);

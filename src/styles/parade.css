@@ -271,20 +271,20 @@ span[id^='cast-'].flash {
   }
 
   .walking .thigh {
-    animation: thigh 620ms ease-in-out infinite;
+    animation: thigh var(--beat) ease-in-out infinite;
   }
 
   .walking .shin {
-    animation: shin 620ms ease-in-out infinite;
+    animation: shin var(--beat) ease-in-out infinite;
   }
 
   .walking .leg-back .thigh,
   .walking .leg-back .shin {
-    animation-delay: -310ms;
+    animation-delay: calc(var(--beat) / -2);
   }
 
   .walking .torso {
-    animation: stride 310ms ease-in-out infinite alternate;
+    animation: stride calc(var(--beat) / 2) ease-in-out infinite alternate;
   }
 
   /* The bow bends at the hips. The legs stay planted, with a little give at the knees. */
@@ -328,7 +328,7 @@ span[id^='cast-'].flash {
 
   @keyframes stride {
     to {
-      transform: translateY(-1.4px);
+      transform: translateY(var(--bob)) rotate(var(--lean));
     }
   }
 }
