@@ -1,0 +1,10 @@
+import { chromium } from '@playwright/test';
+import {bodies,flats,inkOnly,svg} from './bodies.mjs';
+import fs from 'fs';
+const b1=bodies(flats),b2=bodies(inkOnly);
+const names={hanta:'Haňťa',paper:'Crumpled paper',press:'Hydraulic press',milk:'Glass of milk'};
+const rows=Object.keys(names).map(k=>`<div class=r><h3>${names[k]}</h3><img src="file://${process.cwd()}/c-${k}.jpg" height=340><span>${svg(b1[k],k==='hanta'?420:289)}</span><span class=small>${svg(b1[k],44)}${svg(b1[k],34)}</span></div>`).join('');
+const html=`<!doctype html><meta charset=utf8><style>body{margin:0;background:#efe6da;font:600 15px system-ui;color:#231f1a;padding:18px;width:1240px}.r{display:flex;gap:34px;align-items:flex-end;margin-bottom:26px;position:relative;padding-top:22px}h3{position:absolute;top:-8px;left:0;margin:0}.small{display:flex;gap:16px;align-items:flex-end}</style>${rows}`;
+fs.writeFileSync('proof.html',html);
+const b=await chromium.launch();const p=await (await b.newContext({deviceScaleFactor:1.5,viewport:{width:1280,height:900}})).newPage();
+await p.goto('file://'+process.cwd()+'/proof.html');await p.screenshot({path:'proof.png',fullPage:true});await b.close();
