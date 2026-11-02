@@ -15,6 +15,7 @@ import {
 const essay = 'essays/lorem-ipsum/';
 const heavy = 'essays/amet-consectetur/';
 const mdx = 'essays/ut-labore/';
+const writeUp = 'write-ups/excepteur-sint/';
 const scrolled = [essay, heavy, mdx];
 
 test.describe('scrolling', () => {
@@ -31,6 +32,29 @@ test.describe('scrolling', () => {
       expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(route).cls);
     });
   }
+});
+
+test.describe('the write-up', () => {
+  test('stays stable through a touch scroll, with no parade', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto(writeUp);
+    await expect(page.locator('.run-chart svg').first()).toBeVisible();
+    await resetFrames(page);
+    await swipeToBottom(page);
+    const metrics = await readMetrics(page);
+    await report('scroll', writeUp, { ...metrics, inp: undefined });
+    expect(metrics.cls, 'CLS').toBeLessThanOrEqual(limitsFor(writeUp).cls);
+  });
+
+  test('its card transition runs', async ({ context }) => {
+    const page = await throttledPage(context);
+    await page.goto('./');
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: /Excepteur sint occaecat/ }).tap();
+    const result = await settledTransition(page, /Excepteur sint occaecat/);
+    await report('transition-write-up', writeUp, result);
+    expect(result.morphed).toBe(true);
+  });
 });
 
 test.describe('interaction', () => {

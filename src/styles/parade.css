@@ -170,7 +170,7 @@ body:has(.parade) {
   stroke-width: 2.2;
 }
 
-.label {
+.slot .label {
   position: absolute;
   inset-inline-start: 50%;
   inset-block-end: calc(100% + 6px);

@@ -45,3 +45,34 @@ it('the mentions check holds in MDX, where a marker quoted in code doesn’t cou
     stderr: expect.stringContaining('"queen" has no mention'),
   });
 }, 60_000);
+
+it('a piece with no cast builds with no parade, cast list or space on its card', async () => {
+  await copySite();
+  await build();
+  const dist = join(root, 'dist', 'skill');
+  const page = await readFile(join(dist, 'write-ups', 'excepteur-sint', 'index.html'), 'utf8');
+  expect(page).toContain('Excepteur sint occaecat');
+  expect(page).not.toContain('astro-island');
+  expect(page).not.toContain('cast-section');
+  const home = await readFile(join(dist, 'index.html'), 'utf8');
+  const card = home.slice(home.indexOf('href="/skill/write-ups/excepteur-sint/"'));
+  expect(card.slice(0, card.indexOf('</a>'))).not.toContain('piece-card-cast');
+}, 60_000);
+
+it('a cast with no cited work fails the build', async () => {
+  await copySite();
+  const piece = join(root, 'content', 'lorem', 'lorem-ipsum.md');
+  await writeFile(piece, (await readFile(piece, 'utf8')).replace(/citedWork:\n.*\n.*\n/, ''));
+  await expect(build()).rejects.toMatchObject({
+    stderr: expect.stringContaining('A piece with a cast needs a cited work'),
+  });
+}, 60_000);
+
+it('a bad run file fails the build, and says what’s wrong', async () => {
+  await copySite();
+  const file = join(root, 'src', 'content', 'run.json');
+  await writeFile(file, (await readFile(file, 'utf8')).replace('"name": "Lorem"', '"name": ""'));
+  await expect(build()).rejects.toMatchObject({
+    stderr: expect.stringMatching(/run file has 1 problem[\s\S]*stages\[0\]\.name/),
+  });
+}, 60_000);

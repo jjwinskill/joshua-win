@@ -1,0 +1,64 @@
+---
+// The template every piece shares: complete and semantic, with no treatment. The whole page is the card's
+// color, because the card grows into it. A piece with no cast has no cast list or parade.
+import { render, type CollectionEntry } from 'astro:content';
+import Base from './Base.astro';
+import { CastList } from '../components/cast/CastList';
+import { morphNames } from '../components/morph';
+import { Parade } from '../components/parade/Parade';
+import { pieceCast } from '../lib/piece-cast';
+import { pieceKicker } from '../lib/pieces';
+import '../styles/parade.css';
+
+interface Props {
+  piece: CollectionEntry<'lorem'>;
+}
+
+const { piece } = Astro.props;
+const { Content } = await render(piece);
+const { title, dek, date, citedWork, kind } = piece.data;
+const names = morphNames(piece.id);
+const cast = await pieceCast(piece);
+---
+
+<Base title={title}>
+  <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
+  <article>
+    <header class="piece-head">
+      <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
+        {pieceKicker(kind)}
+      </p>
+      <h1 data-morph style={{ viewTransitionName: names.title }}>
+        {title}
+      </h1>
+      <p class="dek" data-morph style={{ viewTransitionName: names.dek }}>
+        {dek}
+      </p>
+      <p class="piece-date">
+        <time datetime={date.toISOString().slice(0, 10)}>
+          {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
+        </time>
+      </p>
+    </header>
+    <div class="piece-body">
+      <Content />
+      <p class="end-mark" id="parade-end" aria-hidden="true">
+        · · ·
+      </p>
+    </div>
+  </article>
+  {cast.length > 0 && citedWork && <CastList cast={cast} citedWork={citedWork} />}
+  {cast.length > 0 && <Parade client:idle cast={cast} endId="parade-end" />}
+  <noscript slot="head">
+    <style>
+      .parade,
+      .replay-row,
+      .heavy-scene,
+      .heavy-chart,
+      .heavy-figure figcaption {
+        /* This loads before the stylesheets, which would otherwise win. */
+        display: none !important;
+      }
+    </style>
+  </noscript>
+</Base>

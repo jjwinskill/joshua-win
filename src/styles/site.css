@@ -136,7 +136,7 @@ a:focus-visible {
   overflow: visible;
 }
 
-/* The essay template. The whole page is the card's color, because the card becomes it. */
+/* The piece template. The whole page is the card's color, because the card becomes it. */
 body:has(.piece-sheet) {
   background: var(--paper-2);
 }
@@ -149,29 +149,29 @@ body:has(.piece-sheet) {
   pointer-events: none;
 }
 
-.essay-head {
+.piece-head {
   padding: 4.5rem max(16px, calc((100% - 40rem) / 2)) 2rem;
 }
 
 /* Morphing text is only as wide as its words, so it doesn't stretch in flight. */
-.essay-head h1,
+.piece-head h1,
 .kicker,
 .dek {
   width: fit-content;
 }
 
-.essay-body,
+.piece-body,
 .cast-section {
   max-width: calc(40rem + 32px);
   margin-inline: auto;
 }
 
-.essay-body,
+.piece-body,
 .cast-section {
   padding-inline: 16px;
 }
 
-.essay-body h2,
+.piece-body h2,
 .cast-section h2 {
   font-family: var(--sans);
   font-size: 1rem;
@@ -181,7 +181,7 @@ body:has(.piece-sheet) {
   color: var(--ink-soft);
 }
 
-.essay-date {
+.piece-date {
   font-family: var(--sans);
   font-size: 0.9rem;
   color: var(--ink-soft);
@@ -271,8 +271,8 @@ span[id^='cast-']:target {
 
 .piece-card .kicker,
 .piece-card .dek,
-.essay-head .kicker,
-.essay-head .dek {
+.piece-head .kicker,
+.piece-head .dek {
   view-transition-class: piece-text;
 }
 
@@ -472,6 +472,18 @@ span[id^='cast-']:target {
       transform: translateY(0) scale(1.03, 0.96);
     }
   }
+}
+
+/* For a visual hidden from screen readers, with a list beside it (S16). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 @media (max-width: 560px) {
