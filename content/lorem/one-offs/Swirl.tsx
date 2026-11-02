@@ -33,6 +33,7 @@ function startSwirl(section: HTMLElement, stage: HTMLElement, canvas: HTMLCanvas
   let D = 1;
   let ink = '';
   let lastW = 0;
+  let lastH = 0;
   let lastTop: number | undefined;
   let frame = 0;
   let visible = false;
@@ -48,6 +49,7 @@ function startSwirl(section: HTMLElement, stage: HTMLElement, canvas: HTMLCanvas
     lastW = innerWidth;
     const W = stage.clientWidth;
     const H = stage.clientHeight;
+    lastH = H;
     D = Math.min(3, devicePixelRatio || 1);
     canvas.width = W * D;
     canvas.height = H * D;
@@ -126,7 +128,8 @@ function startSwirl(section: HTMLElement, stage: HTMLElement, canvas: HTMLCanvas
   }
 
   const onResize = () => {
-    if (running && flat && innerWidth !== lastW) layout();
+    // svh holds still as a phone's toolbar collapses, so this only sees a real resize.
+    if (running && flat && (innerWidth !== lastW || stage.clientHeight !== lastH)) layout();
   };
   const onMotion = () => (motion.matches ? run() : halt());
 

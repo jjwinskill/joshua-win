@@ -248,7 +248,34 @@ test.describe('the Swirl', () => {
       section?.style.removeProperty('--swirl-wind');
       return [before, section?.offsetHeight ?? 0];
     }, swirl);
-    expect(Math.abs(measured - held)).toBeLessThanOrEqual(2);
+    // Platforms measure the same font a little differently: 4 px between macOS and Linux Chromium.
+    // This still fails if the section's text changes, since that moves the height by far more.
+    expect(Math.abs(measured - held)).toBeLessThanOrEqual(8);
+  });
+
+  test('a resize that only changes the height redraws the stage rather than stretching it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1000, height: 600 });
+    await page.goto(route);
+    await expect(page.locator(swirl)).toHaveAttribute('data-drawn');
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await expect
+      .poll(() =>
+        page.evaluate((selector) => {
+          const canvas = document.querySelector<HTMLCanvasElement>(`${selector} canvas`);
+          return canvas ? canvas.height / devicePixelRatio - canvas.clientHeight : undefined;
+        }, swirl),
+      )
+      .toBe(0);
+  });
+
+  test('printing shows the paragraphs, not the stage', async ({ page }) => {
+    await page.goto(route);
+    await page.emulateMedia({ media: 'print' });
+    const first = page.locator(`${swirl} p`).first();
+    expect((await first.boundingBox())?.width).toBeGreaterThan(100);
+    await expect(page.locator(`${swirl} canvas`)).toBeHidden();
   });
 
   test('a failed bundle still shows every paragraph as the reader scrolls', async ({ page }) => {

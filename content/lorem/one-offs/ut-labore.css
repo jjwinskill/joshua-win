@@ -12,7 +12,8 @@
   unicode-range: U+20-7E, U+B7, U+147-148, U+164-165, U+2013-2014, U+2018-2019, U+201C-201D, U+2026;
 }
 
-/* What shows until the font arrives, tuned to take up the same room, so the swap doesn't shift the page. */
+/* What shows until the font arrives, tuned to take up nearly the same room. The first screen holds still when
+   the font swaps, but text further down moves a little: about 54 px by the Swirl on a phone. */
 @font-face {
   font-family: 'Bricolage fallback';
   src: local('Arial'), local('Helvetica'), local('Roboto');
@@ -45,7 +46,7 @@ article[data-piece='ut-labore'] .piece-body {
   display: none;
 }
 
-@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+@media screen and (scripting: enabled) and (prefers-reduced-motion: no-preference) {
   .swirl {
     /* The prototype's height: the text's scrolling, plus the stage. CSS holds it from the start, so hydrating
        changes nothing and Back can restore a scroll position past the section. Swirl.tsx sets the measured
