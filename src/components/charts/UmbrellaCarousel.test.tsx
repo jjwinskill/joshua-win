@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { run } from '../../lib/run-file';
-import { nearestTurn, panelPose } from './umbrella-pose';
+import { launchAt, launchLasts, nearestTurn, panelAt, panelPose, unfoldAt } from './umbrella-pose';
 import { UmbrellaCarousel } from './UmbrellaCarousel';
 
 const stubMotion = (reduced: boolean) => vi.stubGlobal('matchMedia', () => ({ matches: reduced }));
@@ -21,8 +21,18 @@ it('hides the visual, keeps real buttons outside it, and lists the same fan-out'
   expect(visual).toBeInTheDocument();
   expect(visual?.querySelector('button')).toBeNull();
   const buttons = screen.getAllByRole('button');
-  expect(buttons).toHaveLength(run.stages.length);
-  expect(buttons.map((button) => button.textContent)).toEqual(run.stages.map(({ name }) => name));
+  expect(buttons).toHaveLength(9);
+  expect(buttons.map((button) => button.textContent)).toEqual([
+    'Agent A',
+    'Agent B',
+    'Agent C, 1 of 4',
+    'Agent C, 2 of 4',
+    'Agent C, 3 of 4',
+    'Agent C, 4 of 4',
+    'Agent D',
+    'Agent E',
+    'Agent F',
+  ]);
   const items = screen.getAllByRole('listitem');
   expect(items).toHaveLength(run.stages.length);
   for (const agent of run.stages[1]?.agents ?? []) expect(items[1]).toHaveTextContent(agent.name);
@@ -31,18 +41,12 @@ it('hides the visual, keeps real buttons outside it, and lists the same fan-out'
 it('starts with the first panel open, and clicking expands only the one clicked', async () => {
   const user = userEvent.setup();
   const { container } = render(<UmbrellaCarousel run={run} />);
-  expect(openness(container)).toEqual([1, 0, 0, 0]);
-  expect(screen.getByRole('button', { name: run.stages[0]?.name })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await user.click(screen.getByRole('button', { name: run.stages[2]?.name }));
-  expect(openness(container)).toEqual([0, 0, 1, 0]);
-  expect(screen.getByRole('button', { name: run.stages[0]?.name })).toHaveAttribute(
-    'aria-pressed',
-    'false',
-  );
-  expect(screen.getByRole('button', { name: run.stages[2]?.name })).toHaveAttribute(
+  expect(openness(container)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0]);
+  expect(screen.getByRole('button', { name: 'Agent A' })).toHaveAttribute('aria-pressed', 'true');
+  await user.click(screen.getByRole('button', { name: 'Agent C, 2 of 4' }));
+  expect(openness(container)).toEqual([0, 0, 0, 1, 0, 0, 0, 0, 0]);
+  expect(screen.getByRole('button', { name: 'Agent A' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByRole('button', { name: 'Agent C, 2 of 4' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
@@ -53,7 +57,7 @@ it('stops its spring when unmounted', async () => {
   const cancel = vi.spyOn(window, 'cancelAnimationFrame');
   const user = userEvent.setup();
   const { unmount } = render(<UmbrellaCarousel run={run} />);
-  await user.click(screen.getByRole('button', { name: run.stages[1]?.name }));
+  await user.click(screen.getByRole('button', { name: 'Agent D' }));
   cancel.mockClear();
   unmount();
   expect(cancel).toHaveBeenCalled();
@@ -72,7 +76,7 @@ it('puts the chosen panel at the front, biggest and nearest', () => {
 
 it('never turns a panel past facing the reader, so no text reads mirrored', () => {
   for (let turn = 0; turn < 4; turn += 0.07) {
-    expect(Math.abs(panelPose(1, turn, 4).twist)).toBeLessThanOrEqual(32);
+    expect(Math.abs(panelPose(1, turn, 4).twist)).toBeLessThanOrEqual(22);
   }
 });
 
@@ -81,6 +85,37 @@ it('moves smoothly as a panel passes the back', () => {
   const after = panelPose(0, 2.01, 4);
   expect(Math.abs(before.x - after.x)).toBeLessThan(2);
   expect(Math.abs(before.twist - after.twist)).toBeLessThan(2);
+});
+
+it('folds every panel into the hub until it launches, one after another', () => {
+  const folded = panelPose(3, 0, 9, launchAt(3, 0), unfoldAt(9, 0));
+  expect(folded).toMatchObject({ rimX: 50, rimY: 7, scale: 0, open: 0 });
+  expect(launchAt(0, 0.2)).toBeGreaterThan(launchAt(8, 0.2));
+  const end = launchLasts(9);
+  for (let i = 0; i < 9; i += 1) expect(launchAt(i, end)).toBe(1);
+  // The front panel waits for the ring.
+  expect(unfoldAt(9, 0.6)).toBe(0);
+  expect(unfoldAt(9, end)).toBe(1);
+});
+
+it('keeps all nine panels inside its width and clear of the open one', () => {
+  const panelWidth = 62;
+  const open = panelPose(0, 0, 9);
+  for (let i = 1; i < 9; i += 1) {
+    const { x, scale, depth } = panelPose(i, 0, 9);
+    const half = (panelWidth * scale) / 2;
+    expect(x - half).toBeGreaterThanOrEqual(0);
+    expect(x + half).toBeLessThanOrEqual(100);
+    expect(depth).toBeLessThan(open.depth);
+  }
+  expect(open.y + 54).toBeLessThanOrEqual(138);
+});
+
+it('finds the panel nearest the front, either way round', () => {
+  expect(panelAt(0.4, 9)).toBe(0);
+  expect(panelAt(1.6, 9)).toBe(2);
+  expect(panelAt(-1, 9)).toBe(8);
+  expect(panelAt(10, 9)).toBe(1);
 });
 
 it('goes the short way round', () => {

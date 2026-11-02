@@ -15,7 +15,7 @@
       "name": "Ipsum",
       "cards": 24,
       "agents": [
-        { "id": "agent-c", "name": "Agent C", "count": { "default": 6, "min": 3, "max": 8 } }
+        { "id": "agent-c", "name": "Agent C", "count": { "default": 4, "min": 3, "max": 8 } }
       ]
     },
     {
@@ -24,7 +24,7 @@
       "cards": 8,
       "optional": true,
       "agents": [
-        { "id": "agent-d", "name": "Agent D", "count": 3 },
+        { "id": "agent-d", "name": "Agent D", "count": 1 },
         { "id": "agent-e", "name": "Agent E", "count": 1 }
       ]
     },
@@ -32,7 +32,7 @@
       "id": "amet",
       "name": "Amet",
       "cards": 3,
-      "agents": [{ "id": "agent-f", "name": "Agent F", "count": 2 }]
+      "agents": [{ "id": "agent-f", "name": "Agent F", "count": 1 }]
     }
   ],
   "cards": [
