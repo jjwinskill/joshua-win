@@ -15,6 +15,7 @@
 | 1 | Pipeline | **done** | A hello page at joshua.win/skill, noindexed, deployed on every merge with all checks running; mail to `@joshua.win` reaching Josh's Gmail |
 | 2 | Lorem piece 1 and bake-off 1 | **done** (spec #27; Astro chosen, ADR 0001; #11 stays open for Josh's hello copy) | A lorem essay with the parade, the heavy page, the `/skill` home with cards that expand into the piece, and the framework chosen |
 | 3 | Lorem pieces 2 and 3 | **done** (spec #51) | The lorem write-up as a chart playground, the heavy-treatment piece 3, the template sheet, and the *Too Loud a Solitude* cast drawn and walking |
+| 3.5 | Reviewer and skills evaluation | in progress | Standards and skills tested with and without, keeping what measurably helps. No more than an hour, run by an agent without Josh (G49) |
 | 4 | Style (bake-off 2) | not started | About 10 themes switchable on piece 1, the winner chosen, and the style guide |
 | 5 | Content | not started | Josh's two pieces with their real treatments, the about page, the contact form, sending from `@joshua.win`, share images, RSS and the sitemap |
 | 6 | Ship | not started | The launch bar met, the lorem pieces removed, noindex lifted: published |
@@ -110,6 +111,18 @@
   Josh draws and an agent traces (G37): hand-cleaned SVG and a hand-tuned walk, with Josh approving each cleaned SVG. The steps and tools are in [`cast/README.md`](cast/README.md). It replaces *Alice* on piece 1. Rig automation (P3) waits until this works.
 - **Exit:** both pieces pass every check; the playground has at least one prototype of each idea above; piece 3 has the Swirl, unchanged, and Josh has checked it on his phone; the cast walks and bows on piece 1; Josh says the hand-made cast looks right; and a checkpoint passes.
 
+## Phase 3.5: Reviewer and skills evaluation
+
+**Goal:** know which standards and skills change what an agent does, and drop the rest. Josh asked for this after phase 3's retro, because the reviewer had no standards to enforce. A model leans on its training data, so the likeliest gains are where our versions are newer than that data.
+
+- **Time-box:** one hour, run independently. Josh reads the result, not the process.
+- **Method:** a paired baseline, per Anthropic's guidance ([`research/agent-practices/skills-placement.md`](research/agent-practices/skills-placement.md)): fresh agents, the same prompt with and without the guidance, checkable assertions, and evidence for each pass.
+  - **Reviewer:** run on real phase 3 commits whose bugs a later review found. Score how many it catches and what noise it adds.
+  - **Stack traps:** coding prompts that invite an out-of-date habit, compared across no guidance, a skill, and a pointer in `CLAUDE.md`.
+- **Iterate:** a few rounds. Change the wording, or bring in a skill or hook, only where a run fails in a way you can name.
+- **Judge by research:** primary sources and respected practitioners over the agent's own assumptions.
+- **Exit:** the results are in `docs/research/agent-practices/evaluation.md`, what didn't help is removed, and retro's next run can repeat the method.
+
 ## Phase 4: Style (bake-off 2)
 
 **Goal:** the house look, chosen by trying it.
@@ -199,6 +212,7 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 | G45 | **The Swirl on a wide screen draws in the reading column.** The prototype only ever ran on a phone, where its stage is the whole screen, and its numbers depend on that width. So the stage runs to the screen's edge on a phone, as in the prototype, and is the reading column (672 px) on a wide screen, which caps the coil at its existing 130 px radius. No value changes. | Settles what G35 left open for desktop |
 | G46 | **A card's page is fetched ahead of time, and Back gets a workaround.** The router must fetch a page before its transition can start, about half a second after a tap on a phone. So cards in view, and the way home from a piece, are fetched ahead of time and held in memory for up to 30 minutes, and Astro's hashed files are cached outright. A script adds the history entry during the tap, for Astro's #18377, and comes out when Astro ships its fix. | Sharpens G34 |
 | G47 | **The carousel has one panel per sub-agent, nine by default, and it launches them.** The ring used to hold the stages, with agents inside a panel. Josh expected to see the sub-agents launched: "something like 9 sub agents getting launched in orchestration". They go out from the hub one after another as it comes into view, and the first opens last. The run file's placeholder counts now total nine, and panels read the default count. Josh then asked to ditch or rethink the canopy, so it's gone: each agent has one rib in its stage's color, and the open one's stands out. A sideways drag or swipe turns the ring, and up and down still scroll the page. | Josh's review of the live prototype |
+| G49 | **Skills stay in `.claude/skills/`, with `CLAUDE.md` as the only always-loaded file.** Claude Code doesn't read `.agents/skills` or, beside a `CLAUDE.md`, `AGENTS.md`. Judgement calls live in `CODING_STANDARDS.md`, for the reviewer. Facts newer than a model's training data live behind a `CLAUDE.md` pointer, because a skill alone may not fire. New guidance needs a failed baseline first. | Josh's request after phase 3's retro; [research](research/agent-practices/skills-placement.md) |
 
 ## Change log
 
@@ -238,3 +252,4 @@ The real pieces stay out of this public repo and out of CI until step 5 (G22).
 - 2026-11-01: Josh's review of the moving charts: the battle stays for now, to revisit with `/creative-iteration` 1.0. The carousel now launches nine agent panels (G47), taller and spread out, and the robot's brain drop takes about 10svh of scrolling, with the switching on slower and steady. Josh says the building blocks are ready for content.
 - 2026-11-02: phase 3 is done. Josh signed off on the live cast and charts ("It all looks so good"), expecting to tweak them as he writes the pieces that use them, and the checkpoint on `main` (d2bee09) passed. Phase 4 is next.
 - 2026-11-02: Josh's drawing photo, a blank template sheet and the inking tools are now in `docs/cast/` (G37 changed), so a curious reader can see the cast is hand-drawn, and a "how I built this" write-up has its material. His phone's metadata is removed on conversion.
+- 2026-11-02: phase 3's retro added `CODING_STANDARDS.md`, `agents/stack-traps.md` and the research behind them (G49), a Review section in the PR template, and union merges for this file, which conflicted on every parallel PR. Phase 3.5 now sits before phase 4, and evaluates all of this.

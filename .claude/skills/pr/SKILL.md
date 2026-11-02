@@ -21,6 +21,10 @@ Use this template for writing the PR body:
 - **Before:** <screenshot/output/failing test run>
   **After:** <screenshot/output/passing test run>
 
+## Review
+
+<what the independent review found on each round, what was fixed, and what was answered. Say "not yet" until it has run, and keep this current.>
+
 ## Merge Danger
 
 **Door:** <one-way or two-way>
@@ -162,6 +166,10 @@ Concrete evidence that the change works. Show a before and after.
 Screenshots are S-tier - when the environment is set up for it and the change is visual.
 
 Execution-based evidence is A-tier. Test results, console output. Show the exact test that now fails and passes, using pseudocode.
+
+### Review
+
+The independent review's findings go on the PR (G21). Update this section after each round, or the record is lost when the session ends. A checkpoint gets a link here once it has finished.
 
 ### Merge Danger
 
