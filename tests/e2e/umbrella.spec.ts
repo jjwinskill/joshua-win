@@ -178,6 +178,55 @@ test('dragging sideways turns the ring, and doesn’t count as a tap', async ({ 
   await expect(page.locator('.umbrella')).toHaveCSS('touch-action', 'pan-y pinch-zoom');
 });
 
+async function grabRing(page: Page) {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto(writeUp);
+  await page.locator('.umbrella').evaluate((umbrella) => {
+    umbrella.scrollIntoView({ block: 'center', behavior: 'instant' });
+  });
+  await expect.poll(() => lit(page)).toEqual(allLit);
+  const box = await page.locator('.umbrella').boundingBox();
+  const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+  const y = (box?.y ?? 0) + (box?.height ?? 0) * 0.75;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  return { x, y };
+}
+
+test('a mostly vertical drag doesn’t turn the ring, whatever it drifts sideways', async ({
+  page,
+}) => {
+  const { x, y } = await grabRing(page);
+  await page.mouse.move(x + 30, y - 100, { steps: 10 });
+  await expect(page.locator('.umbrella')).not.toHaveClass(/is-dragging/);
+  await page.mouse.up();
+  await expect(page.getByRole('button', { name: 'Agent A', pressed: true })).toHaveCount(1);
+  await expect.poll(() => openness(page)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0]);
+});
+
+for (const [lost, event, init] of [
+  ['the browser takes the pointer', 'pointercancel', {}],
+  ['the button comes up unseen', 'pointermove', { buttons: 0 }],
+] as const) {
+  test(`when ${lost}, the ring goes back to its panel`, async ({ page }) => {
+    const { x, y } = await grabRing(page);
+    await page.mouse.move(x - 80, y, { steps: 4 });
+    await expect(page.locator('.umbrella')).toHaveClass(/is-dragging/);
+    await page.locator('.umbrella').evaluate(
+      (umbrella, [type, options]) => {
+        umbrella.dispatchEvent(
+          new PointerEvent(type as string, { pointerId: 1, bubbles: true, ...(options as object) }),
+        );
+      },
+      [event, init] as const,
+    );
+    await expect(page.locator('.umbrella')).not.toHaveClass(/is-dragging/);
+    await page.mouse.up();
+    await expect(page.getByRole('button', { name: 'Agent A', pressed: true })).toHaveCount(1);
+    await expect.poll(() => openness(page)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0]);
+  });
+}
+
 test('a tap that slips a little still taps', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto(writeUp);

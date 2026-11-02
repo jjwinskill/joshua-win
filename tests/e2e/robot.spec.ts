@@ -101,6 +101,22 @@ test('it fits a phone, even with the lid open', async ({ page }) => {
   expect(robot?.y).toBeGreaterThanOrEqual(0);
 });
 
+test('its hand isn’t cut off as the arm swings up', async ({ page }) => {
+  for (const width of [320, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(writeUp);
+    const stage = page.locator('.robot-stage');
+    for (const at of [0.62, 0.635, 0.65]) {
+      await scrollThrough(page, at);
+      const edge = await stage.boundingBox();
+      const hand = await page.locator('.robot-forearm g').boundingBox();
+      expect((hand?.x ?? 0) + (hand?.width ?? 0)).toBeLessThanOrEqual(
+        (edge?.x ?? 0) + (edge?.width ?? 0),
+      );
+    }
+  }
+});
+
 test.describe('under reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

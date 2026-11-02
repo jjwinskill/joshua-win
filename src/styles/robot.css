@@ -211,8 +211,8 @@
     }
 
     .robot {
-      /* Narrower than the column, because the open lid reaches past the robot's own box. */
-      width: min(90%, 26rem, calc((100svh - 7rem) * 360 / 470));
+      /* Narrower than the column, because the open lid and the swinging arm reach past the robot's own box. */
+      width: min(82%, 26rem, calc((100svh - 7rem) * 360 / 470));
     }
 
     .robot-whole,

@@ -160,7 +160,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     let lastMove = { x: 0, at: 0, speed: 0 };
     const element = root.current;
     const onDown = (event: PointerEvent) => {
-      if (event.button !== 0 || !event.isPrimary || grip) return;
+      if (event.button !== 0 || !event.isPrimary) return;
       launch();
       skipClick = false;
       grip = { id: event.pointerId, x: event.clientX, y: event.clientY, turn, dragging: false };
