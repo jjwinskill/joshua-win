@@ -14,7 +14,16 @@
 .umbrella {
   position: relative;
   container-type: inline-size;
-  aspect-ratio: 100 / 84;
+  /* Sideways turns the ring, and up and down still scroll the page. */
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.umbrella.is-dragging,
+.umbrella.is-dragging .umbrella-button {
+  cursor: grabbing;
 }
 
 .umbrella-visual {
@@ -28,26 +37,22 @@
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.umbrella-canopy {
-  fill: color-mix(in srgb, var(--accent) 12%, transparent);
-  stroke: var(--ink-soft);
-  stroke-width: 0.5;
+  overflow: visible;
 }
 
 .umbrella-rib {
-  stroke: var(--ink-soft);
-  stroke-width: 0.5;
+  fill: none;
+  stroke: var(--stage);
+  stroke-linecap: round;
 }
 
 .umbrella-hub {
   position: absolute;
-  top: 2cqi;
+  top: 2.5cqi;
   left: 50%;
   z-index: 200;
   margin: 0;
-  padding: 0.15rem 0.7rem;
+  padding: 0.2rem 0.8rem;
   translate: -50% 0;
   background: var(--ink);
   color: var(--paper);
@@ -62,16 +67,54 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 58cqi;
-  height: 56cqi;
+  width: 62cqi;
+  height: 54cqi;
   transform-origin: 50% 0;
 }
 
+/* A panel is full size and scaled down when closed, so its border, its corners and its text are all drawn
+   large here. */
 .umbrella-panel {
   overflow: hidden;
   background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 10px;
+  border: 1.2cqi solid var(--ink);
+  border-radius: 5cqi;
+  box-shadow: 0 2cqi 0 color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+/* The stage it belongs to, as a band across its top. */
+.umbrella-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7cqi;
+  background: var(--stage);
+}
+
+/* Further panels sink back into the page. */
+.umbrella-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  opacity: calc(var(--far) * 0.25 * (1 - var(--open)));
+  pointer-events: none;
+}
+
+.umbrella-stage-0 {
+  --stage: var(--accent);
+}
+
+.umbrella-stage-1 {
+  --stage: color-mix(in oklch, var(--accent) 60%, var(--ink));
+}
+
+.umbrella-stage-2 {
+  --stage: color-mix(in oklch, var(--accent) 55%, var(--paper));
+}
+
+.umbrella-stage-3 {
+  --stage: var(--ink);
 }
 
 .umbrella-closed,
@@ -85,70 +128,115 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block-start: 6cqi;
+  justify-content: center;
+  padding-block-start: 7cqi;
   opacity: calc(1 - var(--open) * 2);
-  line-height: 1.2;
+  line-height: 1.15;
+  white-space: nowrap;
 }
 
 .umbrella-closed b {
-  font-size: max(1.8rem, 9cqi);
+  font-size: max(2.2rem, 10.5cqi);
 }
 
 .umbrella-closed span {
-  font-size: max(1.35rem, 6cqi);
+  font-size: max(1.7rem, 8cqi);
   color: var(--ink-soft);
 }
 
 .umbrella-open {
-  padding: 3.5cqi 4cqi;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqi;
+  padding: 10cqi 5cqi 3.5cqi;
   opacity: calc(var(--open) * 2 - 1);
   line-height: 1.25;
 }
 
-.umbrella-name {
-  margin: 0 0 0.3rem;
-  font-size: max(1.2rem, 5.5cqi);
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.umbrella-open ul {
+.umbrella-open p {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: max(0.85rem, 3.6cqi);
 }
 
-.umbrella-open li {
-  margin-block-end: 0.35rem;
+.umbrella-eyebrow {
+  font-size: max(0.75rem, 3.2cqi);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
-.umbrella-dots {
-  display: block;
-  letter-spacing: 0.08em;
-  color: var(--accent);
+.umbrella-open .umbrella-name {
+  font-size: max(1.5rem, 8cqi);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.umbrella-pips {
+  display: flex;
+  align-items: center;
+  gap: 1.2cqi;
+  font-size: max(0.75rem, 3.2cqi);
+  color: var(--ink-soft);
+}
+
+.umbrella-pips i {
+  width: 3cqi;
+  height: 3cqi;
+  border: 0.5cqi solid var(--ink);
+  border-radius: 50%;
+}
+
+.umbrella-pips i.on {
+  background: var(--accent);
+}
+
+.umbrella-pips span {
+  margin-inline-start: 1cqi;
 }
 
 .umbrella-note {
-  margin: 0;
-  font-size: max(0.78rem, 3.2cqi);
+  font-size: max(0.78rem, 3.4cqi);
   color: var(--ink-soft);
+}
+
+.umbrella-open .umbrella-cards {
+  margin-block-start: auto;
+  padding-block-start: 2cqi;
+  border-block-start: 0.4cqi solid color-mix(in srgb, var(--ink) 25%, transparent);
+  font-size: max(0.78rem, 3.4cqi);
+}
+
+.umbrella-cards b {
+  font-size: 1.5em;
+  color: var(--accent);
+}
+
+/* It comes on as the panel reaches the rim. */
+.umbrella-lamp {
+  position: absolute;
+  top: 1.6cqi;
+  right: 3cqi;
+  width: 3.8cqi;
+  height: 3.8cqi;
+  border-radius: 50%;
+  background: var(--paper);
+  opacity: var(--lit);
 }
 
 .umbrella-button {
   padding: 0;
   background: none;
   border: 0;
-  border-radius: 10px;
+  border-radius: 5cqi;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Thick, because the panels scale it down. */
 .umbrella-button:focus-visible {
-  outline: 4px solid var(--accent);
-  outline-offset: -4px;
+  outline: 1.6cqi solid var(--accent);
+  outline-offset: -1.6cqi;
 }
 
 /* With no JavaScript the buttons can't work, and the floor beside it shows the same fan-out. */

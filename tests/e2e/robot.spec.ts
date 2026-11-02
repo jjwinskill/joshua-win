@@ -41,7 +41,7 @@ test('reached from another page, scrolling opens, catches, snaps shut and switch
   expect((brain?.y ?? 0) + (brain?.height ?? 0)).toBeLessThan(0);
 
   // The brain's in, and the lid hasn't shut yet.
-  await scrollThrough(page, 0.47);
+  await scrollThrough(page, 0.2);
   await expect.poll(() => rotationOf(page, '.robot-lid')).toBeGreaterThan(100);
   expect(await opacityOf(page, '.robot-face-on')).toBe(0);
 
@@ -52,6 +52,22 @@ test('reached from another page, scrolling opens, catches, snaps shut and switch
   for (const lamp of await page.locator('.robot-lamp').all()) {
     await expect(lamp).toHaveCSS('opacity', '1');
   }
+
+  // It came on and stayed on: no flicker on the way.
+  for (const [at, lowest] of [
+    [0.4, 1],
+    [0.45, 1],
+    [0.7, 1],
+  ] as const) {
+    await scrollThrough(page, at);
+    await expect.poll(() => opacityOf(page, '.robot-face-on')).toBeGreaterThanOrEqual(lowest);
+  }
+
+  // The wave ends with the hand above the shoulder: the forearm comes up, not the whole arm over.
+  await scrollThrough(page, 1);
+  const shoulder = await page.locator('.robot-arm .robot-bolt').first().boundingBox();
+  const hand = await page.locator('.robot-forearm g').boundingBox();
+  expect((hand?.y ?? 0) + (hand?.height ?? 0)).toBeLessThan(shoulder?.y ?? 0);
 
   // Scrolling back runs it backward.
   await scrollThrough(page, 0);
@@ -83,6 +99,22 @@ test('it fits a phone, even with the lid open', async ({ page }) => {
   const caption = await page.locator('.robot-stage figcaption').boundingBox();
   expect((caption?.y ?? 0) + (caption?.height ?? 0)).toBeLessThanOrEqual(568);
   expect(robot?.y).toBeGreaterThanOrEqual(0);
+});
+
+test('its hand isn’t cut off as the arm swings up', async ({ page }) => {
+  for (const width of [320, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(writeUp);
+    const stage = page.locator('.robot-stage');
+    for (const at of [0.62, 0.635, 0.65]) {
+      await scrollThrough(page, at);
+      const edge = await stage.boundingBox();
+      const hand = await page.locator('.robot-forearm g').boundingBox();
+      expect((hand?.x ?? 0) + (hand?.width ?? 0)).toBeLessThanOrEqual(
+        (edge?.x ?? 0) + (edge?.width ?? 0),
+      );
+    }
+  }
 });
 
 test.describe('under reduced motion', () => {

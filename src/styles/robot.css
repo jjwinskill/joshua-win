@@ -43,6 +43,32 @@
   stroke-width: 3;
 }
 
+.robot-hose-edge,
+.robot-hose,
+.robot-hose-rib {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.robot-hose-edge {
+  stroke: var(--ink);
+  stroke-width: 22;
+}
+
+.robot-hose {
+  stroke: var(--paper);
+  stroke-width: 16;
+}
+
+.robot-hose-rib {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.robot-bolt {
+  fill: var(--ink);
+}
+
 .robot-dark {
   fill: var(--ink);
   opacity: 0.16;
@@ -140,7 +166,11 @@
 }
 
 .robot-arm {
-  transform-origin: calc(260 / 360 * 100%) calc(322 / 470 * 100%);
+  transform-origin: calc(264 / 360 * 100%) calc(322 / 470 * 100%);
+}
+
+.robot-forearm {
+  transform-origin: calc(292 / 360 * 100%) calc(358 / 470 * 100%);
 }
 
 .robot-clack {
@@ -167,7 +197,7 @@
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .robot-track {
-      height: 190svh;
+      height: 170svh;
       view-timeline: --robot block;
     }
 
@@ -181,12 +211,13 @@
     }
 
     .robot {
-      /* Narrower than the column, because the open lid reaches past the robot's own box. */
-      width: min(90%, 26rem, calc((100svh - 7rem) * 360 / 470));
+      /* Narrower than the column, because the open lid and the swinging arm reach past the robot's own box. */
+      width: min(82%, 26rem, calc((100svh - 7rem) * 360 / 470));
     }
 
     .robot-whole,
     .robot-arm,
+    .robot-forearm,
     .robot-brain,
     .robot-lid,
     .robot-face-on,
@@ -223,6 +254,10 @@
       animation-name: robot-arm;
     }
 
+    .robot-forearm {
+      animation-name: robot-forearm;
+    }
+
     .robot-lamp {
       animation-name: robot-lamp;
       animation-range: contain var(--lamp-from) contain var(--lamp-to);
@@ -231,175 +266,171 @@
 }
 
 /* Gravity: it starts just out of sight, whatever the screen's height (the robot's centered, so the brain's
-   resting place is about half a screen down). It speeds up all the way down, lands at 38%, and bounces once before
-   the lid comes down. */
+   resting place is about half a screen down). It speeds up all the way down, lands at 15%, and bounces once before
+   the lid comes down. This part is quick, and the switching on takes its time. */
 @keyframes robot-brain {
-  0% {
+  0.0% {
     transform: translateY(-58svh) rotate(-14deg);
     animation-timing-function: cubic-bezier(0.5, 0, 0.95, 0.55);
   }
-  38% {
+  15.0% {
     transform: translateY(0) rotate(0deg);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
   }
-  42% {
+  18.0% {
     transform: translateY(-7%) rotate(5deg);
     animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
   }
-  46%,
-  100% {
+  21.0%,
+  100.0% {
     transform: translateY(0) rotate(0deg);
   }
 }
 
 /* It hangs open, shudders as the brain lands, and then shuts in almost no scrolling at all. */
 @keyframes robot-lid {
-  0%,
-  37% {
+  0.0%,
+  14.6% {
     transform: rotate(122deg);
   }
-  39% {
+  15.8% {
     transform: rotate(132deg);
   }
-  42% {
+  18.0% {
     transform: rotate(116deg);
   }
-  46%,
-  49% {
+  21.0%,
+  22.8% {
     transform: rotate(124deg);
     animation-timing-function: cubic-bezier(0.7, 0, 1, 0.7);
   }
-  51% {
+  24.0% {
     transform: rotate(0deg);
     animation-timing-function: ease-out;
   }
-  52.5% {
+  25.5% {
     transform: rotate(7deg);
     animation-timing-function: ease-in;
   }
-  54%,
-  100% {
+  27.0%,
+  100.0% {
     transform: rotate(0deg);
   }
 }
 
 /* It takes the brain's weight, takes the lid's, and hops for joy once it's on. */
 @keyframes robot-whole {
-  0%,
-  37.5% {
+  0.0%,
+  14.8% {
     transform: none;
     animation-timing-function: ease-out;
   }
-  39.5% {
+  16.1% {
     transform: scale(1.05, 0.92);
     animation-timing-function: ease-out;
   }
-  44%,
-  50.5% {
+  19.5%,
+  23.7% {
     transform: none;
   }
-  52% {
+  25.0% {
     transform: scale(1.09, 0.88);
   }
-  55% {
+  28.3% {
     transform: scale(0.97, 1.03);
   }
-  58%,
-  76% {
+  32.1%,
+  60.6% {
     transform: none;
     animation-timing-function: ease-out;
   }
-  80% {
+  67.2% {
     transform: translateY(-7%) scale(0.98, 1.03);
     animation-timing-function: ease-in;
   }
-  84% {
+  73.7% {
     transform: scale(1.05, 0.95);
     animation-timing-function: ease-out;
   }
-  87%,
-  100% {
+  78.7%,
+  100.0% {
     transform: none;
   }
 }
 
-/* A fluorescent tube's stutter, so it reads as a switch and not a fade. */
+/* It warms up as the clank dies away, and then it stays on. */
 @keyframes robot-face-on {
   0%,
-  57% {
+  29% {
     opacity: 0;
-    animation-timing-function: steps(1, end);
   }
-  58% {
-    opacity: 1;
-    animation-timing-function: steps(1, end);
-  }
-  59.5% {
-    opacity: 0;
-    animation-timing-function: steps(1, end);
-  }
-  61% {
-    opacity: 1;
-    animation-timing-function: steps(1, end);
-  }
-  62% {
-    opacity: 0;
-    animation-timing-function: steps(1, end);
-  }
-  64%,
+  38%,
   100% {
     opacity: 1;
   }
 }
 
 @keyframes robot-clack {
-  0%,
-  50.5% {
+  0.0%,
+  23.7% {
     opacity: 0;
     transform: scale(0.5) rotate(-6deg);
     animation-timing-function: cubic-bezier(0.2, 1.6, 0.5, 1);
   }
-  52.5% {
+  25.5% {
     opacity: 1;
     transform: scale(1.1) rotate(-3deg);
   }
-  58% {
+  32.1% {
     opacity: 1;
     transform: scale(1) rotate(-3deg);
   }
-  61%,
-  100% {
+  36.0%,
+  100.0% {
     opacity: 0;
     transform: scale(1.06) rotate(-3deg);
   }
 }
 
-/* A wave: up with the hop, twice side to side. */
+/* A wave: with the hop, the upper arm swings out and the forearm comes up from the elbow, and then only the
+   forearm goes side to side. */
 @keyframes robot-arm {
   0%,
-  76% {
+  60.6% {
     transform: none;
     animation-timing-function: ease-out;
   }
-  81% {
-    transform: rotate(-132deg);
-    animation-timing-function: ease-in-out;
-  }
-  85% {
-    transform: rotate(-108deg);
-    animation-timing-function: ease-in-out;
-  }
-  89% {
-    transform: rotate(-132deg);
-    animation-timing-function: ease-in-out;
-  }
-  93% {
-    transform: rotate(-108deg);
-    animation-timing-function: ease-in-out;
-  }
-  97%,
+  68.8%,
   100% {
-    transform: rotate(-122deg);
+    transform: rotate(-55deg);
+  }
+}
+
+@keyframes robot-forearm {
+  0%,
+  60.6% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  68.8% {
+    transform: rotate(-125deg);
+    animation-timing-function: ease-in-out;
+  }
+  75.4% {
+    transform: rotate(-95deg);
+    animation-timing-function: ease-in-out;
+  }
+  81.9% {
+    transform: rotate(-125deg);
+    animation-timing-function: ease-in-out;
+  }
+  88.5% {
+    transform: rotate(-95deg);
+    animation-timing-function: ease-in-out;
+  }
+  95.1%,
+  100% {
+    transform: rotate(-110deg);
   }
 }
 

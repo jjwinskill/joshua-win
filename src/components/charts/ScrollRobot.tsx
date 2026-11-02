@@ -11,8 +11,65 @@ import type { Run } from '../../lib/run';
 const box = '0 0 360 470';
 
 /** Where the lamps' switching on sits on the timeline, as percentages. */
-const lampsFrom = 68;
-const lampsTo = 88;
+const lampsFrom = 46;
+const lampsTo = 80;
+
+// One arm, in the spirit of Bender's and Rosie's: ribbed hose in two lengths, ball joints and a
+// three-fingered grip. It's two parts, because a wave swings from the elbow.
+const shoulderY = 322;
+const elbowY = 358;
+const wristY = 394;
+const shoulderX = 84;
+const elbowX = 112;
+const wristX = 116;
+
+function Hose({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
+  const length = Math.hypot(x2 - x1, y2 - y1);
+  const nx = ((y2 - y1) / length) * 8;
+  const ny = ((x1 - x2) / length) * 8;
+  const ribs = Array.from({ length: 4 }, (_, i) => {
+    const x = x1 + ((x2 - x1) * (i + 1)) / 5;
+    const y = y1 + ((y2 - y1) * (i + 1)) / 5;
+    return `M${(x - nx).toFixed(1)} ${(y - ny).toFixed(1)}L${(x + nx).toFixed(1)} ${(y + ny).toFixed(1)}`;
+  }).join('');
+  const d = `M${x1} ${y1}L${x2} ${y2}`;
+  return (
+    <>
+      <path className="robot-hose-edge" d={d} />
+      <path className="robot-hose" d={d} />
+      <path className="robot-hose-rib" d={ribs} />
+    </>
+  );
+}
+
+function UpperArm({ side }: { side: -1 | 1 }) {
+  const at = (x: number) => 180 + side * x;
+  return (
+    <>
+      <Hose x1={at(shoulderX)} y1={shoulderY} x2={at(elbowX)} y2={elbowY} />
+      <circle className="robot-metal" cx={at(shoulderX)} cy={shoulderY} r="13" />
+      <circle className="robot-bolt" cx={at(shoulderX)} cy={shoulderY} r="3.5" />
+    </>
+  );
+}
+
+function Forearm({ side }: { side: -1 | 1 }) {
+  const at = (x: number) => 180 + side * x;
+  return (
+    <>
+      <Hose x1={at(elbowX)} y1={elbowY} x2={at(wristX)} y2={wristY} />
+      <circle className="robot-metal" cx={at(elbowX)} cy={elbowY} r="11" />
+      <circle className="robot-bolt" cx={at(elbowX)} cy={elbowY} r="3" />
+      <g transform={`translate(${at(wristX)} ${wristY})`}>
+        <path className="robot-metal" d="M-20 18C-26 34-22 44-15 46-11 46-10 42-12 36L-10 22" />
+        <path className="robot-metal" d="M20 18C26 34 22 44 15 46 11 46 10 42 12 36L10 22" />
+        <path className="robot-metal" d="M-7 20C-7 36-7 50 0 51 7 50 7 36 7 20" />
+        <rect className="robot-metal" x="-21" y="6" width="42" height="18" rx="9" />
+        <rect className="robot-metal" x="-13" y="-4" width="26" height="11" rx="3" />
+      </g>
+    </>
+  );
+}
 
 export function robotList(run: Run): string[] {
   return [
@@ -37,16 +94,24 @@ export function ScrollRobot({ run }: { run: Run }) {
               <svg className="robot-part" viewBox={box}>
                 <ellipse className="robot-dark" cx="180" cy="190" rx="66" ry="11" />
                 <rect className="robot-metal" x="164" y="288" width="32" height="16" />
-                <path className="robot-metal" d="M100 322 72 396" strokeLinecap="round" />
-                <circle className="robot-metal" cx="70" cy="402" r="11" />
                 <rect className="robot-metal" x="94" y="302" width="172" height="136" rx="14" />
                 <rect className="robot-metal" x="118" y="438" width="44" height="22" rx="8" />
                 <rect className="robot-metal" x="198" y="438" width="44" height="22" rx="8" />
               </svg>
-              <svg className="robot-part robot-arm" viewBox={box}>
-                <path className="robot-metal" d="M260 322 288 396" strokeLinecap="round" />
-                <circle className="robot-metal" cx="290" cy="402" r="11" />
+              <svg className="robot-part" viewBox={box}>
+                <UpperArm side={-1} />
+                <Forearm side={-1} />
               </svg>
+              <div className="robot-part robot-arm">
+                <svg className="robot-part" viewBox={box}>
+                  <UpperArm side={1} />
+                </svg>
+                <div className="robot-part robot-forearm">
+                  <svg className="robot-part" viewBox={box}>
+                    <Forearm side={1} />
+                  </svg>
+                </div>
+              </div>
               <svg className="robot-part robot-brain" viewBox={box}>
                 <path
                   className="robot-brain-fill"
@@ -109,7 +174,7 @@ export function ScrollRobot({ run }: { run: Run }) {
                 d="M84 130 62 112M72 176l-30-4M276 130l22-18M288 176l30-4M180 96V66M128 104l-12-26M232 104l12-26"
               />
               <text className="robot-clack-word" x="180" y="52">
-                CLACK!
+                CLANK!
               </text>
             </svg>
           </div>
