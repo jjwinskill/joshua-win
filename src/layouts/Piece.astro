@@ -23,7 +23,7 @@ const cast = await pieceCast(piece);
 
 <Base title={title}>
   <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
-  <article>
+  <article data-piece={piece.id}>
     <header class="piece-head">
       <p class="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
         {pieceKicker(kind)}

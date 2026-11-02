@@ -93,6 +93,71 @@ test('the home page doesn’t load a piece’s one-offs', async ({ page }) => {
   await expect(page.locator('astro-island')).toHaveCount(0);
 });
 
+test.describe('its treatment', () => {
+  const font = /BricolageGrotesque.*\.woff2/;
+
+  test('the body is in the piece’s font, and the card’s text stays in the house font', async ({
+    page,
+  }) => {
+    await page.goto('essays/ut-labore/');
+    await expect(page.locator('.piece-body p').first()).toHaveCSS(
+      'font-family',
+      /^"Bricolage Grotesque"/,
+    );
+    for (const text of ['h1', '.kicker', '.dek']) {
+      await expect(page.locator(`article ${text}`)).not.toHaveCSS('font-family', /Bricolage/);
+    }
+    await expect
+      .poll(() => page.evaluate(() => document.fonts.check('17px "Bricolage Grotesque"', 'Haňťa')))
+      .toBe(true);
+  });
+
+  test('it stays inside the article', async ({ page }) => {
+    await page.goto('essays/ut-labore/');
+    await expect(page.locator('.site-nav')).not.toHaveCSS('font-family', /Bricolage/);
+    await expect(page.locator('.cast-section h2')).not.toHaveCSS('font-family', /Bricolage/);
+  });
+
+  test('other pages don’t load the font, and the home page only pays once the card is tapped', async ({
+    page,
+  }) => {
+    const fonts: string[] = [];
+    page.on('request', (request) => {
+      if (font.test(request.url())) fonts.push(request.url());
+    });
+    for (const route of ['./', 'contents/', 'essays/lorem-ipsum/', 'write-ups/excepteur-sint/']) {
+      await page.goto(route);
+      await page.waitForLoadState('networkidle');
+    }
+    expect(fonts).toEqual([]);
+
+    await page.goto('./');
+    await page.getByRole('link', { name: /Ut labore et dolore/ }).click();
+    await expect(page.getByRole('article')).toBeVisible();
+    await expect.poll(() => fonts.length).toBeGreaterThan(0);
+  });
+
+  test('the parade stays out of the transition until the card lands', async ({ page }) => {
+    await page.goto('./');
+    await page.evaluate(() => {
+      document.addEventListener(
+        'astro:before-swap',
+        (event) => {
+          const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
+          void viewTransition.ready.then(() => {
+            const parade = document.querySelector('.parade');
+            sessionStorage.setItem('parade', parade ? getComputedStyle(parade).translate : '');
+          });
+        },
+        { once: true },
+      );
+    });
+    await page.getByRole('link', { name: /Ut labore et dolore/ }).click();
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem('parade'))).toMatch(/px|%/);
+    await expect(page.locator('.parade')).toHaveCSS('translate', 'none');
+  });
+});
+
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
