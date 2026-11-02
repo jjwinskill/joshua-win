@@ -135,8 +135,14 @@ test('going back to a piece returns to where the reader was, past the figures', 
   expect(Math.abs((await top()) - before)).toBeLessThan(20);
 });
 
+// The running transition takes every click, and Playwright answers a blocked click by retrying with the
+// target scrolled somewhere else, which moves the position the test is about to save.
+const transitionOver = (page: Page) =>
+  expect(page.locator('html')).not.toHaveAttribute('data-swapping');
+
 test('a cast card jumps to its first mention, and back returns to the card', async ({ page }) => {
   await openFromHome(page, /Lorem ipsum dolor/);
+  await transitionOver(page);
   const mention = page.locator('#cast-cat');
   const card = page.getByRole('link', { name: /The Cheshire Cat/ });
   await card.scrollIntoViewIfNeeded();
@@ -150,6 +156,22 @@ test('a cast card jumps to its first mention, and back returns to the card', asy
   await expect(page).not.toHaveURL(/#cast-cat$/);
   await expect(page.getByRole('article')).toBeVisible();
   await expect.poll(() => page.evaluate(() => scrollY)).toBeCloseTo(before, -2);
+});
+
+test('back during the jump to a mention still returns to the card', async ({ page }) => {
+  await openFromHome(page, /Lorem ipsum dolor/);
+  await transitionOver(page);
+  const card = page.getByRole('link', { name: /The Cheshire Cat/ });
+  await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const before = await page.evaluate(() => scrollY);
+  await card.click();
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(before - 200);
+  await page.goBack();
+  await expect(page).not.toHaveURL(/#cast-cat$/);
+  // Long enough for the jump's last frame to land, or this reads the position before it moves.
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => [scrollY, history.state.scrollY])).toEqual([before, before]);
 });
 
 test('the new page is announced, and keeps its heading and styles', async ({ page }) => {

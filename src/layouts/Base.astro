@@ -109,6 +109,23 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
           event.viewTransition.skipTransition();
         }
       });
+      // Back or Forward during a smooth jump to a cast mention. Chromium draws one more frame of the jump
+      // after the router restores the position, and the router then saves where that frame landed (seen on
+      // Playwright 1.64.1's Chromium, Astro 7.4.4). So this restores it again once the jump has stopped. Only
+      // on the same page: going to another page, the router scrolls after the swap, and scrolling here would
+      // move the page being left. The time limit is so a scrollend that never comes can't catch the reader's
+      // next scroll.
+      let scrollingPath;
+      addEventListener('scroll', () => (scrollingPath = location.pathname), { passive: true });
+      addEventListener('scrollend', () => (scrollingPath = undefined));
+      addEventListener('popstate', ({ state }) => {
+        if (!state || scrollingPath !== location.pathname) return;
+        const restore = () => {
+          if (history.state?.index !== state.index) return;
+          scrollTo({ left: state.scrollX, top: state.scrollY, behavior: 'instant' });
+        };
+        addEventListener('scrollend', restore, { once: true, signal: AbortSignal.timeout(500) });
+      });
     </script>
   </head>
   <body>
