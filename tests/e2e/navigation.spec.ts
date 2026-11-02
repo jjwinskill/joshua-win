@@ -196,11 +196,17 @@ test('the pages under the card swap before it starts to fade, and after it has f
         ? [...rule.cssRules].flatMap((r) => find(name, r))
         : [];
     };
-    const second = (name: string) => {
-      const rule = rules.flatMap((r) => find(name, r))[0];
-      return Number.parseFloat(rule?.cssRules[1]?.cssText ?? 'NaN');
+    const keyframe = (name: string, fromEnd: boolean) => {
+      const list = rules.flatMap((r) => find(name, r))[0]?.cssRules;
+      const rule = list?.[fromEnd ? list.length - 2 : 1];
+      return Number.parseFloat(rule?.cssText ?? 'NaN');
     };
-    return ['card-until-covered', 'card-grows', 'card-until-sheet', 'card-shrinks'].map(second);
+    return [
+      keyframe('card-until-covered', false),
+      keyframe('card-grows', true),
+      keyframe('card-until-sheet', false),
+      keyframe('card-shrinks', false),
+    ];
   });
   const [swapOpening, fadeStart, swapClosing, fadedIn] = offsets as [
     number,
@@ -208,8 +214,9 @@ test('the pages under the card swap before it starts to fade, and after it has f
     number,
     number,
   ];
-  expect(swapOpening).toBeLessThan(fadeStart);
-  expect(swapClosing).toBeGreaterThan(fadedIn);
+  // 12% of 500ms is 60ms, nearly four frames at 60 Hz, since WebKit can run them apart.
+  expect(fadeStart - swapOpening).toBeGreaterThanOrEqual(12);
+  expect(swapClosing - fadedIn).toBeGreaterThanOrEqual(12);
 });
 
 test('a tap adds its history entry straight away, before the page has arrived', async ({

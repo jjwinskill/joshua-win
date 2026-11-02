@@ -287,8 +287,9 @@ span[id^='cast-']:target {
   /* The card, 500ms in all. Opening, it grows for 380ms over a home page that holds still, then fades to
      show the essay under it. Closing runs the other way. The box is painted here rather than from
      snapshots, which would stretch. */
-  /* The pages under the box swap a little before it starts to fade (and after it's done fading in, closing).
-     Swapping at the same moment showed the old page through the box for a frame in WebKit. */
+  /* The pages under the box swap 60ms before it starts to fade (and 60ms after it's done fading in, closing).
+     Swapping at the same moment showed the old page through the box for a frame in WebKit, and at 30ms apart
+     it still did now and then. */
   [data-card]::view-transition-old(root),
   [data-card]::view-transition-new(root) {
     mix-blend-mode: normal;
@@ -415,6 +416,11 @@ span[id^='cast-']:target {
       box-shadow: inset 0 0 0 1px transparent;
       opacity: 1;
     }
+    82% {
+      border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
+      opacity: 1;
+    }
     to {
       border-radius: 0;
       box-shadow: inset 0 0 0 1px transparent;
@@ -427,6 +433,11 @@ span[id^='cast-']:target {
       border-radius: 0;
       box-shadow: inset 0 0 0 1px transparent;
       opacity: 0;
+    }
+    18% {
+      border-radius: 0;
+      box-shadow: inset 0 0 0 1px transparent;
+      opacity: 1;
     }
     24% {
       border-radius: 0;
