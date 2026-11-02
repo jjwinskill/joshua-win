@@ -1,0 +1,153 @@
+/* The umbrella carousel (#54). Everything is sized to its own width, so it fits a phone. */
+.umbrella-chart {
+  margin: 2.5rem auto;
+  max-width: 30rem;
+}
+
+.umbrella-chart figcaption {
+  margin-block-start: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.umbrella {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 100 / 84;
+}
+
+.umbrella-visual {
+  position: absolute;
+  inset: 0;
+  font-family: var(--sans);
+}
+
+.umbrella-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.umbrella-canopy {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+  stroke: var(--ink-soft);
+  stroke-width: 0.5;
+}
+
+.umbrella-rib {
+  stroke: var(--ink-soft);
+  stroke-width: 0.5;
+}
+
+.umbrella-hub {
+  position: absolute;
+  top: 2cqi;
+  left: 50%;
+  z-index: 200;
+  margin: 0;
+  padding: 0.15rem 0.7rem;
+  translate: -50% 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  font-size: max(0.8rem, 3.2cqi);
+  font-weight: 700;
+}
+
+/* The panel and its button share a size and a transform. They hang from their top middle. */
+.umbrella-panel,
+.umbrella-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 58cqi;
+  height: 56cqi;
+  transform-origin: 50% 0;
+}
+
+.umbrella-panel {
+  overflow: hidden;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+}
+
+.umbrella-closed,
+.umbrella-open {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+
+.umbrella-closed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block-start: 6cqi;
+  opacity: calc(1 - var(--open) * 2);
+  line-height: 1.2;
+}
+
+.umbrella-closed b {
+  font-size: max(1.8rem, 9cqi);
+}
+
+.umbrella-closed span {
+  font-size: max(1.35rem, 6cqi);
+  color: var(--ink-soft);
+}
+
+.umbrella-open {
+  padding: 3.5cqi 4cqi;
+  opacity: calc(var(--open) * 2 - 1);
+  line-height: 1.25;
+}
+
+.umbrella-name {
+  margin: 0 0 0.3rem;
+  font-size: max(1.2rem, 5.5cqi);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.umbrella-open ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: max(0.85rem, 3.6cqi);
+}
+
+.umbrella-open li {
+  margin-block-end: 0.35rem;
+}
+
+.umbrella-dots {
+  display: block;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.umbrella-note {
+  margin: 0;
+  font-size: max(0.78rem, 3.2cqi);
+  color: var(--ink-soft);
+}
+
+.umbrella-button {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* With no JavaScript the buttons can't work, and the floor beside it shows the same fan-out. */
+@media (scripting: none) {
+  .umbrella-chart {
+    display: none;
+  }
+}
