@@ -158,3 +158,96 @@ test('the new page is announced, and keeps its heading and styles', async ({ pag
   // The essay's own stylesheet arrived with the swap.
   await expect(page.locator('.parade')).toHaveCSS('position', 'fixed');
 });
+
+test('a tap uses the copy fetched ahead of time, with one history entry per page', async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    // Not Astro's hover prefetch, which Playwright's click can set off.
+    if (
+      request.resourceType() === 'fetch' &&
+      new URL(request.url()).pathname.endsWith('/essays/lorem-ipsum/')
+    )
+      requests.push(request.url());
+  });
+  await page.goto('./');
+  await expect.poll(() => requests.length).toBe(1);
+  const before = await page.evaluate(() => history.length);
+  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(requests).toHaveLength(1);
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole('article')).toBeVisible();
+});
+
+test('the pages under the card swap before it starts to fade, and after it has faded in', async ({
+  page,
+}) => {
+  await page.goto('./');
+  const offsets = await page.evaluate(() => {
+    const rules = [...document.styleSheets].flatMap((sheet) => [...sheet.cssRules]);
+    const find = (name: string, rule: CSSRule): CSSKeyframesRule[] => {
+      if (rule instanceof CSSKeyframesRule && rule.name === name) return [rule];
+      return rule instanceof CSSGroupingRule
+        ? [...rule.cssRules].flatMap((r) => find(name, r))
+        : [];
+    };
+    const keyframe = (name: string, fromEnd: boolean) => {
+      const list = rules.flatMap((r) => find(name, r))[0]?.cssRules;
+      const rule = list?.[fromEnd ? list.length - 2 : 1];
+      return Number.parseFloat(rule?.cssText ?? 'NaN');
+    };
+    return [
+      keyframe('card-until-covered', false),
+      keyframe('card-grows', true),
+      keyframe('card-until-sheet', false),
+      keyframe('card-shrinks', false),
+    ];
+  });
+  const [swapOpening, fadeStart, swapClosing, fadedIn] = offsets as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  // 12% of 500ms is 60ms, nearly four frames at 60 Hz, since WebKit can run them apart.
+  expect(fadeStart - swapOpening).toBeGreaterThanOrEqual(12);
+  expect(swapClosing - fadedIn).toBeGreaterThanOrEqual(12);
+});
+
+test('a tap adds its history entry straight away, before the page has arrived', async ({
+  page,
+}) => {
+  await page.route('**/essays/lorem-ipsum/', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.continue();
+  });
+  await page.goto('./');
+  const before = await page.evaluate(() => history.length);
+  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+  await expect(page.getByRole('article')).toHaveCount(0);
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+});
+
+test('if the page can’t be fetched, it loads in full at the top, not at the home page’s scroll', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 500 });
+  await page.goto('./');
+  await page.evaluate(() => {
+    const fail = () => Promise.reject(new Error('offline'));
+    const real = window.fetch.bind(window);
+    window.fetch = (input, init) => (init?.signal ? fail() : real(input, init));
+  });
+  const card = page.getByRole('link', { name: /Lorem ipsum dolor/ });
+  await card.scrollIntoViewIfNeeded();
+  await card.click();
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(await page.evaluate(() => scrollY)).toBe(0);
+});
