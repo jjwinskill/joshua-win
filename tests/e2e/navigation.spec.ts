@@ -164,7 +164,11 @@ test('a tap uses the copy fetched ahead of time, with one history entry per page
 }) => {
   const requests: string[] = [];
   page.on('request', (request) => {
-    if (new URL(request.url()).pathname.endsWith('/essays/lorem-ipsum/'))
+    // Not Astro's hover prefetch, which Playwright's click can set off.
+    if (
+      request.resourceType() === 'fetch' &&
+      new URL(request.url()).pathname.endsWith('/essays/lorem-ipsum/')
+    )
       requests.push(request.url());
   });
   await page.goto('./');
@@ -206,4 +210,37 @@ test('the pages under the card swap before it starts to fade, and after it has f
   ];
   expect(swapOpening).toBeLessThan(fadeStart);
   expect(swapClosing).toBeGreaterThan(fadedIn);
+});
+
+test('a tap adds its history entry straight away, before the page has arrived', async ({
+  page,
+}) => {
+  await page.route('**/essays/lorem-ipsum/', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.continue();
+  });
+  await page.goto('./');
+  const before = await page.evaluate(() => history.length);
+  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+  await expect(page.getByRole('article')).toHaveCount(0);
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(await page.evaluate(() => history.length)).toBe(before + 1);
+});
+
+test('if the page can’t be fetched, it loads in full at the top, not at the home page’s scroll', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 500 });
+  await page.goto('./');
+  await page.evaluate(() => {
+    const fail = () => Promise.reject(new Error('offline'));
+    const real = window.fetch.bind(window);
+    window.fetch = (input, init) => (init?.signal ? fail() : real(input, init));
+  });
+  const card = page.getByRole('link', { name: /Lorem ipsum dolor/ });
+  await card.scrollIntoViewIfNeeded();
+  await card.click();
+  await expect(page.getByRole('article')).toBeVisible();
+  expect(await page.evaluate(() => scrollY)).toBe(0);
 });

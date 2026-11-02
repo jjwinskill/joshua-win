@@ -24,8 +24,7 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       // Back in Chrome on iOS (Astro's #18377, whose fix is still open). WebKit hides from Back any entry a
       // page adds without a recent tap, and there a tap only counts while its event is being handled. The
       // router adds its entry later, so Back left the site. So this adds the entry during the tap, as a copy
-      // of the current one, and the router's push fills it in. It goes before the router, which reads
-      // pushState once. Remove it when Astro ships the fix.
+      // of the current one, and the router's push fills it in. Remove it when Astro ships the fix.
       (() => {
         const activation = navigator.userActivation;
         if (!activation) return;
@@ -52,7 +51,8 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
             // The router will load the address in full, from this entry.
             if (event.defaultPrevented && waiting && !event.signal.aborted) {
               waiting = false;
-              replace.call(history, history.state, '', event.to.href);
+              // No state, so it doesn't open at the scroll position of the page it was copied from.
+              replace.call(history, null, '', event.to.href);
             }
           };
         });

@@ -318,8 +318,8 @@ span[id^='cast-']:target {
   }
 
   [data-card='closing']::view-transition-group(*) {
-    animation-duration: 380ms;
-    animation-delay: 120ms;
+    animation-duration: 350ms;
+    animation-delay: 150ms;
   }
 
   [data-card]::view-transition-group(root) {

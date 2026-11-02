@@ -23,7 +23,10 @@ export async function handle(request: Request, assets: Assets): Promise<Response
 // Astro puts a hash of each file's content in its name, so these never change. Cached outright, the
 // router needn't wait on a round trip for a stylesheet it already has.
 function withLongCache(request: Request, response: Response): Response {
-  if (response.status === 200 && new URL(request.url).pathname.startsWith('/skill/_astro/')) {
+  if (
+    (response.status === 200 || response.status === 304) &&
+    new URL(request.url).pathname.startsWith('/skill/_astro/')
+  ) {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   }
   return response;

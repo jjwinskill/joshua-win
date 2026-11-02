@@ -1,7 +1,7 @@
 // The router fetches a page before its transition can start, which a reader feels as a lag after the tap.
 // So the pages a reader is likely to open next are fetched ahead of time, and the router's fetch takes the
 // copy. It's one copy per fetch, and an old one is ignored, so the page after a deploy isn't stale for long.
-const maxAge = 5 * 60_000;
+const maxAge = 30 * 60_000;
 
 type Fetch = typeof fetch;
 type Entry = { at: number; response: Promise<Response> };
@@ -15,6 +15,7 @@ const stylesheets = (html: string) =>
 
 export function createPageWarmer(realFetch: Fetch, now: () => number = Date.now) {
   const pages = new Map<string, Entry>();
+  const sheets = new Set<string>();
   const isFresh = (entry: Entry | undefined): entry is Entry =>
     !!entry && now() - entry.at < maxAge;
 
@@ -27,7 +28,11 @@ export function createPageWarmer(realFetch: Fetch, now: () => number = Date.now)
       response
         .then((page) => page.clone().text())
         .then((html) => {
-          for (const sheet of stylesheets(html)) void realFetch(sheet, { priority: 'low' });
+          for (const sheet of stylesheets(html)) {
+            if (sheets.has(sheet)) continue;
+            sheets.add(sheet);
+            realFetch(sheet, { priority: 'low' }).catch(() => undefined);
+          }
         })
         .catch(() => undefined);
     },
@@ -35,7 +40,10 @@ export function createPageWarmer(realFetch: Fetch, now: () => number = Date.now)
     fetch: ((input: RequestInfo | URL, init?: RequestInit) => {
       const href = input instanceof Request ? undefined : new URL(input, location.href).href;
       const entry = href === undefined ? undefined : pages.get(href);
-      if (href === undefined || init?.method || !isFresh(entry)) return realFetch(input, init);
+      // Only the router passes a signal. Astro's own prefetch mustn't use up the copy.
+      if (href === undefined || !init?.signal || init.method || !isFresh(entry)) {
+        return realFetch(input, init);
+      }
       pages.delete(href);
       return entry.response.catch(() => realFetch(input, init));
     }) as Fetch,
