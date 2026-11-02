@@ -11,6 +11,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // A retry that passes still fails the run, so a flake can't slip through unwatched.
+  failOnFlakyTests: !!process.env.CI,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     // Ends in /skill/, so tests navigate with relative paths ('./', 'essays/'): a leading `/` drops the base.

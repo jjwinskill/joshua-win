@@ -15,6 +15,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "charts": "node scripts/render-run-charts.ts",
+    "phone": "pnpm build && wrangler preview --name",
+    "check:selected": "node scripts/check-selected.ts",
     "preview": "astro preview",
     "typecheck": "wrangler types && astro check && tsc -p worker",
     "lint": "eslint . --max-warnings 0",
