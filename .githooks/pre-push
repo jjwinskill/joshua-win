@@ -1,0 +1,5 @@
+#!/bin/sh
+# Stops a push that fails lint or format, in whichever worktree it's pushed from (G49). `pnpm install`
+# turns this on, through the `prepare` script. A checkout with no dependencies steps aside.
+[ -d node_modules ] || exit 0
+pnpm lint && pnpm format:check

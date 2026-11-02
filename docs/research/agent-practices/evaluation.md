@@ -15,12 +15,22 @@ Fresh agents reviewed real commits, scored against the defects a later review or
 | `h2`: #71 | 4 | 4 | 4 |
 | `h3`: #68 (revised standards) | 4 | 0 to 1 | 2 |
 
-- **It helps, at about the same noise.** Each arm reported 7 to 10 findings, and the standards put the real ones first: `r2` opened with three real bugs, where the baseline opened with mismatched arms.
-- **`r1` and `r2` are partly in sample,** since the checklist was written from those bugs. `h3` is the fairest test, and there the baseline missed a height-only resize stretching the canvas, which the revised standards caught.
+- **The evidence that it helps is thin.** The two arms reported about the same number of findings, 7 to 10 each, and the guided ones put real bugs nearer the top. Beyond that, each row has a catch:
+  - `r2` is circular: the checklist's Input line was written from those exact bugs.
+  - `r1` scored below the baseline on the first try. The 2 comes from a rerun reworded to fix that miss, and the baseline had already mentioned the zero-sized buttons.
+  - `h2` is a tie.
+  - `h3` is the fairest test, and it's one run. The Linux catch is named in the standards, which leaves the height-only resize as the one clear gain.
 - **Nobody found** the clock running backward (CI did), or that printing lost the Swirl's text.
-- **It also found real bugs nobody had recorded,** such as `r1`'s reduced motion being read only once.
+- **It also surfaced an unrecorded bug:** `r1`'s reduced motion is read only once.
 
-Round 2 changed the wording after `r1` missed the zero-sized focus target. "Go through every line" and naming folded and zero-sized controls caught it on the rerun. Lines the agents would do anyway were cut.
+Round 2 reworded the checklist ("go through every line", and naming folded and zero-sized controls). Four lines were also cut by judgment as things agents do anyway, with no run testing that.
+
+**The known defects, for re-scoring:**
+
+- `r1`: stays folded on a short screen; focus lands on a zero-sized button; the clock runs backward.
+- `r2`: a vertical swipe changes the selection; a slipped tap is lost; a second finger strands the ring; a mouse follows with no button down; a flaky no-flicker test.
+- `h2`: an armed restore isn't cancelled; a `scrollend` that never comes leaves it armed; the new test can pass with the bug; no settle wait in that test.
+- `h3`: a height held to one platform's measurement; a height-only resize stretches the canvas; printing loses the text; a comment overstates the fallback font.
 
 ### Stack traps: nothing, a skill, or a `CLAUDE.md` pointer
 
@@ -35,10 +45,10 @@ Round 2 changed the wording after `r1` missed the zero-sized focus target. "Go t
 
 ## Decisions
 
-- Keep `CODING_STANDARDS.md`, as revised, with four lines cut.
+- Keep `CODING_STANDARDS.md`, as revised. The evidence for it is weak but not negative, it costs nothing until a review reads it, and it gives the reviewer the only repo-specific input it has. Re-score it on the next PRs the checklist wasn't written from.
 - Keep the `CLAUDE.md` pointer to `stack-traps.md`, and add no skill. They tied here, but this test can't separate them: the prompt listed the skill by hand, which is kinder than real invocation. Vercel's Next.js evaluation found skills not invoked in 56% of runs, and a pointer has no such risk.
 - Keep `stack-traps.md` focused on what the repo doesn't show. Rows the code already teaches can go as the file grows.
-- Add a push hook (`.claude/hooks/check-before-push.sh`). This phase had one failure a machine could stop: an agent pushed with lint failing. The script was tested by hand, on a clean and a broken tree. It hasn't been seen firing inside a session, because hooks load at session start.
+- Add a git `pre-push` hook (`.githooks/pre-push`), turned on by `pnpm install`. This phase had one failure a machine could stop: an agent pushed with lint failing, because a pipe hid the exit code. A first version as a Claude Code hook was dropped in review: it could lint the wrong tree and match any command that mentioned a push.
 - Add nothing else. Research suggested more, such as a Stop hook, an evaluator with a rubric, a threshold-lowering check and Dependabot, but no run failed for want of them.
 
 ## Limits
