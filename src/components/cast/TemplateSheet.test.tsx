@@ -4,16 +4,9 @@ import { CastFigure } from './CastFigure';
 import { TemplateSheet } from './TemplateSheet';
 
 describe('TemplateSheet', () => {
-  it('has one box for each cast member', () => {
+  it('has four boxes, ready for any cast', () => {
     const { container } = render(<TemplateSheet />);
-    for (const name of [
-      'Haňťa',
-      'A crumpled sheet of paper',
-      'The giant new hydraulic press at Bubny',
-      'A glass of milk',
-    ]) {
-      expect(screen.getByText(name)).toBeInTheDocument();
-    }
+    expect(screen.getAllByText('Name:')).toHaveLength(4);
     expect(container.querySelectorAll('figure svg')).toHaveLength(4);
   });
 

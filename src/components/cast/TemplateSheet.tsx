@@ -4,12 +4,7 @@
 import { Legs } from './CastFigure';
 import { RIG } from './rig';
 
-const SHEET_CAST = [
-  'Haňťa',
-  'A crumpled sheet of paper',
-  'The giant new hydraulic press at Bubny',
-  'A glass of milk',
-];
+const BOXES = [1, 2, 3, 4];
 
 // At this scale a line as thick as the legs is about 3.4 mm: a thick marker.
 const INCHES_PER_UNIT = 0.075;
@@ -87,14 +82,13 @@ export function TemplateSheet() {
         </li>
         <li>
           Photograph the sheet flat from straight above, in even light, with all the black squares
-          in the frame. Draw Haňťa first and attach that photo in the Claude session before drawing
-          the rest. Photos stay out of the repo.
+          in the frame. Try one drawing all the way through before drawing the rest.
         </li>
       </ol>
       <div className="boxes">
-        {SHEET_CAST.map((name) => (
-          <figure key={name}>
-            <figcaption>{name}</figcaption>
+        {BOXES.map((box) => (
+          <figure key={box}>
+            <figcaption>Name:</figcaption>
             <DrawingBox />
           </figure>
         ))}

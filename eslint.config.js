@@ -35,6 +35,7 @@ export default defineConfig(
       '.astro/',
       '.wrangler/',
       'drafts/',
+      'docs/cast/tools/',
       '.drafts-test/',
       '.cast-test/',
       'node_modules/',
