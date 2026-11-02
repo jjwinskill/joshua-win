@@ -1,0 +1,107 @@
+/* Piece 3's treatment: a quiet page on the card's color, in one new font. Imported by the piece's MDX, so
+   only this page loads it, and scoped to inside the article (S6). The font's reason (S5): the Swirl draws
+   each letter rotated and shrinking, so the piece needs a sturdy, low-contrast face. */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  /* Bricolage Grotesque 1.001, under the OFL (BricolageGrotesque-OFL.txt). opsz 14 and wdth 100 are pinned,
+     wght is limited to 400-700, and it's subset to the alphabet, punctuation, and the letters of Haňťa. */
+  src: url('./BricolageGrotesque-subset.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+  /* A test holds the piece's text to this range. */
+  unicode-range: U+20-7E, U+B7, U+147-148, U+164-165, U+2013-2014, U+2018-2019, U+201C-201D, U+2026;
+}
+
+/* What shows until the font arrives, tuned to take up nearly the same room. The first screen holds still when
+   the font swaps, but text further down moves a little: about 54 px by the Swirl on a phone. */
+@font-face {
+  font-family: 'Bricolage fallback';
+  src: local('Arial'), local('Helvetica'), local('Roboto');
+  size-adjust: 104.8%;
+  ascent-override: 88.7%;
+  descent-override: 25.8%;
+  line-gap-override: 0%;
+}
+
+article[data-piece='ut-labore'] {
+  --piece-font: 'Bricolage Grotesque', 'Bricolage fallback', var(--sans);
+}
+
+/* Everything below the card's text. The title stays in the house font: in the new font it flew as a double
+   image and landed before the font did, then swapped (G44). */
+article[data-piece='ut-labore'] .piece-date,
+article[data-piece='ut-labore'] .piece-body,
+article[data-piece='ut-labore'] .piece-body h2 {
+  font-family: var(--piece-font);
+}
+
+/* 17/27, the size the Swirl draws its letters at, so the page and the section read as one text. */
+article[data-piece='ut-labore'] .piece-body {
+  font-size: 1.0625rem;
+  line-height: calc(27 / 17);
+}
+
+/* The Swirl. With no JavaScript, or under reduced motion, it's just its paragraphs. */
+.swirl-stage {
+  display: none;
+}
+
+@media screen and (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .swirl {
+    /* The prototype's height: the text's scrolling, plus the stage. CSS holds it from the start, so hydrating
+       changes nothing and Back can restore a scroll position past the section. Swirl.tsx sets the measured
+       value, and a test holds this one close to it. */
+    --swirl-wind: 3339px;
+    --swirl-stage-height: calc(100svh - var(--bar-height));
+    position: relative;
+    height: calc(var(--swirl-wind) + var(--swirl-stage-height));
+    /* Out to the page's edge on a phone, as in the prototype, whose lines have their own 20px margin. */
+    margin-inline: -16px;
+  }
+
+  .swirl-stage {
+    display: block;
+    position: sticky;
+    top: 0;
+    height: var(--swirl-stage-height);
+    overflow: hidden;
+  }
+
+  .swirl-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Until the first draw, the paragraphs pin in turn over the tall section, so a slow or failed bundle still
+     shows all of the text. Each is sticky inside its own row. */
+  .swirl-text {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-auto-rows: 1fr;
+    padding-inline: 20px;
+  }
+
+  .swirl-text p {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    margin: 0;
+  }
+
+  /* Drawn: the canvas is what's seen, and the same paragraphs stay for screen readers. */
+  .swirl[data-drawn] .swirl-text {
+    inset: auto;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .swirl[data-drawn] .swirl-text p {
+    position: static;
+  }
+}
