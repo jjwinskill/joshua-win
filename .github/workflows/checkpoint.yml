@@ -31,6 +31,8 @@ jobs:
         # It has stalled before. Fail fast rather than use up the job's limit.
         timeout-minutes: 5
       - run: pnpm test:e2e
+        env:
+          FAIL_ON_FLAKY: 'true'
       # These run even if an earlier one failed, so one checkpoint reports everything.
       - if: ${{ !cancelled() }}
         run: pnpm test:perf

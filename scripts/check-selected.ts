@@ -1,6 +1,7 @@
 // `pnpm check:selected`: what must pass locally before a PR auto-merges (G48). The mechanical checks,
 // all the unit tests, a build, and the Playwright specs that cover the paths this branch changes.
 import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { selectSpecs } from './select-e2e.ts';
 
 const output = (command: string) => execSync(command, { encoding: 'utf8' });
@@ -20,5 +21,12 @@ console.log(
 
 for (const command of ['typecheck', 'lint', 'format:check', 'test', 'build'])
   run(`pnpm ${command}`);
-const files = specs === 'all' ? '' : specs.map((spec) => `tests/e2e/${spec}.spec.ts`).join(' ');
+// A spec this branch deleted is in the list, and is no longer there to run.
+const files =
+  specs === 'all'
+    ? ''
+    : specs
+        .map((spec) => `tests/e2e/${spec}.spec.ts`)
+        .filter((file) => existsSync(file))
+        .join(' ');
 run(`pnpm exec playwright test ${files}`);

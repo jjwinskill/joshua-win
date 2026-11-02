@@ -2,8 +2,10 @@
 // src/, so Playwright's own --only-changed can't see this: the map is by hand (G48).
 
 const ALWAYS = ['routes', 'worker'];
-const PARADE = ['parade', 'essay', 'piece-3'];
+const PARADE = ['parade', 'essay', 'piece-3', 'navigation', 'home'];
 const CHARTS = ['battle', 'robot', 'umbrella', 'write-up'];
+// A piece's frontmatter also feeds the home and contents lists.
+const LISTS = ['home', 'write-up'];
 
 // The first prefix that matches wins.
 const MAP: [string, string[]][] = [
@@ -18,11 +20,11 @@ const MAP: [string, string[]][] = [
   ['src/components/parade/', PARADE],
   ['src/components/cast/', PARADE],
   ['src/styles/parade.css', PARADE],
-  ['src/components/figures/', ['heavy']],
-  ['content/lorem/lorem-ipsum', ['essay', 'parade']],
-  ['content/lorem/amet-consectetur', ['heavy']],
-  ['content/lorem/excepteur-sint', CHARTS],
-  ['content/lorem/ut-labore', ['piece-3']],
+  ['src/components/figures/', ['heavy', 'navigation']],
+  ['content/lorem/lorem-ipsum', ['essay', 'parade', ...LISTS]],
+  ['content/lorem/amet-consectetur', ['heavy', ...LISTS]],
+  ['content/lorem/excepteur-sint', [...CHARTS, ...LISTS]],
+  ['content/lorem/ut-labore', ['piece-3', ...LISTS]],
   ['content/lorem/one-offs/', ['piece-3']],
 ];
 

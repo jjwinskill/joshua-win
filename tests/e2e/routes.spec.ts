@@ -25,7 +25,7 @@ for (const route of routes) {
 
   test(`${route} has no sideways scroll on a phone`, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto(route);
+    await page.goto(route, { waitUntil: 'networkidle' });
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
