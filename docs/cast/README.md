@@ -8,9 +8,11 @@ The site's characters are hand-drawn. Josh draws each body in marker on the temp
 
 ![Josh's marker drawings of the first cast on the template sheet](photos/too-loud-a-solitude.jpg)
 
+This is the sheet as printed then, so its names and its last instruction are from the first cast. Photos did stay out of the repo until G37 changed.
+
 ## Steps
 
-1. **Get the photo in.** Convert it with `tools/convert-photo.py`. This is the only way a photo enters the repo: `.gitignore` blocks every other JPEG, HEIC and video, and the script removes the phone's model, time and place. Look at the result for anything personal in frame. Commit it only once its cast is public, since an unpublished piece's cast is a draft.
+1. **Get the photo in.** Convert it with `tools/convert-photo.py`. The script removes the phone's model, time and place, and a unit test fails if any photo here still has them. `.gitignore` blocks JPEG, HEIC and video everywhere else. Look at the result for anything personal in frame. Commit it only once its cast is public, since an unpublished piece's cast is a draft.
 2. **Square up each box.** `rectify.py` finds the sheet's black corner squares and warps each box to rig units. Its corner positions are read by eye from a 1200-wide view, so update them for each photo. It scales them with `f = w / 1200`, so check the photo's real width first.
 3. **Ink each body.** Choose per body, and compare them side by side at full size and at parade size:
    - **Trace** (`trace.py`, then `hanta.py` for hand fixes) when the marker line is the character. Haňťa is traced, because redrawing him lost the scowl.

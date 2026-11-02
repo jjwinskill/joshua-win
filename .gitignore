@@ -22,7 +22,7 @@ playwright-report/
 lighthouse-reports/
 # Throttled check results
 perf-results/
-# Phone photos, videos and screenshots stay out of this public repo. Cast photos are the exception,
+# Phone photos and videos stay out of this public repo. Cast photos are the exception,
 # and go through docs/cast/tools/convert-photo.py first, which removes their metadata.
 *.heic
 *.HEIC
