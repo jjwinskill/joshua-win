@@ -1,4 +1,4 @@
-// A first mention is an inline span in a piece's Markdown: <span id="cast-rabbit">The White Rabbit</span>.
+// A first mention is an inline span in a piece's Markdown: <span id="cast-paper">A crumpled sheet of paper</span>.
 import type { CastKey } from './registry';
 
 export function mentionId(key: CastKey): string {

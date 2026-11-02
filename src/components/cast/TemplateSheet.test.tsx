@@ -19,7 +19,7 @@ describe('TemplateSheet', () => {
 
   it('prints its hip line where the shared legs start and turn', () => {
     const { container: sheet } = render(<TemplateSheet />);
-    const { container: figure } = render(<CastFigure castKey="rabbit" />);
+    const { container: figure } = render(<CastFigure castKey="paper" />);
     const thigh = figure.querySelector('.thigh line');
     const hipY = thigh?.getAttribute('y1');
     const hipLines = [...sheet.querySelectorAll('[data-hip-line]')];

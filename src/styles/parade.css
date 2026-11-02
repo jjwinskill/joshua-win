@@ -166,25 +166,49 @@ body:has(.parade) {
   transform-origin: 50% 100%;
 }
 
+/* Ink lines and dark hair need a light edge on a dark page. */
+@media (prefers-color-scheme: dark) {
+  .art svg {
+    filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
+  }
+}
+
 .legs line {
   stroke-width: 2.2;
 }
 
+/* A box of a fixed width, so that it can stay on screen wherever the slot is: --x is how far along the stage
+   the slot's middle is, and the stage starts 24px in. A long name wraps inside it. */
 .slot .label {
+  --half: 5.5rem;
   position: absolute;
   inset-inline-start: 50%;
   inset-block-end: calc(100% + 6px);
-  transform: translateX(-50%);
+  width: calc(var(--half) * 2);
+  transform: translateX(
+    calc(
+      -50% +
+        max(
+          var(--half) - 16px - var(--x, 0px),
+          min(0px, 100vw - 32px - var(--half) - var(--x, 0px))
+        )
+    )
+  );
   font-family: var(--sans);
   font-size: 0.75rem;
-  white-space: nowrap;
+  line-height: 1.3;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.slot .label span {
+  display: inline-block;
   color: var(--paper);
   background: var(--ink);
   padding: 0.25rem 0.55rem;
   border-radius: 6px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 150ms ease;
 }
 
 .slot:hover .label,
@@ -271,20 +295,20 @@ span[id^='cast-'].flash {
   }
 
   .walking .thigh {
-    animation: thigh 620ms ease-in-out infinite;
+    animation: thigh var(--beat) ease-in-out infinite;
   }
 
   .walking .shin {
-    animation: shin 620ms ease-in-out infinite;
+    animation: shin var(--beat) ease-in-out infinite;
   }
 
   .walking .leg-back .thigh,
   .walking .leg-back .shin {
-    animation-delay: -310ms;
+    animation-delay: calc(var(--beat) / -2);
   }
 
   .walking .torso {
-    animation: stride 310ms ease-in-out infinite alternate;
+    animation: stride calc(var(--beat) / 2) ease-in-out infinite alternate;
   }
 
   /* The bow bends at the hips. The legs stay planted, with a little give at the knees. */
@@ -328,7 +352,7 @@ span[id^='cast-'].flash {
 
   @keyframes stride {
     to {
-      transform: translateY(-1.4px);
+      transform: translateY(var(--bob)) rotate(var(--lean));
     }
   }
 }

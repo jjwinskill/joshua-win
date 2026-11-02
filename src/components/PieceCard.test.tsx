@@ -10,7 +10,7 @@ it('is one link to its piece, with the piece’s title as a heading', () => {
       kicker="Essay"
       title="A title"
       dek="A dek"
-      cast={['cat']}
+      cast={['press']}
     />,
   );
   expect(screen.getByRole('link')).toHaveAttribute('href', '/skill/essays/a/');

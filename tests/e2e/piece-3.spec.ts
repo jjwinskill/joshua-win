@@ -13,8 +13,8 @@ test('its own card leads to it, with its cast in order of appearance', async ({ 
     .getByRole('region', { name: /Cast, in order of appearance/ })
     .getByRole('link');
   await expect(cards).toHaveCount(4);
-  await expect(cards.first()).toContainText('The Cheshire Cat');
-  await expect(cards.last()).toContainText('The White Rabbit');
+  await expect(cards.first()).toContainText('The giant new hydraulic press at Bubny');
+  await expect(cards.last()).toContainText('A crumpled sheet of paper');
 });
 
 test('the one-off sits in a sentence, and hydrates when the page is reached from another', async ({
@@ -84,8 +84,8 @@ test('leaving the piece removes the one-off and its listeners, and it works agai
 test('the parade works as on piece 1', async ({ page }) => {
   await page.goto('essays/ut-labore/');
   await expect(page.locator('.parade .fill')).toHaveAttribute('style', /scaleX/);
-  await page.getByRole('button', { name: /The Queen of Hearts/ }).click();
-  await expect(page.locator('#cast-queen')).toHaveClass(/flash/);
+  await page.getByRole('button', { name: /A glass of milk/ }).click();
+  await expect(page.locator('#cast-milk')).toHaveClass(/flash/);
 });
 
 test('the home page doesn’t load a piece’s one-offs', async ({ page }) => {
@@ -382,7 +382,7 @@ test.describe('without JavaScript', () => {
   test('the sentence still reads, and the whole piece is there', async ({ page }) => {
     await page.goto('essays/ut-labore/');
     await expect(page.locator(tally)).toHaveText('some');
-    for (const key of ['rabbit', 'bottle', 'cat', 'queen']) {
+    for (const key of ['paper', 'hanta', 'press', 'milk']) {
       await expect(page.locator(`article span#cast-${key}`)).toHaveCount(1);
     }
   });
