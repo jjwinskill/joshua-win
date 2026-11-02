@@ -129,8 +129,8 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     };
 
     const step = (now: number) => {
-      // A long frame shouldn't throw the spring.
-      const elapsed = Math.min((now - last) / 1000, 1 / 30);
+      // A long frame shouldn't throw the spring, and a frame's time can be just before the one we woke at.
+      const elapsed = Math.max(0, Math.min((now - last) / 1000, 1 / 30));
       last = now;
       if (clock !== null) clock = Math.min(lasts, clock + elapsed);
       velocity += (stiffness * (target - turn) - damping * velocity) * elapsed;
@@ -161,6 +161,7 @@ export function UmbrellaCarousel({ run }: { run: Run }) {
     };
 
     const launch = () => {
+      if (reduced) return;
       clock ??= 0;
       wake();
     };
