@@ -2,7 +2,6 @@
 // A write-up, on the template every piece shares (G36).
 import { getCollection } from 'astro:content';
 import Piece from '../../layouts/Piece.astro';
-import '../../styles/run-charts.css';
 
 export async function getStaticPaths() {
   const pieces = await getCollection('lorem', ({ data }) => data.kind === 'write-up');

@@ -168,3 +168,15 @@ it.each([
 ])('fails clearly on %s', (_name, make, expected) => {
   expect(problems(make())).toContain(expected);
 });
+
+it('fails when cards rise after a stage has made some, since stages only narrow them', () => {
+  const rising = good();
+  at(rising.stages, 0).cards = 1;
+  expect(() => parseRun(rising)).toThrow(/stages\[1\]\.cards.*can't rise from 1/s);
+});
+
+it('lets cards rise from a first stage that made none', () => {
+  const fromNone = good();
+  at(fromNone.stages, 0).cards = 0;
+  expect(() => parseRun(fromNone)).not.toThrow();
+});

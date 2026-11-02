@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { castMentionsPlugin, mentionMarkup } from './mdx-mentions';
 
-const withId = (id: string) => ({ attributes: [{ name: 'id', value: id }] });
+const withId = (id: string, name = 'span') => ({ name, attributes: [{ name: 'id', value: id }] });
 
 it('turns a mention into markup the mentions check can read', () => {
   expect(mentionMarkup(withId('cast-queen'))).toBe('<span id="cast-queen"></span>');
@@ -11,6 +11,10 @@ it('ignores other ids, elements with no id, and an id that’s an expression', (
   expect(mentionMarkup(withId('something-else'))).toBe('');
   expect(mentionMarkup({ attributes: [] })).toBe('');
   expect(mentionMarkup({ attributes: [{ name: 'id', value: { type: 'expression' } }] })).toBe('');
+});
+
+it('ignores a component given a cast id, which might not render it', () => {
+  expect(mentionMarkup(withId('cast-queen', 'ScrollTally'))).toBe('');
 });
 
 it('collects mentions in the order it visits them, and keeps a repeat so the check can fail it', () => {

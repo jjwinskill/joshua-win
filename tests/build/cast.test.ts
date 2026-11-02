@@ -46,6 +46,20 @@ it('the mentions check holds in MDX, where a marker quoted in code doesn’t cou
   });
 }, 60_000);
 
+it('a component given a cast id doesn’t count as a mention, since it might not render it', async () => {
+  await copySite();
+  const piece = join(root, 'content', 'lorem', 'ut-labore.mdx');
+  const wrapped = (await readFile(piece, 'utf8')).replace(
+    '<span id="cast-queen">The Queen of Hearts</span>',
+    '<ScrollTally id="cast-queen" />',
+  );
+  await writeFile(piece, wrapped);
+
+  await expect(build()).rejects.toMatchObject({
+    stderr: expect.stringContaining('"queen" has no mention'),
+  });
+}, 60_000);
+
 it('a piece with no cast builds with no parade, cast list or space on its card', async () => {
   await copySite();
   await build();

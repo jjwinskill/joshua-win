@@ -13,7 +13,7 @@ gh repo clone jjwinskill/joshua-win-drafts drafts
 Then `pnpm dev`, and open http://localhost:4321/skill/drafts/. It lists every `.md` and `.mdx` file under `drafts/`, and each one renders at `/skill/drafts/<file-name>/`. A `title` in the frontmatter is optional. The route and layout are minimal until phase 2's template.
 
 - **If a draft is missing from the list**, restart `pnpm dev`. Astro sometimes restarts itself during startup and leaves the collection empty.
-- **MDX is allowed (S15, G39).** Import a one-off from `drafts/` in the `.mdx` file and put it in the prose. A component that needs the browser takes a `client:*` directive, and it needs a cleanup test like any effect (G34). A first mention must be written in the `.mdx` itself, not inside a component, or the mentions check can't see it. Checked against Astro 7.4.4 and @astrojs/mdx 8.1.2 on 2026-11-01.
+- **MDX is allowed (S15, G39).** Import a one-off from `drafts/` in the `.mdx` file and put it in the prose. A component that needs the browser takes a `client:*` directive, and it needs cleanup like any effect (G34). Tests and lint don't reach `drafts/`, so check that by hand, and add its test when it's promoted. A first mention must be written in the `.mdx` itself, not inside a component, or the mentions check can't see it. Checked against Astro 7.4.4 and @astrojs/mdx 8.1.2 on 2026-11-01.
 
 ## Where drafts appear
 

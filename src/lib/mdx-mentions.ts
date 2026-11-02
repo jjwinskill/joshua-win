@@ -1,12 +1,16 @@
 // An MDX entry has no rendered HTML at build time, because it compiles to a component. So the mentions
 // check can't read one, and it reads this instead: every <span id="cast-…"> in the MDX, as markup, in
 // document order. Visiting only JSX means a marker quoted in code or a comment doesn't count, as with
-// rendered Markdown. A mention must be in the piece's own MDX, because this can't see what a component renders.
+// rendered Markdown. A mention must be in the piece's own MDX, because this can't see what a component
+// renders. So only a plain element counts: a component given an id might never put it on the page. A plain
+// element inside a component's children does count, so a component must render its children.
 interface JsxNode {
+  name?: string | null;
   attributes?: readonly { name?: string; value?: unknown }[];
 }
 
 export function mentionMarkup(node: JsxNode): string {
+  if (!/^[a-z]/.test(node.name ?? '')) return '';
   const id = node.attributes?.find(({ name }) => name === 'id')?.value;
   return typeof id === 'string' && id.startsWith('cast-') ? `<span id="${id}"></span>` : '';
 }

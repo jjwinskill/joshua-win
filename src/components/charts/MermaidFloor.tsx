@@ -1,6 +1,7 @@
 // The floor that can ship (S16): a chart as a committed SVG rendered from the run file (G40), with no
 // JavaScript. The visual is hidden from screen readers, with a list of the same content beside it. The SVG
 // is our own committed file, so setting it as HTML is safe.
+import '../../styles/run-charts.css';
 import { run } from '../../lib/run-file';
 import { runCharts, type RunChartId } from '../../lib/run-mermaid';
 

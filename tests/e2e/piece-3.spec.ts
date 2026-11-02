@@ -56,6 +56,10 @@ test('leaving the piece removes the one-off and its listeners, and it works agai
   const errors = failOnErrors(page);
   await page.goto('./');
   await page.waitForLoadState('networkidle');
+  // A full reload would clear this, and the listener count with it, so this proves pages really swap.
+  await page.evaluate(() => {
+    (window as unknown as { sameDocument: boolean }).sameDocument = true;
+  });
   const before = await listeners();
   await page.getByRole('link', { name: /Ut labore et dolore/ }).click();
   await expect(page.locator(tally)).toHaveText(/^\d+%$/);
@@ -68,6 +72,12 @@ test('leaving the piece removes the one-off and its listeners, and it works agai
 
   await page.goForward();
   await expect(page.locator(tally)).toHaveText(/^\d+%$/);
+  const returned = await page.locator(tally).textContent();
+  await page.evaluate(() => window.scrollTo({ top: 1500, behavior: 'instant' }));
+  await expect(page.locator(tally)).not.toHaveText(returned ?? '');
+  expect(
+    await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument),
+  ).toBe(true);
   expect(errors).toEqual([]);
 });
 
