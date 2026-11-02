@@ -25,6 +25,7 @@
     "test:e2e": "playwright test",
     "test:smoke": "playwright test --config playwright.smoke.config.ts",
     "test:lighthouse": "lhci autorun",
+    "test:lighthouse:full": "LIGHTHOUSE_FULL=yes lhci autorun",
     "test:perf": "playwright test --config playwright.perf.config.ts"
   },
   "dependencies": {

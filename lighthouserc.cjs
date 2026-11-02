@@ -3,21 +3,26 @@
 const port = 8789;
 // The default is the best of the three runs, which would hide a page that's usually slow.
 const aggregationMethod = 'median';
+// CI's fast gate runs the heavy page once. A checkpoint (G38) runs every page three times.
+const full = process.env.LIGHTHOUSE_FULL === 'yes';
+const heavyPage = `http://127.0.0.1:${port}/skill/essays/amet-consectetur/`;
 
 module.exports = {
   ci: {
     collect: {
       startServerCommand: `WRANGLER_SEND_METRICS=false pnpm exec wrangler dev --port ${port} --ip 127.0.0.1`,
       startServerReadyPattern: 'Ready on',
-      url: [
-        `http://127.0.0.1:${port}/skill/`,
-        `http://127.0.0.1:${port}/skill/essays/lorem-ipsum/`,
-        `http://127.0.0.1:${port}/skill/contents/`,
-        `http://127.0.0.1:${port}/skill/essays/amet-consectetur/`,
-        `http://127.0.0.1:${port}/skill/essays/ut-labore/`,
-        `http://127.0.0.1:${port}/skill/write-ups/excepteur-sint/`,
-      ],
-      numberOfRuns: 3,
+      url: full
+        ? [
+            `http://127.0.0.1:${port}/skill/`,
+            `http://127.0.0.1:${port}/skill/essays/lorem-ipsum/`,
+            `http://127.0.0.1:${port}/skill/contents/`,
+            heavyPage,
+            `http://127.0.0.1:${port}/skill/essays/ut-labore/`,
+            `http://127.0.0.1:${port}/skill/write-ups/excepteur-sint/`,
+          ]
+        : [heavyPage],
+      numberOfRuns: full ? 3 : 1,
       settings: {
         // Lighthouse's defaults, stated because they're the point: a throttled phone.
         formFactor: 'mobile',

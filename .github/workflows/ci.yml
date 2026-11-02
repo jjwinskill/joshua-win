@@ -1,13 +1,18 @@
-# The check pipeline (G3). Each job runs only if the one before it passed, so slow checks
-# never run on broken code. Playwright and axe run against the build through the Worker, then
-# Lighthouse. Actions are pinned to commit SHAs; the comment gives the release.
+# The fast gate (G3, G38): one job on every PR and before every deploy, kept to about two minutes.
+# The build comes first and the slowest checks last. The thorough checks are in
+# checkpoint.yml. Actions are pinned to commit SHAs; the comment gives the release.
 # Checkouts don't keep the GitHub token, so dependency code run by lint, test and build can't read it.
+#
+# A merge of docs alone starts no run and no deploy, because its PR already passed this gate.
 name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
 
 permissions:
   contents: read
@@ -20,47 +25,15 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check:
-    name: Typecheck and lint
+  checks:
+    name: Checks
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # Node comes from devEngines.runtime and pnpm from packageManager; this also runs the install.
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm format:check
-
-  test:
-    name: Unit and component tests
-    needs: check
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      - run: pnpm test
-
-  build:
-    name: Build
-    needs: test
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
           cache: true
@@ -80,84 +53,40 @@ jobs:
           elif grep -q cloudflareinsights dist/skill/index.html; then
             echo "A non-main build has the beacon"; exit 1
           fi
-      # Later jobs (Playwright, Lighthouse, deploy) test and ship this exact build.
+      # The deploy ships this exact build. It's uploaded before any other tool runs, so none can alter it.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dist
           path: dist/
           if-no-files-found: error
           retention-days: 7
-
-  e2e:
-    name: Playwright
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      # Test the exact build the build job made, served by the real Worker (wrangler dev).
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: dist
-          path: dist/
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
       - run: pnpm exec playwright install --with-deps --only-shell chromium
         # It has stalled before. Fail fast rather than use up the job's limit.
         timeout-minutes: 5
+      # Against the exact build above, served by the real Worker (wrangler dev).
       - run: pnpm test:e2e
-      - run: pnpm test:perf
+      # One run of the heavy page. Uses the runner's preinstalled Chrome.
+      - run: pnpm test:lighthouse
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-report
+          name: reports
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
-      - if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: perf-results
-          path: perf-results/
+            lighthouse-reports/
           if-no-files-found: ignore
-          retention-days: 30
-
-  lighthouse:
-    name: Lighthouse
-    needs: e2e
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
-        with:
-          cache: true
-          require-lockfile: true
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: dist
-          path: dist/
-      # Uses the runner's preinstalled Chrome.
-      - run: pnpm test:lighthouse
-      - if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: lighthouse-reports
-          path: lighthouse-reports/
           retention-days: 7
 
   deploy:
     name: Deploy to production
-    # After every check, and only for main. List every check job here. The secrets
-    # live in the production environment, which only main can deploy to, so no PR can reach them.
-    needs: [check, test, build, e2e, lighthouse]
+    # After the checks, and only for main. The secrets live in the production environment, which only
+    # main can deploy to, so no PR can reach them.
+    needs: checks
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
