@@ -71,6 +71,19 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
           event.viewTransition.skipTransition();
         }
       });
+      // Back during a smooth jump to a cast mention. Chromium draws one more frame of the jump after the
+      // router restores the position, and the router then saves where that frame landed. So this restores it
+      // again once the jump has stopped. Only on the same page: going to another page, the router scrolls
+      // after the swap, and scrolling here would move the page being left.
+      let scrollingOn;
+      addEventListener('scroll', () => (scrollingOn = location.pathname), { passive: true });
+      addEventListener('scrollend', () => (scrollingOn = undefined));
+      addEventListener('popstate', ({ state }) => {
+        if (!state || scrollingOn !== location.pathname) return;
+        const restore = () =>
+          scrollTo({ left: state.scrollX, top: state.scrollY, behavior: 'instant' });
+        addEventListener('scrollend', restore, { once: true });
+      });
     </script>
   </head>
   <body>
