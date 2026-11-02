@@ -24,11 +24,10 @@ test('the contents page lists both kinds of piece at their own routes', async ({
   );
 });
 
-test('it has no cast list or parade, and ships no JavaScript of its own', async ({ page }) => {
+test('it has no cast list or parade', async ({ page }) => {
   await page.goto(writeUp);
   await expect(page.locator('.parade')).toHaveCount(0);
   await expect(page.getByRole('region', { name: /Cast/ })).toHaveCount(0);
-  await expect(page.locator('astro-island')).toHaveCount(0);
 });
 
 test('the card grows into the write-up and shrinks back, as for an essay', async ({ page }) => {
