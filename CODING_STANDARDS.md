@@ -7,6 +7,7 @@ Judgement calls for the code on this site. The **reviewer** enforces them, and a
 - Report what would make the site wrong: a bug, a broken promise in the ticket, a missing test. Skip style and cleanup, since a reviewer who must find something will, and fixing it adds abstraction.
 - Each finding gives a file and line, what goes wrong, and when.
 - Read the test diff first. Flag a removed test, a weakened assertion, a lowered threshold, or a skipped check.
+- Dismiss a finding only by quoting the code or output that disproves it. Doubt, or agents disagreeing, leaves it open.
 - Stop at three rounds on one PR. Anything still open goes on the PR as accepted or as a follow-up.
 - Findings and their answers go on the PR (G21).
 
