@@ -16,7 +16,13 @@ const writeUps = [
   { name: 'sorting-office', radius: '22px', dark: 'rgb(39, 31, 25)', light: 'rgb(251, 243, 222)' },
   { name: 'plum-hour', radius: '28px', dark: 'rgb(39, 29, 51)', light: 'rgb(251, 247, 236)' },
 ];
-const modes = ['dark', 'light'] as const;
+const softOptical = { radius: '14px', dark: 'rgb(39, 30, 24)', light: 'rgb(255, 249, 238)' };
+// Forced by the switcher, and following the device, which is the default.
+const modes = [
+  { mode: 'dark', scheme: 'light', looks: 'dark' },
+  { mode: 'light', scheme: 'dark', looks: 'light' },
+  { mode: 'auto', scheme: 'dark', looks: 'dark' },
+] as const;
 const writeUpCard = /Excepteur sint occaecat/;
 
 // Puts a choice in storage before any page loads, as the switcher would.
@@ -43,8 +49,11 @@ test('the switcher changes the theme at once, and the choice survives the card t
   const errors = failOnErrors(page);
   await page.getByText('Theme', { exact: true }).click();
   await page.getByLabel('Write-ups').selectOption('plum-hour');
-  await page.getByLabel('Mode (themes only)').selectOption('dark');
   const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-writeup', 'plum-hour');
+  // The page reloads, so the switcher is closed again.
+  await page.getByText('Theme', { exact: true }).click();
+  await page.getByLabel('Mode (themes only)').selectOption('dark');
   await expect(html).toHaveAttribute('data-house', 'soft-optical');
   await expect(html).toHaveAttribute('data-writeup', 'plum-hour');
   await expect(html).toHaveAttribute('data-mode', 'dark');
@@ -65,6 +74,12 @@ test('the switcher changes the theme at once, and the choice survives the card t
   await expect(html).toHaveAttribute('data-writeup', 'plum-hour');
   await expect(html).not.toHaveAttribute('data-kind');
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-family', /^Fraunces/);
+  // The write-up's card focuses in its own color, not the home page's.
+  expect(
+    await page
+      .getByRole('link', { name: writeUpCard })
+      .evaluate((card) => getComputedStyle(card).getPropertyValue('--focus-ring').trim()),
+  ).toBe('3px solid #afb6f2');
   // The write-up's card keeps its theme on an essay's home page, so its title flies in one font.
   await expect(page.getByRole('heading', { level: 2, name: writeUpCard })).toHaveCSS(
     'font-family',
@@ -81,14 +96,16 @@ test('today’s look takes every theme off', async ({ page }) => {
 });
 
 for (const writeUp of writeUps) {
-  for (const mode of modes) {
-    test(`every page passes axe's contrast rule with ${writeUp.name} write-ups, ${mode}`, async ({
+  for (const { mode, scheme, looks } of modes) {
+    test(`every page passes axe's contrast rule with ${writeUp.name} write-ups, ${mode} on a ${scheme} device`, async ({
       page,
     }) => {
+      await page.emulateMedia({ colorScheme: scheme });
       await choose(page, { writeup: writeUp.name, mode });
       for (const route of routes) {
-        await page.goto(route, { waitUntil: 'networkidle' });
-        await expect(page.locator('html')).toHaveAttribute('data-mode', mode);
+        await page.goto(route);
+        await page.evaluate(() => document.fonts.ready);
+        expect(await rootToken(page, 'color-scheme'), route).toBe(looks);
         const { violations } = await new AxeBuilder({ page })
           .withRules(['color-contrast'])
           .exclude('.dev-theme')
@@ -96,38 +113,89 @@ for (const writeUp of writeUps) {
         expect(violations, route).toEqual([]);
       }
     });
+  }
+}
 
-    test(`the card grows and shrinks on a ${writeUp.name} write-up's own shape and color, ${mode}`, async ({
+const cards = [
+  ...writeUps.map((writeUp) => ({ ...writeUp, writeup: writeUp.name, card: writeUpCard })),
+  // An essay is Soft Optical whichever write-up theme is on.
+  { name: 'soft-optical essay', writeup: 'plum-hour', ...softOptical, card: /Lorem ipsum dolor/ },
+];
+
+for (const { name, writeup, card, radius, ...colors } of cards) {
+  for (const looks of ['dark', 'light'] as const) {
+    test(`the card grows and shrinks on its own shape and color: ${name}, ${looks}`, async ({
       page,
     }) => {
-      await choose(page, { writeup: writeUp.name, mode });
+      await choose(page, { writeup, mode: looks });
       await page.goto('./');
       await page.evaluate(recordBox);
-      await page.getByRole('link', { name: writeUpCard }).click();
+      await page.getByRole('link', { name: card }).click();
       await expect.poll(() => box(page)).toMatchObject({ name: 'card-grows' });
       const opening = await box(page);
-      expect(opening.radii[0]).toBe(writeUp.radius);
-      expect(opening.background).toBe(writeUp[mode]);
+      expect(opening.radii[0]).toBe(radius);
+      expect(opening.background).toBe(colors[looks]);
 
       await page.waitForFunction(() => !document.documentElement.dataset.card);
       await page.evaluate(recordBox);
       await page.goBack();
       await expect.poll(() => box(page)).toMatchObject({ name: 'card-shrinks' });
       const closing = await box(page);
-      // The home page's html is an essay's, so these come from the write-up's values on html.
-      expect(closing.radii.at(-1)).toBe(writeUp.radius);
-      expect(closing.background).toBe(writeUp[mode]);
+      // Going home from a write-up, html is an essay's, so these come from the write-up's values on html.
+      expect(closing.radii.at(-1)).toBe(radius);
+      expect(closing.background).toBe(colors[looks]);
       await expect(page.locator('html')).not.toHaveAttribute('data-moving-kind');
     });
   }
 }
 
-test('an essay’s card grows on Soft Optical’s shape', async ({ page }) => {
-  await page.evaluate(recordBox);
-  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
-  await expect.poll(() => box(page)).toMatchObject({ name: 'card-grows' });
-  expect((await box(page)).radii[0]).toBe('14px');
+test('a write-up reached with no card, from the contents and back, keeps its sheet see-through', async ({
+  page,
+}) => {
+  await choose(page, { writeup: 'sorting-office', mode: 'dark' });
+  await page.goto('contents/');
+  for (const go of [
+    () => page.getByRole('link', { name: writeUpCard }).click(),
+    () => page.goBack(),
+  ]) {
+    await page.evaluate(recordSheet);
+    await go();
+    await expect.poll(() => sheet(page)).toMatchObject({ card: false });
+    expect((await sheet(page)).background).toBe('rgba(0, 0, 0, 0)');
+    await page.waitForFunction(() => !document.documentElement.dataset.movingKind);
+  }
 });
+
+// The write-up's sheet, which is the moving box's name with no card on the other page.
+function recordSheet() {
+  sessionStorage.removeItem('sheet');
+  document.addEventListener(
+    'astro:before-swap',
+    (event) => {
+      const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
+      void viewTransition.ready.then(() => {
+        const pair = '::view-transition-image-pair(piece-box-excepteur-sint)';
+        sessionStorage.setItem(
+          'sheet',
+          JSON.stringify({
+            card: 'card' in document.documentElement.dataset,
+            background: getComputedStyle(document.documentElement, pair).backgroundColor,
+          }),
+        );
+      });
+    },
+    { once: true },
+  );
+}
+
+const sheet = (page: Page) =>
+  page.evaluate(
+    () =>
+      JSON.parse(sessionStorage.getItem('sheet') ?? '{}') as {
+        card?: boolean;
+        background?: string;
+      },
+  );
 
 // The moving box's animation, its corners at each keyframe and its color, once the transition is running.
 function recordBox() {

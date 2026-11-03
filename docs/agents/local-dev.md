@@ -131,7 +131,7 @@ A checkpoint keeps its results for 30 days. A risky PR is one that touches the t
 |---|---|
 | `src/pages/` | Routes. `index.astro` is `/skill/`. |
 | `src/layouts/` | Page shells (`Base.astro`) |
-| `src/dev/` | Pages that only exist under `astro dev`, injected from `astro.config.mjs` |
+| `src/dev/` | Pages that only exist under `astro dev`, and phase 4's themes, in a build with `THEMES=yes` only (`src/dev/themes/`). Both are injected from `astro.config.mjs` |
 | `src/styles/` | The site's plain CSS, until phase 4 chooses the house style |
 | `src/components/` | The shared React component library, free of Astro and framework APIs |
 | `src/lib/` | Plain TypeScript helpers |

@@ -15,6 +15,8 @@ it('is one link to its piece, with the piece’s title as a heading', () => {
     />,
   );
   expect(screen.getByRole('link')).toHaveAttribute('href', '/skill/essays/a/');
+  // A theme dresses a card by its kind (G51).
+  expect(screen.getByRole('link')).toHaveAttribute('data-kind', 'essay');
   expect(screen.getByRole('heading', { level: 2, name: 'A title' })).toBeInTheDocument();
 });
 

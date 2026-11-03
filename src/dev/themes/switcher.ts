@@ -60,8 +60,11 @@ function mount() {
         localStorage.setItem('dev-theme', JSON.stringify(next));
       } catch {
         // Storage blocked: the choice lasts until the next page.
+        window.devTheme.apply(document.documentElement, next);
+        return;
       }
-      window.devTheme.apply(document.documentElement, next);
+      // A reload, so what draws its colors once, such as the Swirl's canvas, draws them again.
+      location.reload();
     });
     const label = document.createElement('label');
     label.append(field.label, select);
@@ -70,8 +73,6 @@ function mount() {
   document.body.append(box);
 }
 
-const isWriteUp = (url: URL) => url.pathname.includes('/write-ups/');
-
 // The router replaces html's attributes with the new page's, so the choice goes on the new page first.
 document.addEventListener('astro:before-swap', (event) => {
   const choice = window.devTheme.read();
@@ -79,7 +80,8 @@ document.addEventListener('astro:before-swap', (event) => {
   window.devTheme.apply(root, choice);
   // A card moving to or from a write-up is painted in the write-up's colors (themes.css).
   if (choice.house === 'off' || choice.writeup === 'same') return;
-  if (!isWriteUp(event.from) && !isWriteUp(event.to)) return;
+  const isWriteUp = (root: HTMLElement) => root.dataset.kind === 'write-up';
+  if (!isWriteUp(root) && !isWriteUp(document.documentElement)) return;
   root.dataset.movingKind = 'write-up';
   event.viewTransition.finished
     .catch(() => undefined)

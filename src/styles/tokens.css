@@ -114,7 +114,8 @@
      moves keyframes too: site.css lists them, beside the keyframes.
      These reach the morph only when set on :root (html), because the transition's pseudo-elements inherit only
      from html. A [data-piece] treatment can't change them, and a theme switcher that sets an attribute on html
-     must set it again in astro:after-swap, because the router replaces html's attributes on each swap.
+     must set it again on each new page (on the new document in astro:before-swap, or in astro:after-swap),
+     because the router replaces html's attributes on each swap.
      --duration-morph is a page change with no card, such as from the contents, and --ease-morph is how every
      moving piece moves, card or not. */
   --duration-morph: 420ms;

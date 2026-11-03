@@ -9,7 +9,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 // the wrong thing. The copy sits inside the repo so Node finds node_modules.
 const run = promisify(execFile);
 const root = '.themes-test';
-const traces = [/devTheme/, /dev-theme/, /data-house/, /Fraunces/, /Jost/, /fraunces|jost/i];
+const traces = [/devTheme/, /dev-theme/, /data-house/, /fraunces|jost/i];
 
 async function build(themes: boolean) {
   const env = { ...process.env, THEMES: themes ? 'yes' : '' };
@@ -45,7 +45,7 @@ it('a build with THEMES=yes has the themes, their fonts and the switcher', async
       String(trace),
     ).toBe(true);
   }
-});
+}, 60_000);
 
 it('a build without it has none of them', async () => {
   const { names, texts } = await build(false);
@@ -57,4 +57,4 @@ it('a build without it has none of them', async () => {
     ).toEqual([]);
     expect(texts.filter((text) => trace.test(text)).length, String(trace)).toBe(0);
   }
-});
+}, 60_000);

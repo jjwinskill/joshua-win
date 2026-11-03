@@ -91,9 +91,14 @@
   --focus-offset: 3px;
   --card-lift: 2px;
   --card-press: 1px;
+  --duration-press: 120ms;
+  --marker-width: 2px;
+  --marker-color: var(--accent);
+  --marker-size: 0.8em;
 }
 :root[data-house='soft-optical'],
 :root[data-house='soft-optical'] [data-piece] {
+  --focus-color: var(--accent);
   --focus-ring: 2px solid var(--focus-color);
 }
 :root[data-house='soft-optical'] {
@@ -140,20 +145,6 @@
   --figure-edge: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
   --parade-figure-filter: var(--figure-edge);
 }
-:root[data-house='soft-optical'][data-mode='light'] {
-  --paper: #f7eedf;
-  --paper-2: #fff9ee;
-  --ink: #2b1d14;
-  --ink-soft: #6a5645;
-  --rule: #dccdb6;
-  --accent: #9c4916;
-  --shadow-lift: 0 8px 22px -12px rgb(80 50 20 / 30%);
-  --card-press-shadow: inset 0 3px 8px -4px rgb(80 50 20 / 22%);
-  color-scheme: light;
-  --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-  --figure-edge: none;
-  --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
-}
 @media (max-width: 560px) {
   :root[data-house='soft-optical'] {
     --text-body: 1.0625rem;
@@ -179,10 +170,15 @@
   --focus-offset: 4px;
   --card-lift: 0px;
   --card-press: 1px;
+  --duration-press: 120ms;
+  --marker-width: 3px;
+  --marker-color: var(--ink-soft);
+  --marker-size: 14px;
 }
 :root[data-house][data-writeup='sorting-office'][data-kind='write-up'],
 :root[data-house][data-writeup='sorting-office'] [data-kind='write-up'],
 :root[data-house][data-writeup='sorting-office'][data-kind='write-up'] [data-piece] {
+  --focus-color: var(--accent);
   --focus-ring: 3px solid var(--focus-color);
 }
 :root[data-house][data-writeup='sorting-office'][data-kind='write-up'] {
@@ -265,36 +261,10 @@
   --card-press-shadow: none;
   --stripe: #7fa3c7;
 }
-:root[data-house][data-mode='light'][data-writeup='sorting-office'][data-kind='write-up'] {
-  --paper: #f3e6c8;
-  --paper-2: #fbf3de;
-  --ink: #2a1d14;
-  --ink-soft: #5e4b3a;
-  --rule: #d9c8a0;
-  --accent: #1f6b3f;
-  --shadow-lift: 0 8px 20px -12px rgb(70 40 15 / 30%);
-  --card-press-shadow: none;
-  --stripe: #3f6a94;
-  color-scheme: light;
-  --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-  --figure-edge: none;
-  --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
-}
-:root[data-house][data-mode='light'][data-writeup='sorting-office'] [data-kind='write-up'] {
-  --paper: #f3e6c8;
-  --paper-2: #fbf3de;
-  --ink: #2a1d14;
-  --ink-soft: #5e4b3a;
-  --rule: #d9c8a0;
-  --accent: #1f6b3f;
-  --shadow-lift: 0 8px 20px -12px rgb(70 40 15 / 30%);
-  --card-press-shadow: none;
-  --stripe: #3f6a94;
-}
 @media (max-width: 560px) {
   :root[data-house][data-writeup='sorting-office'][data-kind='write-up'],
   :root[data-house][data-writeup='sorting-office'] [data-kind='write-up'] {
-    --text-body: 1.0625rem;
+    --text-body: 1.125rem;
   }
 }
 :root[data-house][data-writeup='sorting-office'] {
@@ -311,10 +281,6 @@
 :root[data-house][data-mode='dark'][data-writeup='sorting-office'] {
   --writeup-paper-2: #271f19;
   --writeup-rule: #3d3228;
-}
-:root[data-house][data-mode='light'][data-writeup='sorting-office'] {
-  --writeup-paper-2: #fbf3de;
-  --writeup-rule: #d9c8a0;
 }
 
 /* plum-hour */
@@ -336,10 +302,15 @@
   --focus-offset: 3px;
   --card-lift: 4px;
   --card-press: 1px;
+  --duration-press: 100ms;
+  --marker-width: 2px;
+  --marker-color: var(--accent);
+  --marker-size: 0.8em;
 }
 :root[data-house][data-writeup='plum-hour'][data-kind='write-up'],
 :root[data-house][data-writeup='plum-hour'] [data-kind='write-up'],
 :root[data-house][data-writeup='plum-hour'][data-kind='write-up'] [data-piece] {
+  --focus-color: var(--accent);
   --focus-ring: 3px solid var(--focus-color);
 }
 :root[data-house][data-writeup='plum-hour'][data-kind='write-up'] {
@@ -416,34 +387,10 @@
   --shadow-lift: 0 12px 32px -14px rgb(0 0 0 / 70%);
   --card-press-shadow: none;
 }
-:root[data-house][data-mode='light'][data-writeup='plum-hour'][data-kind='write-up'] {
-  --paper: #f3ecdc;
-  --paper-2: #fbf7ec;
-  --ink: #2b2034;
-  --ink-soft: #5c4e66;
-  --rule: #ddd2bd;
-  --accent: #4a44a6;
-  --shadow-lift: 0 12px 30px -16px rgb(70 40 90 / 28%);
-  --card-press-shadow: none;
-  color-scheme: light;
-  --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-  --figure-edge: none;
-  --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
-}
-:root[data-house][data-mode='light'][data-writeup='plum-hour'] [data-kind='write-up'] {
-  --paper: #f3ecdc;
-  --paper-2: #fbf7ec;
-  --ink: #2b2034;
-  --ink-soft: #5c4e66;
-  --rule: #ddd2bd;
-  --accent: #4a44a6;
-  --shadow-lift: 0 12px 30px -16px rgb(70 40 90 / 28%);
-  --card-press-shadow: none;
-}
 @media (max-width: 560px) {
   :root[data-house][data-writeup='plum-hour'][data-kind='write-up'],
   :root[data-house][data-writeup='plum-hour'] [data-kind='write-up'] {
-    --text-body: 1.05rem;
+    --text-body: 1.125rem;
   }
 }
 :root[data-house][data-writeup='plum-hour'] {
@@ -460,10 +407,6 @@
 :root[data-house][data-mode='dark'][data-writeup='plum-hour'] {
   --writeup-paper-2: #271d33;
   --writeup-rule: #3c3049;
-}
-:root[data-house][data-mode='light'][data-writeup='plum-hour'] {
-  --writeup-paper-2: #fbf7ec;
-  --writeup-rule: #ddd2bd;
 }
 
 /* What every contender shares, from Josh's round 2 notes: the hand-drawn wobbly line (One Line Worn In's) as the
@@ -498,10 +441,10 @@
 :root[data-house] .piece-body h2::before {
   content: '';
   display: inline-block;
-  width: 0.8em;
-  height: 0.8em;
+  width: var(--marker-size);
+  height: var(--marker-size);
   margin-inline-end: 0.6em;
-  border: 2px solid var(--accent);
+  border: var(--marker-width) solid var(--marker-color);
   border-radius: 50%;
   vertical-align: -0.08em;
 }
@@ -533,7 +476,7 @@
 
   :root[data-house] .piece-card:active {
     translate: 0 var(--card-press);
-    transition-duration: 120ms;
+    transition-duration: var(--duration-press);
   }
 }
 
@@ -548,9 +491,6 @@
 :root[data-house] .piece-body a {
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
   text-underline-offset: 3px;
-  transition:
-    text-decoration-color var(--duration-hover) var(--ease-soft),
-    text-decoration-thickness var(--duration-hover) var(--ease-soft);
 }
 
 :root[data-house] .piece-body a:hover {
@@ -587,9 +527,6 @@
   box-decoration-break: clone;
   background: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent) 0 0) left / 0% 100%
     no-repeat;
-  transition:
-    background-size 300ms var(--ease-soft),
-    color var(--duration-hover) var(--ease-soft);
 }
 
 :root[data-house][data-writeup='plum-hour'][data-kind='write-up']
@@ -599,9 +536,25 @@
   color: var(--ink);
 }
 
+/* Under reduced motion, a link's hover arrives at once. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-house] .piece-body a {
+    transition:
+      text-decoration-color var(--duration-hover) var(--ease-soft),
+      text-decoration-thickness var(--duration-hover) var(--ease-soft);
+  }
+
+  :root[data-house][data-writeup='plum-hour'][data-kind='write-up'] .piece-body a {
+    transition:
+      background-size 300ms var(--ease-soft),
+      color var(--duration-hover) var(--ease-soft);
+  }
+}
+
 /* The card leaving a write-up for the home page: html is then the home page's, so the box is painted from the
-   write-up's values, which the switcher sets on html. Only set while a write-up theme is on. */
-:root[data-house][data-moving-kind='write-up']::view-transition-image-pair(.piece-box) {
+   write-up's values, which the switcher sets on html. Only while a card moves (data-card): a page change with
+   no card, such as from the contents, has the full-screen sheet as its box, which must stay see-through. */
+:root[data-house][data-moving-kind='write-up'][data-card]::view-transition-image-pair(.piece-box) {
   --radius-card: var(--writeup-radius-card);
   --rule: var(--writeup-rule);
   background: var(--writeup-paper-2);
