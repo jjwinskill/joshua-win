@@ -1,32 +1,9 @@
-/* Plain styling carried over from docs/demo/parade.html until phase 4 chooses the house style. */
-:root {
-  color-scheme: light dark;
-  --paper: #f6f1e7;
-  --paper-2: #efe8da;
-  --ink: #1f1c18;
-  --ink-soft: #5b544a;
-  --rule: #d9cfbd;
-  --accent: #b83d0b;
-  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
-  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-}
+/* Plain styling carried over from docs/demo/parade.html until phase 4 chooses the house style. Its values come
+   from tokens.css. */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #17150f;
-    --paper-2: #201d16;
-    --ink: #efe9dc;
-    --ink-soft: #a89f8f;
-    --rule: #3a342a;
-    --accent: #fb923c;
-  }
-}
-
-/* Ink lines and dark hair need a light edge on a dark page. The parade sets its own. */
-@media (prefers-color-scheme: dark) {
-  .cast-figure {
-    filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
-  }
+/* A light edge on a dark page (--figure-edge). The parade's figures set their own filter. */
+.cast-figure {
+  filter: var(--figure-edge);
 }
 
 * {
@@ -38,35 +15,38 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--serif);
-  font-size: 1.125rem;
-  line-height: 1.65;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 
 h1 {
-  font-size: clamp(2.1rem, 6vw, 3.3rem);
-  line-height: 1.08;
-  margin: 0 0 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-title);
 }
 
 p {
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--space-paragraph);
 }
 
 .kicker {
   font-family: var(--sans);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  font-size: var(--text-kicker);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
   color: var(--accent);
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-md);
 }
 
 .dek {
   /* The same width on the card and the page, so it breaks into the same lines and only has to move. */
-  max-width: min(34rem, calc(100vw - 34px - 2 * clamp(1.5rem, 5vw, 3rem)));
-  font-size: 1.25rem;
+  max-width: min(
+    var(--measure-dek),
+    calc(100vw - 2 * var(--space-gutter) - 2 * var(--border-width) - 2 * var(--space-card))
+  );
+  font-size: var(--text-dek);
   color: var(--ink-soft);
   margin: 0;
   font-style: italic;
@@ -75,10 +55,10 @@ p {
 .site-nav {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 16px;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-gutter);
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
 }
 
 a {
@@ -86,20 +66,20 @@ a {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 /* The home page */
 .home,
 .contents {
-  max-width: 56rem;
+  max-width: var(--measure-page);
   margin-inline: auto;
-  padding: 2.5rem 16px 4rem;
+  padding: var(--space-2xl) var(--space-gutter) var(--space-4xl);
 }
 
 .home-lead {
-  margin-block-end: 2.5rem;
+  margin-block-end: var(--space-2xl);
 }
 
 .piece-cards {
@@ -107,16 +87,16 @@ a:focus-visible {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-lg);
 }
 
 .piece-card {
   display: block;
   /* Safari darkens a tapped link, which would show on the card just as it starts to grow. */
   -webkit-tap-highlight-color: transparent;
-  padding: clamp(1.5rem, 5vw, 3rem);
-  border: 1px solid var(--rule);
-  border-radius: 20px;
+  padding: var(--space-card);
+  border: var(--border-width) solid var(--rule);
+  border-radius: var(--radius-card);
   background: var(--paper-2);
   color: var(--ink);
   text-decoration: none;
@@ -124,17 +104,17 @@ a:focus-visible {
 
 .piece-card h2 {
   width: fit-content;
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
-  line-height: 1.08;
-  margin: 0 0 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: var(--text-card-title);
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-title);
 }
 
 .piece-card-cast {
   display: flex;
-  gap: 0.75rem;
-  margin-block-start: 1.5rem;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-lg);
 }
 
 .piece-card-cast svg {
@@ -157,7 +137,8 @@ body:has(.piece-sheet) {
 }
 
 .piece-head {
-  padding: 4.5rem max(16px, calc((100% - 40rem) / 2)) 2rem;
+  padding: var(--space-5xl) max(var(--space-gutter), calc((100% - var(--measure-text)) / 2))
+    var(--space-xl);
 }
 
 /* Morphing text is only as wide as its words, so it doesn't stretch in flight. */
@@ -169,30 +150,30 @@ body:has(.piece-sheet) {
 
 .piece-body,
 .cast-section {
-  max-width: calc(40rem + 32px);
+  max-width: calc(var(--measure-text) + 2 * var(--space-gutter));
   margin-inline: auto;
 }
 
 .piece-body,
 .cast-section {
-  padding-inline: 16px;
+  padding-inline: var(--space-gutter);
 }
 
 .piece-body h2,
 .cast-section h2 {
   font-family: var(--sans);
-  font-size: 1rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-section);
+  letter-spacing: var(--tracking-section);
   text-transform: uppercase;
-  margin: 3rem 0 0.75rem;
+  margin: var(--space-3xl) 0 var(--space-sm);
   color: var(--ink-soft);
 }
 
 .piece-date {
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
   color: var(--ink-soft);
-  margin: 1rem 0 0;
+  margin: var(--space-md) 0 0;
 }
 
 /* A first mention. A cast card links here, and :target highlights it with no JavaScript. */
@@ -202,45 +183,45 @@ span[id^='cast-'] {
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
   scroll-margin-block: 30vh;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 span[id^='cast-']:target {
-  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: var(--highlight);
 }
 
 /* The cast list */
 .cast-sub {
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
   color: var(--ink-soft);
-  margin: -0.25rem 0 1rem;
+  margin: calc(-1 * var(--space-2xs)) 0 var(--space-md);
 }
 
 .cast-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 2rem;
+  margin: 0 0 var(--space-xl);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(var(--measure-cast-card), 1fr));
+  gap: var(--space-md);
 }
 
 .cast-list a {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 0.35rem;
+  gap: var(--space-cast-gap);
   height: 100%;
-  padding: 1rem 0.5rem 0.9rem;
-  border: 1px solid var(--rule);
-  border-radius: 14px;
+  padding: var(--space-cast-card);
+  border: var(--border-width) solid var(--rule);
+  border-radius: var(--radius-xl);
   background: var(--paper);
   color: var(--ink);
   text-decoration: none;
   font-family: var(--sans);
-  font-size: 0.92rem;
-  line-height: 1.3;
+  font-size: var(--text-cast-name);
+  line-height: var(--leading-ui);
 }
 
 .cast-list svg {
@@ -252,7 +233,7 @@ span[id^='cast-']:target {
 
 .cast-list .role {
   color: var(--ink-soft);
-  font-size: 0.78rem;
+  font-size: var(--text-cast-role);
 }
 
 /* The shared legs follow the page's ink, or they vanish on a dark background. */
@@ -464,18 +445,18 @@ span[id^='cast-']:target {
 
   .cast-list a {
     transition:
-      transform 200ms ease,
-      box-shadow 200ms ease;
+      transform var(--duration-hover) var(--ease-soft),
+      box-shadow var(--duration-hover) var(--ease-soft);
   }
 
   .cast-list a:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 22px rgb(0 0 0 / 12%);
+    box-shadow: var(--shadow-lift);
   }
 
   .cast-list a:hover svg,
   .cast-list a:focus-visible svg {
-    animation: look-at-me 900ms ease-out;
+    animation: look-at-me var(--duration-look) var(--ease-out);
   }
 
   @keyframes look-at-me {
@@ -504,10 +485,4 @@ span[id^='cast-']:target {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-@media (max-width: 560px) {
-  body {
-    font-size: 1.05rem;
-  }
 }

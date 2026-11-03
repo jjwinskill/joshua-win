@@ -1,0 +1,153 @@
+/* The house values, in one place (S22). A theme is a new set of values for this file's four :root blocks (the
+   house values, the ones built from a color, dark and phone), plus any font it brings. Base.astro loads this
+   before the other stylesheets.
+
+   Outside the tokens on purpose (a test holds the raw colors and @media widths to this): the cast's art, a chart's
+   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and for now the card transition
+   (#83). */
+:root {
+  color-scheme: light dark;
+
+  /* Color */
+  --paper: #f6f1e7;
+  --paper-2: #efe8da;
+  --ink: #1f1c18;
+  --ink-soft: #5b544a;
+  --rule: #d9cfbd;
+  --accent: #b83d0b;
+  /* So the page shows through it. The parade sits outside the article, so this resolves here. */
+  --bar-background: color-mix(in srgb, var(--paper-2) 85%, transparent);
+
+  /* Type */
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-body: 1.125rem;
+  --text-title: clamp(2.1rem, 6vw, 3.3rem);
+  --text-card-title: clamp(1.8rem, 5vw, 2.8rem);
+  --text-dek: 1.25rem;
+  --text-section: 1rem;
+  --text-button: 0.95rem;
+  --text-cast-name: 0.92rem;
+  --text-small: 0.9rem;
+  --text-kicker: 0.8rem;
+  --text-cast-role: 0.78rem;
+  --text-label: 0.75rem;
+  --leading-body: 1.65;
+  --leading-title: 1.08;
+  --leading-ui: 1.3;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
+  --tracking-title: -0.01em;
+  --tracking-eyebrow: 0.06em;
+  --tracking-section: 0.08em;
+  --tracking-kicker: 0.12em;
+  --tracking-ornament: 0.4em;
+
+  /* Spacing */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-caption: 0.6rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-paragraph: 1.25rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
+  --space-4xl: 4rem;
+  --space-5xl: 4.5rem;
+  --space-gutter: 16px;
+  --space-card: clamp(1.5rem, 5vw, 3rem);
+  --space-scrub-gap: 0.4rem;
+  --space-cast-gap: 0.35rem;
+  --space-cast-card: 1rem 0.5rem 0.9rem;
+  --space-label: 0.25rem 0.55rem;
+  --bar-height: 96px;
+  --cast-width: 44px;
+
+  /* Measure */
+  --measure-page: 56rem;
+  --measure-text: 40rem;
+  /* The dek's, which the card and the page share. See .dek. */
+  --measure-dek: 34rem;
+  --measure-caption: 34rem;
+  --measure-umbrella: 30rem;
+  --measure-figure: 26rem;
+  --measure-cast-card: 8.5rem;
+
+  /* Breakpoint. A custom property can't be used inside @media, so every @media width in the site is this value
+     written out, and a test holds them to it. */
+  --breakpoint-phone: 560px;
+
+  /* Shape */
+  --border-width: 1px;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+  --radius-card: 20px;
+  --radius-pill: 999px;
+
+  /* Motion. Walk cycles, scroll-driven keyframes and the card transition keep their own timings. */
+  --duration-label: 150ms;
+  --duration-fade: 180ms;
+  --duration-hover: 200ms;
+  --duration-reveal: 250ms;
+  --duration-state: 300ms;
+  --duration-torso: 420ms;
+  --duration-hop: 460ms;
+  --duration-highlight: 600ms;
+  --duration-look: 900ms;
+  --ease-soft: ease;
+  --ease-out: ease-out;
+  --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
+
+  /* Elevation and shadows */
+  --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
+  --bar-blur: blur(10px);
+  --shadow-lift: 0 10px 22px rgb(0 0 0 / 12%);
+  /* Ink lines and dark hair need a light edge on a dark page, and nothing on a light one. */
+  --figure-edge: none;
+  --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
+
+  /* Focus. The color and the ring are below, with the other tokens built from a color. */
+  --focus-offset: 3px;
+  --focus-offset-slot: 4px;
+}
+
+/* Tokens built from a color token. A custom property takes its var()s where it's declared, so these are declared
+   again on each piece's article: a treatment that sets --accent there (S6) reaches its highlights and focus rings,
+   and one that sets --focus-color reaches every focus ring. */
+:root,
+[data-piece] {
+  /* A first mention, when a cast card or the parade points at it. */
+  --highlight: color-mix(in srgb, var(--accent) 30%, transparent);
+  --focus-color: var(--accent);
+  --focus-ring: 2px solid var(--focus-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17150f;
+    --paper-2: #201d16;
+    --ink: #efe9dc;
+    --ink-soft: #a89f8f;
+    --rule: #3a342a;
+    --accent: #fb923c;
+    /* Black, since --ink is light here. */
+    --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
+    --figure-edge: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
+    --parade-figure-filter: var(--figure-edge);
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --text-body: 1.05rem;
+    --bar-height: 80px;
+    --cast-width: 34px;
+  }
+}
