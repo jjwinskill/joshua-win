@@ -1,11 +1,10 @@
-/* The house values, in one place (S22). A theme is a new set of values for this file's two :root blocks, plus any
-   font it brings. Base.astro loads this first, so a treatment that overrides a token has a reason and a scope (S6).
-
-   A token built from another (--highlight, --focus-ring) takes that token's value here, at the root, so a theme
-   gets it for free. A treatment that overrides --accent under its article has to override these too.
+/* The house values, in one place (S22). A theme is a new set of values for this file's four :root blocks (the
+   house values, the ones built from a color, dark and phone), plus any font it brings. Base.astro loads this
+   before the other stylesheets.
 
    Outside the tokens on purpose (a test holds the raw colors and @media widths to this): the cast's art, a chart's
-   or drawing's own geometry and keyframes, a treatment's scoped overrides, and for now the card transition (#83). */
+   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and for now the card transition
+   (#83). */
 :root {
   color-scheme: light dark;
 
@@ -16,14 +15,8 @@
   --ink-soft: #5b544a;
   --rule: #d9cfbd;
   --accent: #b83d0b;
-  /* --paper-2 at 85%, so the page shows through it. */
-  --bar-background: rgb(239 232 218 / 85%);
-  /* A first mention, when a cast card or the parade points at it. */
-  --highlight: color-mix(in srgb, var(--accent) 30%, transparent);
-  /* The battle is its own dark game screen in both themes. */
-  --battle-screen: #181425;
-  --robot-brain: #ec9aa8;
-  --robot-brain-fold: #8a3b4c;
+  /* So the page shows through it. The parade sits outside the article, so this resolves here. */
+  --bar-background: color-mix(in srgb, var(--paper-2) 85%, transparent);
 
   /* Type */
   --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
@@ -113,21 +106,27 @@
   --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
 
   /* Elevation and shadows */
-  --bar-shadow: 0 -8px 24px rgb(31 28 24 / 8%);
+  --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
   --bar-blur: blur(10px);
   --shadow-lift: 0 10px 22px rgb(0 0 0 / 12%);
-  --shadow-panel: 0 2cqi 0 color-mix(in srgb, var(--ink) 22%, transparent);
   /* Ink lines and dark hair need a light edge on a dark page, and nothing on a light one. */
   --figure-edge: none;
   --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
 
-  /* Focus */
-  --focus-color: var(--accent);
-  --focus-ring: 2px solid var(--focus-color);
+  /* Focus. The color and the ring are below, with the other tokens built from a color. */
   --focus-offset: 3px;
   --focus-offset-slot: 4px;
-  /* Thick and drawn inside, because the umbrella's panels scale it down. */
-  --focus-ring-panel-width: 1.6cqi;
+}
+
+/* Tokens built from a color token. A custom property takes its var()s where it's declared, so these are declared
+   again on each piece's article: a treatment that sets --accent there (S6) reaches its highlights and focus rings,
+   and one that sets --focus-color reaches every focus ring. */
+:root,
+[data-piece] {
+  /* A first mention, when a cast card or the parade points at it. */
+  --highlight: color-mix(in srgb, var(--accent) 30%, transparent);
+  --focus-color: var(--accent);
+  --focus-ring: 2px solid var(--focus-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -138,7 +137,7 @@
     --ink-soft: #a89f8f;
     --rule: #3a342a;
     --accent: #fb923c;
-    --bar-background: rgb(32 29 22 / 85%);
+    /* Black, since --ink is light here. */
     --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
     --figure-edge: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
     --parade-figure-filter: var(--figure-edge);

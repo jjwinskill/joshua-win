@@ -1,26 +1,52 @@
 import { globSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-// The hard-coded values check (S22, #81). Exempt from it, as the spec lists them:
+// The hard-coded values check (S22, #81): no raw color and no @media width outside tokens.css. Exempt, as the
+// spec lists them:
 // - The cast's art: its fills are a drawing, not theme chrome. They live in .tsx, which this doesn't scan.
 // - A chart's or drawing's own geometry and keyframe percentages: neither is a color or an @media width.
-// - A treatment's overrides, which S6 scopes to its article root with a reason: EXEMPT, below.
+// - A chart's or drawing's own colors, used by nothing else: DRAWING_COLORS, below, by file and value.
+// - A treatment's overrides, which S6 scopes to its article root. Piece 3's has no raw values, so it's scanned.
 const TOKENS = 'src/styles/tokens.css';
-const EXEMPT = new Map([
-  [
-    'content/lorem/one-offs/ut-labore.css',
-    "Piece 3's treatment, and the Swirl stays as it is (G35, G44).",
-  ],
+const EXEMPT_FILES = new Map([
   [
     'src/dev/template-sheet.astro',
-    'A print tool that exists only under astro dev, and no page uses.',
+    'A print tool that exists only under astro dev, never on a page.',
   ],
 ]);
+const DRAWING_COLORS = [
+  { path: 'src/styles/robot.css', value: '#ec9aa8', reason: "The robot's brain." },
+  { path: 'src/styles/robot.css', value: '#8a3b4c', reason: "The folds in the robot's brain." },
+  {
+    path: 'src/styles/battle.css',
+    value: '#181425',
+    reason: "The battle's own dark screen, which matches the box in battle.ts.",
+  },
+];
 
-const NAMED_COLORS =
-  'black|white|gray|grey|silver|red|maroon|orange|gold|yellow|olive|lime|green|teal|cyan|aqua|blue|navy|indigo|purple|violet|magenta|fuchsia|pink|brown|tan|beige';
+// Every CSS named color (CSS Color 4), so a theme can't be bypassed by a name.
+const NAMED_COLORS = [
+  'aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown',
+  'burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan',
+  'darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid',
+  'darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet',
+  'deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro',
+  'ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki',
+  'lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow',
+  'lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray',
+  'lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine',
+  'mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise',
+  'mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab',
+  'orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru',
+  'pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown',
+  'seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan',
+  'teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen',
+]
+  .join(' ')
+  .split(' ');
+// A name followed by `(` is a function, such as tan().
 const RAW_COLOR = new RegExp(
-  `#[0-9a-f]{3,8}\\b|\\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\\(|(?<![\\w-])(?:${NAMED_COLORS})(?![\\w-])`,
+  `#[0-9a-f]{3,8}\\b|\\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\\(|(?<![\\w-])(?:${NAMED_COLORS.join('|')})(?![\\w(-])`,
   'gi',
 );
 
@@ -38,12 +64,17 @@ function rawColors(css: string): string[] {
   });
 }
 
-/** Every length in an @media query about width. */
+/** The lengths in an @media query's width features: min-width, max-width, width, and range syntax. */
 function mediaWidths(css: string): string[] {
   const queries = withoutComments(css).matchAll(/@media[^{]+/g);
-  return [...queries]
-    .filter(([query]) => query.includes('width'))
-    .flatMap(([query]) => query.match(/[\d.]+[a-z]+/g) ?? []);
+  return [...queries].flatMap(([query]) =>
+    [...query.matchAll(/\(([^()]+)\)/g)].flatMap(([, feature = '']) => {
+      const plain = /^\s*(?:min-|max-)?width\s*:\s*([^\s]+)\s*$/.exec(feature);
+      if (plain?.[1]) return [plain[1]];
+      const range = /(?<![\w-])width(?![\w-])/.test(feature) && /[<>=]/.test(feature);
+      return range ? (feature.match(/[\d.]+[a-z]+/gi) ?? []) : [];
+    }),
+  );
 }
 
 /** What an .astro file has in its style tags, or the whole of a stylesheet. */
@@ -53,7 +84,7 @@ function cssOf(path: string): string {
   return [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(([, css]) => css).join('\n');
 }
 
-const sheets = globSync('{src,content}/**/*.{css,astro}').filter((path) => !EXEMPT.has(path));
+const sheets = globSync('{src,content}/**/*.{css,astro}').filter((path) => !EXEMPT_FILES.has(path));
 
 describe('the scan', () => {
   it.each([
@@ -63,6 +94,7 @@ describe('the scan', () => {
     ['hsl()', 'a { --x: hsl(10 20% 30%); }'],
     ['oklch()', 'a { fill: oklch(50% 0.1 20); }'],
     ['a named color', 'a { border: 1px solid white; }'],
+    ['a rarer named color', 'a { color: papayawhip; }'],
   ])('catches %s', (_name, css) => {
     expect(rawColors(css)).toHaveLength(1);
   });
@@ -76,27 +108,41 @@ describe('the scan', () => {
     ['a name', 'a { animation: red-flash 1s; }'],
     ['a string', "a { font-family: 'Red Hat Text'; }"],
     ['a link to an id', 'a { fill: url(#abc); }'],
+    ['a function with a color name', 'a { rotate: calc(tan(30deg) * 1rad); }'],
   ])('leaves %s alone', (_name, css) => {
     expect(rawColors(css)).toEqual([]);
   });
 
-  it('finds a width in an @media query, and nothing in another kind', () => {
-    expect(mediaWidths('@media (max-width: 700px) { a { top: 0; } }')).toEqual(['700px']);
-    expect(mediaWidths('@media (40em <= width) { a { top: 0; } }')).toEqual(['40em']);
-    expect(mediaWidths('@media (prefers-color-scheme: dark) { a { width: 3px; } }')).toEqual([]);
+  it.each([
+    ['max-width', '@media (max-width: 700px)', ['700px']],
+    ['range syntax', '@media (40em <= width)', ['40em']],
+    ['a range on both sides', '@media (400px < width <= 700px)', ['400px', '700px']],
+    ['width among other features', '@media (min-width: 30rem) and (max-height: 500px)', ['30rem']],
+    ['a height', '@media (max-height: 600px)', []],
+    ['a resolution', '@media (min-resolution: 2dppx)', []],
+    ['a color scheme', '@media (prefers-color-scheme: dark)', []],
+  ])('reads the widths in %s', (_name, query, widths) => {
+    expect(mediaWidths(`${query} { a { width: 3px; } }`)).toEqual(widths);
   });
 
-  it('reaches every stylesheet', () => {
+  it('reaches every stylesheet, a piece’s included', () => {
     for (const name of ['site', 'parade', 'figures', 'robot', 'umbrella', 'battle', 'run-charts']) {
       expect(sheets).toContain(`src/styles/${name}.css`);
     }
     expect(sheets).toContain(TOKENS);
+    expect(sheets.filter((path) => path.startsWith('content/')).length).toBeGreaterThan(0);
   });
 });
 
 describe('the stylesheets', () => {
   it.each(sheets.filter((path) => path !== TOKENS))('%s has no raw colors', (path) => {
-    expect(rawColors(cssOf(path))).toEqual([]);
+    const allowed = DRAWING_COLORS.filter((color) => color.path === path).map(({ value }) => value);
+    const colors = rawColors(cssOf(path)).filter((color) => !allowed.includes(color.toLowerCase()));
+    expect(colors).toEqual([]);
+  });
+
+  it.each(DRAWING_COLORS)('$path still uses its exempt $value', ({ path, value }) => {
+    expect(rawColors(cssOf(path)).map((color) => color.toLowerCase())).toContain(value);
   });
 
   it('hold every @media width to the breakpoint token', () => {

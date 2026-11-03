@@ -79,7 +79,7 @@
   background: var(--paper);
   border: 1.2cqi solid var(--ink);
   border-radius: 5cqi;
-  box-shadow: var(--shadow-panel);
+  box-shadow: 0 2cqi 0 color-mix(in srgb, var(--ink) 22%, transparent);
 }
 
 /* The stage it belongs to, as a band across its top. */
@@ -233,9 +233,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Thick, because the panels scale it down. */
 .umbrella-button:focus-visible {
-  outline: var(--focus-ring-panel-width) solid var(--focus-color);
-  outline-offset: calc(-1 * var(--focus-ring-panel-width));
+  outline: 1.6cqi solid var(--focus-color);
+  outline-offset: -1.6cqi;
 }
 
 /* With no JavaScript the buttons can't work, and the floor beside it shows the same fan-out. */

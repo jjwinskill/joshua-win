@@ -1,7 +1,7 @@
 /* Plain styling carried over from docs/demo/parade.html until phase 4 chooses the house style. Its values come
    from tokens.css. */
 
-/* The parade sets its own. */
+/* A light edge on a dark page (--figure-edge). The parade's figures set their own filter. */
 .cast-figure {
   filter: var(--figure-edge);
 }

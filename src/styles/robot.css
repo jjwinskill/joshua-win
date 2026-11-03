@@ -75,14 +75,14 @@
 }
 
 .robot-brain-fill {
-  fill: var(--robot-brain);
+  fill: #ec9aa8;
   stroke: var(--ink);
   stroke-width: 3;
 }
 
 .robot-brain-fold {
   fill: none;
-  stroke: var(--robot-brain-fold);
+  stroke: #8a3b4c;
   stroke-width: 2.5;
   stroke-linecap: round;
 }
