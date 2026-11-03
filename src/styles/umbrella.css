@@ -1,13 +1,13 @@
 /* The umbrella carousel (#54). Everything is sized to its own width, so it fits a phone. */
 .umbrella-chart {
-  margin: 2.5rem auto;
-  max-width: 30rem;
+  margin: var(--space-2xl) auto;
+  max-width: var(--measure-umbrella);
 }
 
 .umbrella-chart figcaption {
-  margin-block-start: 0.6rem;
+  margin-block-start: var(--space-caption);
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
   color: var(--ink-soft);
 }
 
@@ -56,9 +56,9 @@
   translate: -50% 0;
   background: var(--ink);
   color: var(--paper);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: max(0.8rem, 3.2cqi);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 /* The panel and its button share a size and a transform. They hang from their top middle. */
@@ -79,7 +79,7 @@
   background: var(--paper);
   border: 1.2cqi solid var(--ink);
   border-radius: 5cqi;
-  box-shadow: 0 2cqi 0 color-mix(in srgb, var(--ink) 22%, transparent);
+  box-shadow: var(--shadow-panel);
 }
 
 /* The stage it belongs to, as a band across its top. */
@@ -159,15 +159,15 @@
 
 .umbrella-eyebrow {
   font-size: max(0.75rem, 3.2cqi);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   color: var(--ink-soft);
 }
 
 .umbrella-open .umbrella-name {
   font-size: max(1.5rem, 8cqi);
-  font-weight: 800;
+  font-weight: var(--weight-heavy);
   line-height: 1.05;
 }
 
@@ -233,10 +233,9 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Thick, because the panels scale it down. */
 .umbrella-button:focus-visible {
-  outline: 1.6cqi solid var(--accent);
-  outline-offset: -1.6cqi;
+  outline: var(--focus-ring-panel-width) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-ring-panel-width));
 }
 
 /* With no JavaScript the buttons can't work, and the floor beside it shows the same fan-out. */

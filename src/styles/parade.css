@@ -1,34 +1,13 @@
 /* The parade, from docs/demo/parade.html. */
-:root {
-  --bar-height: 96px;
-  --cast-width: 44px;
-  --bar-background: rgb(239 232 218 / 85%);
-  --bar-shadow: 0 -8px 24px rgb(31 28 24 / 8%);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bar-background: rgb(32 29 22 / 85%);
-    --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
-  }
-}
-
-@media (max-width: 560px) {
-  :root {
-    --bar-height: 80px;
-    --cast-width: 34px;
-  }
-}
-
 body:has(.parade) {
-  padding-block-end: calc(var(--bar-height) + 2rem);
+  padding-block-end: calc(var(--bar-height) + var(--space-xl));
 }
 
 .end-mark {
   text-align: center;
   color: var(--ink-soft);
-  letter-spacing: 0.4em;
-  margin: 3rem 0;
+  letter-spacing: var(--tracking-ornament);
+  margin: var(--space-3xl) 0;
 }
 
 .parade {
@@ -37,8 +16,8 @@ body:has(.parade) {
   height: var(--bar-height);
   z-index: 10;
   background: var(--bar-background);
-  backdrop-filter: blur(10px);
-  border-block-start: 1px solid var(--rule);
+  backdrop-filter: var(--bar-blur);
+  border-block-start: var(--border-width) solid var(--rule);
   box-shadow: var(--bar-shadow);
   /* The cast walks off stage right. Clip that, but not the labels above the bar. */
   overflow-x: clip;
@@ -90,9 +69,9 @@ body:has(.parade) {
 }
 
 .slot:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-  border-radius: 8px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset-slot);
+  border-radius: var(--radius-lg);
 }
 
 .dot {
@@ -106,10 +85,10 @@ body:has(.parade) {
   border: 2px solid var(--rule);
   background: var(--paper);
   transition:
-    border-color 300ms,
-    background 300ms,
-    transform 200ms,
-    opacity 300ms;
+    border-color var(--duration-state),
+    background var(--duration-state),
+    transform var(--duration-hover),
+    opacity var(--duration-state);
 }
 
 .slot:hover .dot,
@@ -134,7 +113,7 @@ body:has(.parade) {
   height: calc(var(--cast-width) * 1.18);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 250ms ease;
+  transition: opacity var(--duration-reveal) var(--ease-soft);
 }
 
 .slot.in .hop,
@@ -162,15 +141,8 @@ body:has(.parade) {
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
+  filter: var(--parade-figure-filter);
   transform-origin: 50% 100%;
-}
-
-/* Ink lines and dark hair need a light edge on a dark page. */
-@media (prefers-color-scheme: dark) {
-  .art svg {
-    filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
-  }
 }
 
 .legs line {
@@ -195,20 +167,20 @@ body:has(.parade) {
     )
   );
   font-family: var(--sans);
-  font-size: 0.75rem;
-  line-height: 1.3;
+  font-size: var(--text-label);
+  line-height: var(--leading-ui);
   text-align: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 150ms ease;
+  transition: opacity var(--duration-label) var(--ease-soft);
 }
 
 .slot .label span {
   display: inline-block;
   color: var(--paper);
   background: var(--ink);
-  padding: 0.25rem 0.55rem;
-  border-radius: 6px;
+  padding: var(--space-label);
+  border-radius: var(--radius-md);
 }
 
 .slot:hover .label,
@@ -217,25 +189,25 @@ body:has(.parade) {
 }
 
 .replay-row {
-  max-width: calc(40rem + 32px);
-  margin: 0 auto 2rem;
-  padding-inline: 16px;
+  max-width: calc(var(--measure-text) + 2 * var(--space-gutter));
+  margin: 0 auto var(--space-xl);
+  padding-inline: var(--space-gutter);
 }
 
 .replay {
   font-family: var(--sans);
-  font-size: 0.9rem;
-  border: 1px solid var(--rule);
+  font-size: var(--text-small);
+  border: var(--border-width) solid var(--rule);
   background: var(--paper);
   color: var(--ink);
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
   cursor: pointer;
 }
 
 .replay:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 /* With no motion there's no curtain call to replay. */
@@ -258,19 +230,19 @@ span[id^='cast-']:focus {
 }
 
 span[id^='cast-'].flash {
-  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: var(--highlight);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   span[id^='cast-'] {
-    transition: background-color 600ms ease;
+    transition: background-color var(--duration-highlight) var(--ease-soft);
   }
 
   .hop {
     transform: translateY(70%) scale(0.6);
     transition:
-      transform var(--hop-duration, 460ms) cubic-bezier(0.28, 1.6, 0.5, 1),
-      opacity 180ms ease;
+      transform var(--hop-duration, var(--duration-hop)) var(--ease-hop),
+      opacity var(--duration-fade) var(--ease-soft);
   }
 
   .slot.in .hop,
@@ -281,17 +253,17 @@ span[id^='cast-'].flash {
 
   .slot:hover .art svg,
   .slot:focus-visible .art svg {
-    animation: look-at-me 900ms ease-out;
+    animation: look-at-me var(--duration-look) var(--ease-out);
   }
 
   /* The rig: a torso above the hips, and two legs with thigh, shin and foot. */
   .torso {
-    transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duration-torso) var(--ease-move);
   }
 
   .thigh,
   .shin {
-    transition: transform 300ms ease;
+    transition: transform var(--duration-state) var(--ease-soft);
   }
 
   .walking .thigh {

@@ -1,27 +1,27 @@
 /* The scroll-driven robot (#55). Everything outside the block at the bottom is the finished robot, which is
    what reduced motion and browsers without scroll timelines get. Only transform and opacity animate. */
 .robot-chart {
-  margin: 2.5rem 0;
+  margin: var(--space-2xl) 0;
 }
 
 .robot-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .robot-stage figcaption {
-  max-width: 34rem;
+  max-width: var(--measure-caption);
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
   color: var(--ink-soft);
 }
 
 .robot {
   position: relative;
   aspect-ratio: 360 / 470;
-  width: min(100%, 26rem);
+  width: min(100%, var(--measure-figure));
 }
 
 .robot-whole,
@@ -75,14 +75,14 @@
 }
 
 .robot-brain-fill {
-  fill: #ec9aa8;
+  fill: var(--robot-brain);
   stroke: var(--ink);
   stroke-width: 3;
 }
 
 .robot-brain-fold {
   fill: none;
-  stroke: #8a3b4c;
+  stroke: var(--robot-brain-fold);
   stroke-width: 2.5;
   stroke-linecap: round;
 }
@@ -123,7 +123,7 @@
 
 .robot-plate {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   text-anchor: middle;
 }
 
@@ -188,7 +188,7 @@
 .robot-clack-word {
   fill: var(--accent);
   font-size: 44px;
-  font-weight: 800;
+  font-weight: var(--weight-heavy);
   text-anchor: middle;
 }
 
@@ -212,7 +212,7 @@
 
     .robot {
       /* Narrower than the column, because the open lid and the swinging arm reach past the robot's own box. */
-      width: min(82%, 26rem, calc((100svh - 7rem) * 360 / 470));
+      width: min(82%, var(--measure-figure), calc((100svh - 7rem) * 360 / 470));
     }
 
     .robot-whole,
