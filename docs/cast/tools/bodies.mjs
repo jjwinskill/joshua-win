@@ -15,7 +15,7 @@ hanta:[`<g transform="translate(20 33) scale(.965) translate(-20 -33)">`,
  P('M16.55 11.75a1 1 0 1 0 .01 0ZM24.3 11.95a1 1 0 1 0 .01 0Z',{f:c.iris,n:1}),
  P('M16.55 12.3a.45 .45 0 1 0 .01 0ZM24.3 12.5a.45 .45 0 1 0 .01 0Z',{f:ink,n:1}),
  // the hair's fill is a soft dome inside the strands, so the top doesn't read flat
- P('M8 9.2 6.7 7.2C6.3 4.6 8.6 2.4 12 2.1C15 1.8 23 1.7 26.5 2.2C29.6 2.7 31 4.5 30.2 6.3L29.4 7.6 28 8.6 25.4 8.6 21.5 6.6 19 5.8 15.5 8.2 11 8.6Z',{f:c.hair,n:1}),
+ P('M8 9.2 6.4 7.1C5.9 4.2 8.2 1.9 11.8 1.6C15 1.5 23 1.1 27 1.6C30.4 2.1 31.2 4.3 30.6 6.4L28 8.6 25.4 8.6 21.5 6.6 19 5.8 15.5 8.2 11 8.6Z',{f:c.hair,n:1}),
  `<path d="${hantaTrace}" fill="${ink}" stroke="none" fill-rule="evenodd"/>`,
  `</g>`],
 paper:[`<g transform="translate(0 2.3)">`,
