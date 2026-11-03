@@ -21,7 +21,7 @@ const names = morphNames(piece.id);
 const cast = await pieceCast(piece);
 ---
 
-<Base title={title}>
+<Base title={title} kind={kind}>
   <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
   <article data-piece={piece.id}>
     <header class="piece-head">
@@ -42,9 +42,7 @@ const cast = await pieceCast(piece);
     </header>
     <div class="piece-body">
       <Content />
-      <p class="end-mark" id="parade-end" aria-hidden="true">
-        · · ·
-      </p>
+      <div class="end-mark" id="parade-end" aria-hidden="true"></div>
     </div>
   </article>
   {cast.length > 0 && citedWork && <CastList cast={cast} citedWork={citedWork} />}

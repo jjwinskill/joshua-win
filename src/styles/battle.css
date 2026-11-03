@@ -17,7 +17,7 @@
 .battle-controls {
   display: flex;
   gap: var(--space-xs);
-  margin-block-start: var(--space-caption);
+  margin-block-start: var(--space-xs);
 }
 
 .battle-controls button {
@@ -28,8 +28,8 @@
   color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: var(--radius-sm);
-  font-family: var(--sans);
-  font-size: var(--text-button);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   /* A double tap on a button shouldn't zoom the page. */
   touch-action: manipulation;
@@ -37,9 +37,9 @@
 }
 
 .battle-chart figcaption {
-  margin-block-start: var(--space-caption);
-  font-family: var(--sans);
-  font-size: var(--text-small);
+  margin-block-start: var(--space-xs);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
   color: var(--ink-soft);
 }
 

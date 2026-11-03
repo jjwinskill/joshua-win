@@ -4,9 +4,6 @@ body:has(.parade) {
 }
 
 .end-mark {
-  text-align: center;
-  color: var(--ink-soft);
-  letter-spacing: var(--tracking-ornament);
   margin: var(--space-3xl) 0;
 }
 
@@ -166,8 +163,8 @@ body:has(.parade) {
         )
     )
   );
-  font-family: var(--sans);
-  font-size: var(--text-label);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
   line-height: var(--leading-ui);
   text-align: center;
   opacity: 0;
@@ -179,7 +176,7 @@ body:has(.parade) {
   display: inline-block;
   color: var(--paper);
   background: var(--ink);
-  padding: var(--space-label);
+  padding: var(--space-2xs) var(--space-xs);
   border-radius: var(--radius-md);
 }
 
@@ -195,8 +192,8 @@ body:has(.parade) {
 }
 
 .replay {
-  font-family: var(--sans);
-  font-size: var(--text-small);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
   border: var(--border-width) solid var(--rule);
   background: var(--paper);
   color: var(--ink);
