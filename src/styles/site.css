@@ -202,16 +202,16 @@ body:has(.piece-sheet) {
   content: '';
   display: block;
   max-width: var(--measure-text);
-  height: 12px;
+  height: var(--wobble-height);
   margin-top: var(--space-xl);
   background: var(--wobble-color);
   mask: var(--wobble) left center / 100% 100% no-repeat;
 }
 
 .end-mark {
-  height: 12px;
+  height: var(--wobble-height);
   background: var(--wobble-color);
-  mask: var(--wobble) center / min(12rem, 60%) 12px no-repeat;
+  mask: var(--wobble) center / min(12rem, 60%) var(--wobble-height) no-repeat;
 }
 
 .piece-body h2::before {
@@ -407,13 +407,6 @@ span[id^='cast-']:target {
     animation-delay: 0s;
     animation-timing-function: linear;
     animation-fill-mode: both;
-  }
-
-  /* A write-up's card closing onto the home page, whose html is an essay's (Base.astro sets data-moving-kind). */
-  [data-card][data-moving-kind='write-up']::view-transition-image-pair(.piece-box) {
-    --radius-card: var(--write-up-radius-card);
-    --rule: var(--write-up-rule);
-    background: var(--write-up-paper-2);
   }
 
   [data-card='opening']::view-transition-image-pair(.piece-box) {

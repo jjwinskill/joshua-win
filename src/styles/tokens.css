@@ -69,8 +69,9 @@
 
   /* Measure */
   --measure-page: 56rem;
-  /* In the reading font's own characters: about 62 a line, and 64 in a write-up's Jost. */
-  --measure-text: 62ch;
+  /* About 62 characters of Fraunces a line. In rem, not ch, so a treatment's own font (piece 3's) keeps the same
+     column, and nothing moves when a font arrives. */
+  --measure-text: 40rem;
   /* The dek's, which the card and the page share. See .dek. */
   --measure-dek: 34rem;
   --measure-caption: 34rem;
@@ -93,6 +94,7 @@
   --radius-pill: 999px;
   --write-up-radius-card: 28px;
   /* The hand-drawn line, One Line Worn In's (G51): under a piece's header and as its end mark, in --wobble-color. */
+  --wobble-height: 12px;
   --wobble: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7C16 3 28 9 42 6S66 3 80 6S104 10 120 6S146 3 160 7S186 9 200 5S226 6 238 6' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
   /* The still ring on each section heading (G51). It doesn't light up as the reader passes: the parade shows that. */
   --marker-size: 0.8em;
@@ -210,8 +212,11 @@
 
 /* A write-up's look, Plum Hour (G51): on html for a write-up's page, and on its card on the home page, so the
    card's title is in the page's font and never flies as a double image (G44). Last, so it wins on html, phone
-   sizes included: Jost keeps its body text at 18px. */
-[data-kind='write-up'] {
+   sizes included: Jost keeps its body text at 18px. The moving box of a write-up's card closing onto the home
+   page, whose html is an essay's, takes it too (Base.astro sets data-moving-kind), so it keeps its corners, edge
+   and color. */
+[data-kind='write-up'],
+[data-card][data-moving-kind='write-up']::view-transition-image-pair(.piece-box) {
   --paper: var(--write-up-paper);
   --paper-2: var(--write-up-paper-2);
   --ink: var(--write-up-ink);
@@ -224,7 +229,6 @@
   --text-title: clamp(2.1rem, 6vw, 3.25rem);
   --text-card-title: clamp(1.8rem, 5vw, 2.8rem);
   --leading-body: 1.65;
-  --measure-text: 64ch;
   --weight-heading: 500;
   --tracking-section: 0.08em;
   --tracking-kicker: 0.08em;

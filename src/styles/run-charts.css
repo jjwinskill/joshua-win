@@ -1,5 +1,5 @@
 /* The committed Mermaid SVGs carry no colors (G40). These give them the page's, in both themes. Mermaid
-   measured the labels in a wider font, so the page's own sans always fits the boxes. */
+   measured the labels in a wider font, so the page's own --font-ui (Jost, on a write-up) fits the boxes. */
 .run-chart {
   margin: var(--space-2xl) 0;
 }

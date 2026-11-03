@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { failOnErrors } from './fail-on-errors';
 
 // The house style's two looks (G51): Soft Optical on the essays and the site, and Plum Hour on a write-up and its
 // card. routes.spec.ts runs axe on every page in light, so this runs it in dark.
@@ -39,7 +40,9 @@ for (const route of routes) {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto(route);
     await page.evaluate(() => document.fonts.ready);
-    expect(await rootToken(page, 'color-scheme')).toContain('dark');
+    expect(await page.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches)).toBe(
+      true,
+    );
     const { violations } = await new AxeBuilder({ page }).analyze();
     expect(violations).toEqual([]);
   });
@@ -48,6 +51,7 @@ for (const route of routes) {
 test('a write-up and its card are in Plum Hour, and the rest of the site in Soft Optical', async ({
   page,
 }) => {
+  const errors = failOnErrors(page);
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('./');
   const html = page.locator('html');
@@ -74,7 +78,33 @@ test('a write-up and its card are in Plum Hour, and the rest of the site in Soft
   await expect(page.getByRole('heading', { level: 1, name: 'Josh Winskill' })).toBeVisible();
   await expect(html).not.toHaveAttribute('data-kind');
   await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-family', /^Fraunces/);
+  expect(errors).toEqual([]);
 });
+
+// Each look's lift, at its height on hover and its depth on a press, and none under reduced motion.
+for (const { name, card, lift } of [
+  { name: 'an essay', card: /Lorem ipsum dolor/, lift: '0px -2px' },
+  { name: 'a write-up', card: writeUpCard, lift: '0px -4px' },
+]) {
+  test(`${name}'s card lifts on hover and presses in on a tap`, async ({ page }) => {
+    await page.goto('./');
+    const link = page.getByRole('link', { name: card });
+    await link.scrollIntoViewIfNeeded();
+    await link.hover();
+    await expect(link).toHaveCSS('translate', lift);
+    await page.mouse.down();
+    await expect(link).toHaveCSS('translate', '0px 1px');
+    // Released off the card, so it doesn't open.
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    await expect(link).toHaveCSS('translate', 'none');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await link.hover();
+    await expect(link).toHaveCSS('box-shadow', /px/);
+    await expect(link).toHaveCSS('translate', 'none');
+  });
+}
 
 for (const { name, card, radius, ...colors } of looks) {
   for (const scheme of ['dark', 'light'] as const) {
