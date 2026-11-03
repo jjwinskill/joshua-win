@@ -24,7 +24,7 @@
 }
 
 article[data-piece='ut-labore'] {
-  --piece-font: 'Bricolage Grotesque', 'Bricolage fallback', var(--sans);
+  --piece-font: 'Bricolage Grotesque', 'Bricolage fallback', var(--font-ui);
 }
 
 /* Everything below the card's text. The title stays in the house font: in the new font it flew as a double

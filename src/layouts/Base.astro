@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import '../styles/fonts.css';
 import '../styles/tokens.css';
 import '../styles/site.css';
 import { sitePath } from '../lib/paths';
@@ -102,11 +103,17 @@ const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
       // The router still runs a transition under reduced motion, so skip it. Skipping needs its own
       // listener because the transition only exists from this event on.
       document.addEventListener('astro:before-swap', (event) => {
+        // A write-up's card keeps its own look in flight, even closing onto the home page (site.css).
+        const next = event.newDocument.documentElement;
+        if ([next, document.documentElement].some((root) => root.dataset.kind === 'write-up')) {
+          next.dataset.movingKind = 'write-up';
+        }
         event.viewTransition.finished
           .catch(() => undefined)
           .finally(() => {
             delete document.documentElement.dataset.card;
             delete document.documentElement.dataset.swapping;
+            delete document.documentElement.dataset.movingKind;
           });
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
           event.viewTransition.ready.catch(() => undefined);

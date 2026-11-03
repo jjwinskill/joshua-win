@@ -37,7 +37,6 @@ export default defineConfig(
       'drafts/',
       'docs/cast/tools/',
       '.drafts-test/',
-      '.themes-test/',
       '.cast-test/',
       'node_modules/',
       '.claude/skills/',

@@ -13,10 +13,6 @@ const EXEMPT_FILES = new Map([
     'src/dev/template-sheet.astro',
     'A print tool that exists only under astro dev, never on a page.',
   ],
-  [
-    'src/dev/themes/themes.css',
-    'The contending themes (#85), only in a build with THEMES=yes. Each is a set of token values, which #86 moves into tokens.css.',
-  ],
 ]);
 const DRAWING_COLORS = [
   { path: 'src/styles/robot.css', value: '#ec9aa8', reason: "The robot's brain." },

@@ -6,7 +6,7 @@
 
 .umbrella-chart figcaption {
   margin-block-start: var(--space-caption);
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
   color: var(--ink-soft);
 }
@@ -29,7 +29,7 @@
 .umbrella-visual {
   position: absolute;
   inset: 0;
-  font-family: var(--sans);
+  font-family: var(--font-ui);
 }
 
 .umbrella-frame {

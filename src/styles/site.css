@@ -1,5 +1,4 @@
-/* Plain styling carried over from docs/demo/parade.html until phase 4 chooses the house style. Its values come
-   from tokens.css. */
+/* The house style (G51): Soft Optical, and Plum Hour on a write-up. Its values come from tokens.css. */
 
 /* A light edge on a dark page (--figure-edge). The parade's figures set their own filter. */
 .cast-figure {
@@ -14,7 +13,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: var(--text-body);
   line-height: var(--leading-body);
 }
@@ -23,7 +22,7 @@ h1 {
   font-size: var(--text-title);
   line-height: var(--leading-title);
   margin: 0 0 var(--space-md);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-heading);
   letter-spacing: var(--tracking-title);
 }
 
@@ -32,7 +31,7 @@ p {
 }
 
 .kicker {
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
@@ -57,7 +56,7 @@ p {
   justify-content: space-between;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-gutter);
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
 }
 
@@ -99,7 +98,20 @@ a:focus-visible {
   border-radius: var(--radius-card);
   background: var(--paper-2);
   color: var(--ink);
+  /* A write-up's card has its own font (tokens.css), which body's doesn't reach. */
+  font-family: var(--font-text);
   text-decoration: none;
+}
+
+/* A card rises on hover and presses in on a tap. */
+@media (hover: hover) {
+  .piece-card:hover {
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+.piece-card:active {
+  box-shadow: var(--card-press-shadow);
 }
 
 .piece-card h2 {
@@ -107,8 +119,17 @@ a:focus-visible {
   font-size: var(--text-card-title);
   line-height: var(--leading-title);
   margin: 0 0 var(--space-md);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-heading);
   letter-spacing: var(--tracking-title);
+}
+
+/* Soft Optical's soft, wonky cut, at display sizes only. The card's title and the page's share it, so the title
+   flies as one image. Jost has neither axis, so a write-up's are unchanged. */
+h1,
+.piece-card h2 {
+  font-variation-settings:
+    'SOFT' 100,
+    'WONK' 1;
 }
 
 .piece-card-cast {
@@ -161,7 +182,7 @@ body:has(.piece-sheet) {
 
 .piece-body h2,
 .cast-section h2 {
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-section);
   letter-spacing: var(--tracking-section);
   text-transform: uppercase;
@@ -170,10 +191,66 @@ body:has(.piece-sheet) {
 }
 
 .piece-date {
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
   color: var(--ink-soft);
   margin: var(--space-md) 0 0;
+}
+
+/* The hand-drawn line under a piece's header, and as its end mark. */
+.piece-head::after {
+  content: '';
+  display: block;
+  max-width: var(--measure-text);
+  height: 12px;
+  margin-top: var(--space-xl);
+  background: var(--wobble-color);
+  mask: var(--wobble) left center / 100% 100% no-repeat;
+}
+
+.end-mark {
+  height: 12px;
+  background: var(--wobble-color);
+  mask: var(--wobble) center / min(12rem, 60%) 12px no-repeat;
+}
+
+.piece-body h2::before {
+  content: '';
+  display: inline-block;
+  width: var(--marker-size);
+  height: var(--marker-size);
+  margin-inline-end: 0.6em;
+  border: var(--marker-width) solid var(--accent);
+  border-radius: 50%;
+  vertical-align: -0.08em;
+}
+
+/* A link warms and thickens on hover. */
+.piece-body a {
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-underline-offset: 3px;
+}
+
+.piece-body a:hover {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+/* On a write-up, Plum Hour's: a link grows a tinted pill behind it. */
+[data-kind='write-up'] .piece-body a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  padding: 0.1em 0.3em;
+  margin: -0.1em -0.3em;
+  border-radius: var(--radius-pill);
+  box-decoration-break: clone;
+  background: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent) 0 0) left / 0% 100%
+    no-repeat;
+}
+
+[data-kind='write-up'] .piece-body a:is(:hover, :focus-visible) {
+  background-size: 100% 100%;
+  color: var(--ink);
 }
 
 /* A first mention. A cast card links here, and :target highlights it with no JavaScript. */
@@ -192,7 +269,7 @@ span[id^='cast-']:target {
 
 /* The cast list */
 .cast-sub {
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
   color: var(--ink-soft);
   margin: calc(-1 * var(--space-2xs)) 0 var(--space-md);
@@ -219,7 +296,7 @@ span[id^='cast-']:target {
   background: var(--paper);
   color: var(--ink);
   text-decoration: none;
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-cast-name);
   line-height: var(--leading-ui);
 }
@@ -330,6 +407,13 @@ span[id^='cast-']:target {
     animation-delay: 0s;
     animation-timing-function: linear;
     animation-fill-mode: both;
+  }
+
+  /* A write-up's card closing onto the home page, whose html is an essay's (Base.astro sets data-moving-kind). */
+  [data-card][data-moving-kind='write-up']::view-transition-image-pair(.piece-box) {
+    --radius-card: var(--write-up-radius-card);
+    --rule: var(--write-up-rule);
+    background: var(--write-up-paper-2);
   }
 
   [data-card='opening']::view-transition-image-pair(.piece-box) {
@@ -449,6 +533,35 @@ span[id^='cast-']:target {
 
   html {
     scroll-behavior: smooth;
+  }
+
+  .piece-card {
+    transition:
+      translate var(--duration-hover) var(--ease-hover),
+      box-shadow var(--duration-hover) var(--ease-hover);
+  }
+
+  @media (hover: hover) {
+    .piece-card:hover {
+      translate: 0 calc(-1 * var(--card-lift));
+    }
+  }
+
+  .piece-card:active {
+    translate: 0 var(--card-press);
+    transition-duration: var(--duration-press);
+  }
+
+  .piece-body a {
+    transition:
+      text-decoration-color var(--duration-hover) var(--ease-hover),
+      text-decoration-thickness var(--duration-hover) var(--ease-hover);
+  }
+
+  [data-kind='write-up'] .piece-body a {
+    transition:
+      background-size var(--duration-state) var(--ease-hover),
+      color var(--duration-hover) var(--ease-hover);
   }
 
   .cast-list a {

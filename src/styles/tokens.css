@@ -1,6 +1,6 @@
-/* The house values, in one place (S22). A theme is a new set of values for this file's four :root blocks (the
-   house values, the ones built from a color, dark and phone), plus any font it brings. Base.astro loads this
-   before the other stylesheets.
+/* The house values, in one place (S22). Two looks share them (G51): Soft Optical for the essays, the home page
+   and the contents, and Plum Hour for the write-ups, which the last block sets over the first. fonts.css brings
+   their fonts. Base.astro loads this before the other stylesheets.
 
    Outside the tokens on purpose (a test holds the raw colors and @media widths to this): the cast's art, a chart's
    or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and the card transition's
@@ -8,22 +8,31 @@
 :root {
   color-scheme: light dark;
 
-  /* Color */
-  --paper: #f6f1e7;
-  --paper-2: #efe8da;
-  --ink: #1f1c18;
-  --ink-soft: #5b544a;
-  --rule: #d9cfbd;
-  --accent: #b83d0b;
+  /* Color: Soft Optical's warm paper and rust. */
+  --paper: #f7eedf;
+  --paper-2: #fff9ee;
+  --ink: #2b1d14;
+  --ink-soft: #6a5645;
+  --rule: #dccdb6;
+  --accent: #9c4916;
+  /* Plum Hour's oat and periwinkle, which a write-up takes (the last block). */
+  --write-up-paper: #f3ecdc;
+  --write-up-paper-2: #fbf7ec;
+  --write-up-ink: #2b2034;
+  --write-up-ink-soft: #5c4e66;
+  --write-up-rule: #ddd2bd;
+  --write-up-accent: #4a44a6;
   /* So the page shows through it. The parade sits outside the article, so this resolves here. */
   --bar-background: color-mix(in srgb, var(--paper-2) 85%, transparent);
 
-  /* Type */
-  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
-  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --text-body: 1.125rem;
-  --text-title: clamp(2.1rem, 6vw, 3.3rem);
-  --text-card-title: clamp(1.8rem, 5vw, 2.8rem);
+  /* Type. Soft Optical is all one soft serif, Fraunces, so its text and its labels share a font. A write-up's are
+     Jost. --font-ui is the nav, kickers, dates and labels. */
+  --font-text: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: var(--font-text);
+  --write-up-font: 'Jost', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif;
+  --text-body: 1.1875rem;
+  --text-title: clamp(2.2rem, 6.5vw, 3.5rem);
+  --text-card-title: clamp(1.9rem, 5.5vw, 3rem);
   --text-dek: 1.25rem;
   --text-section: 1rem;
   --text-button: 0.95rem;
@@ -32,17 +41,18 @@
   --text-kicker: 0.8rem;
   --text-cast-role: 0.78rem;
   --text-label: 0.75rem;
-  --leading-body: 1.65;
+  --leading-body: 1.6;
   --leading-title: 1.08;
   --leading-ui: 1.3;
+  /* A title's, on the card and the page. */
+  --weight-heading: 600;
   --weight-semibold: 600;
   --weight-bold: 700;
   --weight-heavy: 800;
   --tracking-title: -0.01em;
   --tracking-eyebrow: 0.06em;
-  --tracking-section: 0.08em;
-  --tracking-kicker: 0.12em;
-  --tracking-ornament: 0.4em;
+  --tracking-section: 0.06em;
+  --tracking-kicker: 0.06em;
 
   /* Spacing */
   --space-2xs: 0.25rem;
@@ -86,15 +96,23 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
-  --radius-xl: 14px;
-  --radius-card: 20px;
+  --radius-xl: 10px;
+  --radius-card: 14px;
   --radius-pill: 999px;
+  --write-up-radius-card: 28px;
+  /* The hand-drawn line, One Line Worn In's (G51): under a piece's header and as its end mark, in --wobble-color. */
+  --wobble: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 12' preserveAspectRatio='none'%3E%3Cpath d='M2 7C16 3 28 9 42 6S66 3 80 6S104 10 120 6S146 3 160 7S186 9 200 5S226 6 238 6' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  /* The still ring on each section heading (G51). It doesn't light up as the reader passes: the parade shows that. */
+  --marker-size: 0.8em;
+  --marker-width: 2px;
 
   /* Motion. Walk cycles and scroll-driven keyframes keep their own timings, and the card transition has its own
      tokens, below. */
   --duration-label: 150ms;
   --duration-fade: 180ms;
-  --duration-hover: 200ms;
+  --duration-hover: 220ms;
+  /* A card pressing in on a tap. */
+  --duration-press: 120ms;
   --duration-reveal: 250ms;
   --duration-state: 300ms;
   --duration-torso: 420ms;
@@ -105,6 +123,11 @@
   --ease-out: ease-out;
   --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
+  /* A card or link answering a pointer. */
+  --ease-hover: cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* How far a card rises on hover, and sinks on a press (Cocoa Pillow's press, made much smaller). */
+  --card-lift: 2px;
+  --card-press: 1px;
 
   /* The card transition (N1), as Josh approved it on his phone (#48). Its own tokens, even where a value matches
      one above, so the cast's walk and the morph can change apart. Its radius and border are --radius-card and
@@ -113,9 +136,10 @@
      keyframes are fractions of it, and the pages must swap at least 60ms from the box's fade, so a shorter one
      moves keyframes too: site.css lists them, beside the keyframes.
      These reach the morph only when set on :root (html), because the transition's pseudo-elements inherit only
-     from html. A [data-piece] treatment can't change them, and a theme switcher that sets an attribute on html
-     must set it again on each new page (on the new document in astro:before-swap, or in astro:after-swap),
-     because the router replaces html's attributes on each swap.
+     from html. A [data-piece] treatment can't change them, and a script that sets an attribute on html must set
+     it again on each new page (on the new document in astro:before-swap, or in astro:after-swap), because the
+     router replaces html's attributes on each swap. A write-up's card closing onto the home page, whose html is
+     an essay's, takes the write-up's --write-up-* values (site.css).
      --duration-morph is a page change with no card, such as from the contents, and --ease-morph is how every
      moving piece moves, card or not. */
   --duration-morph: 420ms;
@@ -133,35 +157,51 @@
   /* Elevation and shadows */
   --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
   --bar-blur: blur(10px);
-  --shadow-lift: 0 10px 22px rgb(0 0 0 / 12%);
+  --shadow-lift: 0 8px 22px -12px rgb(80 50 20 / 30%);
+  --write-up-shadow-lift: 0 12px 30px -16px rgb(70 40 90 / 28%);
+  --card-press-shadow: inset 0 3px 8px -4px rgb(80 50 20 / 22%);
   /* Ink lines and dark hair need a light edge on a dark page, and nothing on a light one. */
   --figure-edge: none;
   --parade-figure-filter: drop-shadow(0 2px 1.5px rgb(0 0 0 / 20%));
 
   /* Focus. The color and the ring are below, with the other tokens built from a color. */
+  --focus-width: 2px;
   --focus-offset: 3px;
   --focus-offset-slot: 4px;
 }
 
-/* Tokens built from a color token. A custom property takes its var()s where it's declared, so these are declared
-   again on each piece's article: a treatment that sets --accent there (S6) reaches its highlights and focus rings,
-   and one that sets --focus-color reaches every focus ring. */
+/* Tokens built from other tokens. A custom property takes its var()s where it's declared, so these are declared
+   again on each piece's article and each write-up's card: a treatment that sets --accent there (S6), or a
+   write-up's look, reaches its highlights, lines and focus rings, and one that sets --focus-color reaches every
+   focus ring. */
 :root,
-[data-piece] {
+[data-piece],
+[data-kind] {
   /* A first mention, when a cast card or the parade points at it. */
   --highlight: color-mix(in srgb, var(--accent) 30%, transparent);
+  --wobble-color: color-mix(in srgb, var(--accent) 70%, transparent);
   --focus-color: var(--accent);
-  --focus-ring: 2px solid var(--focus-color);
+  --focus-ring: var(--focus-width) solid var(--focus-color);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #17150f;
-    --paper-2: #201d16;
-    --ink: #efe9dc;
-    --ink-soft: #a89f8f;
-    --rule: #3a342a;
-    --accent: #fb923c;
+    /* Soft Optical's cocoa and apricot, and Plum Hour's aubergine and periwinkle. */
+    --paper: #1c1511;
+    --paper-2: #271e18;
+    --ink: #f4e9d8;
+    --ink-soft: #bfaf9a;
+    --rule: #3a2e25;
+    --accent: #f2a874;
+    --write-up-paper: #1a1423;
+    --write-up-paper-2: #271d33;
+    --write-up-ink: #f2eadf;
+    --write-up-ink-soft: #c4b8c8;
+    --write-up-rule: #3c3049;
+    --write-up-accent: #afb6f2;
+    --shadow-lift: 0 8px 24px -10px rgb(0 0 0 / 60%);
+    --write-up-shadow-lift: 0 12px 32px -14px rgb(0 0 0 / 70%);
+    --card-press-shadow: inset 0 3px 8px -4px rgb(0 0 0 / 45%);
     /* Black, since --ink is light here. */
     --bar-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
     --figure-edge: drop-shadow(0 0 0.6px rgb(255 255 255 / 80%));
@@ -171,8 +211,38 @@
 
 @media (max-width: 560px) {
   :root {
-    --text-body: 1.05rem;
+    --text-body: 1.0625rem;
     --bar-height: 80px;
     --cast-width: 34px;
   }
+}
+
+/* A write-up's look, Plum Hour (G51): on html for a write-up's page, and on its card on the home page, so the
+   card's title is in the page's font and never flies as a double image (G44). Last, so it wins on html, phone
+   sizes included: Jost keeps its body text at 18px. */
+[data-kind='write-up'] {
+  --paper: var(--write-up-paper);
+  --paper-2: var(--write-up-paper-2);
+  --ink: var(--write-up-ink);
+  --ink-soft: var(--write-up-ink-soft);
+  --rule: var(--write-up-rule);
+  --accent: var(--write-up-accent);
+  --font-text: var(--write-up-font);
+  --font-ui: var(--write-up-font);
+  --text-body: 1.125rem;
+  --text-title: clamp(2.1rem, 6vw, 3.25rem);
+  --text-card-title: clamp(1.8rem, 5vw, 2.8rem);
+  --leading-body: 1.65;
+  --weight-heading: 500;
+  --tracking-section: 0.08em;
+  --tracking-kicker: 0.08em;
+  --radius-xl: 20px;
+  --radius-card: var(--write-up-radius-card);
+  --duration-hover: 240ms;
+  --duration-press: 100ms;
+  --ease-hover: cubic-bezier(0.22, 1, 0.36, 1);
+  --card-lift: 4px;
+  --shadow-lift: var(--write-up-shadow-lift);
+  --card-press-shadow: none;
+  --focus-width: 3px;
 }

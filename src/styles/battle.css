@@ -28,7 +28,7 @@
   color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: var(--radius-sm);
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-button);
   font-weight: var(--weight-semibold);
   /* A double tap on a button shouldn't zoom the page. */
@@ -38,7 +38,7 @@
 
 .battle-chart figcaption {
   margin-block-start: var(--space-caption);
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
   color: var(--ink-soft);
 }

@@ -13,7 +13,7 @@
 
 .robot-stage figcaption {
   max-width: var(--measure-caption);
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   font-size: var(--text-small);
   color: var(--ink-soft);
 }
@@ -117,7 +117,7 @@
 .robot-plate,
 .robot-stage-name,
 .robot-clack-word {
-  font-family: var(--sans);
+  font-family: var(--font-ui);
   fill: var(--ink);
 }
 

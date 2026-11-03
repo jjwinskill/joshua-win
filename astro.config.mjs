@@ -1,5 +1,4 @@
 // @ts-check
-import { readFileSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import { satteri } from '@astrojs/markdown-satteri';
@@ -22,24 +21,6 @@ const draftsInDev = {
   },
 };
 
-// Phase 4's contending themes (#85) are only in a dev server or build started with THEMES=yes, so a normal build
-// has none of them (tests/build/themes.test.ts). #86 replaces them with the house style.
-/** @type {import('astro').AstroIntegration} */
-const themesWhenAsked = {
-  name: 'themes-when-asked',
-  hooks: {
-    'astro:config:setup': ({ injectScript }) => {
-      if (process.env.THEMES !== 'yes') return;
-      injectScript(
-        'head-inline',
-        readFileSync(new URL('./src/dev/themes/head.js', import.meta.url), 'utf8'),
-      );
-      injectScript('page', "import '/src/dev/themes/switcher.ts';");
-      injectScript('page-ssr', "import '/src/dev/themes/themes.css';");
-    },
-  },
-};
-
 // Static output, served by a hand-written Cloudflare Worker (no adapter).
 // `base` and `outDir` must agree: Wrangler serves dist/, so files in dist/skill/ are at /skill/.
 // `trailingSlash` must match Cloudflare's default `auto-trailing-slash` HTML handling. See issue #1.
@@ -53,6 +34,5 @@ export default defineConfig({
     react(),
     mdx({ processor: satteri({ mdastPlugins: [castMentionsPlugin] }) }),
     draftsInDev,
-    themesWhenAsked,
   ],
 });

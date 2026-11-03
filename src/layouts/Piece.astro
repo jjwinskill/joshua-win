@@ -42,9 +42,7 @@ const cast = await pieceCast(piece);
     </header>
     <div class="piece-body">
       <Content />
-      <p class="end-mark" id="parade-end" aria-hidden="true">
-        · · ·
-      </p>
+      <div class="end-mark" id="parade-end" aria-hidden="true"></div>
     </div>
   </article>
   {cast.length > 0 && citedWork && <CastList cast={cast} citedWork={citedWork} />}
