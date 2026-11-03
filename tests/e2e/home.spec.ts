@@ -132,14 +132,25 @@ test.describe('the card transition', () => {
         const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
         void viewTransition.ready.then(() => {
           const parade = document.querySelector('.parade');
-          const running = document.documentElement
-            .getAnimations({ subtree: true })
-            .map((animation) => (animation as CSSAnimation).animationName);
+          const animations = document.documentElement.getAnimations({
+            subtree: true,
+          }) as CSSAnimation[];
+          const running = animations.map((animation) => animation.animationName);
+          // The box's corners and edge where it meets the card, at its first and last keyframes.
+          const box = animations.find(({ animationName }) =>
+            ['card-grows', 'card-shrinks'].includes(animationName),
+          );
+          const keyframes = (box?.effect as KeyframeEffect | null)?.getKeyframes() ?? [];
+          const edge = (keyframe?: ComputedKeyframe) => ({
+            radius: keyframe?.borderTopLeftRadius,
+            shadow: keyframe?.boxShadow,
+          });
           sessionStorage.setItem(
             'midTransition',
             JSON.stringify({
               parade: parade && getComputedStyle(parade).translate,
               running,
+              box: { first: edge(keyframes.at(0)), last: edge(keyframes.at(-1)) },
             }),
           );
         });
@@ -154,6 +165,7 @@ test.describe('the card transition', () => {
         JSON.parse(sessionStorage.getItem('midTransition') ?? '{}') as {
           parade: string | null;
           running: string[];
+          box: Record<'first' | 'last', { radius?: string; shadow?: string }>;
         },
     );
 
@@ -189,6 +201,34 @@ test.describe('the card transition', () => {
       .toMatchObject({
         running: expect.arrayContaining(['card-shrinks']),
       });
+  });
+
+  test('the box starts and ends on the card as a theme draws it', async ({ page }) => {
+    await page.goto('./');
+    // Not the house values, so a radius or border written into the keyframes would snap at either end.
+    await page.evaluate(() => {
+      const theme = () => {
+        document.documentElement.style.setProperty('--radius-card', '7px');
+        document.documentElement.style.setProperty('--border-width', '3px');
+      };
+      theme();
+      // The router replaces the root's attributes on each swap.
+      document.addEventListener('astro:after-swap', theme);
+    });
+    await expect(page.locator('.piece-card').first()).toHaveCSS('border-top-left-radius', '7px');
+    const asDrawn = { radius: '7px', shadow: expect.stringMatching(/ 0px 0px 0px 3px inset$/) };
+
+    await page.evaluate(recordMidTransition);
+    await openPiece(page);
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ running: expect.arrayContaining(['card-grows']), box: { first: asDrawn } });
+
+    await page.evaluate(recordMidTransition);
+    await page.goBack();
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ running: expect.arrayContaining(['card-shrinks']), box: { last: asDrawn } });
   });
 
   test('morphs back through the link home, and forward again', async ({ page }) => {

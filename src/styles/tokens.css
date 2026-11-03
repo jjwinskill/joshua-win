@@ -3,8 +3,8 @@
    before the other stylesheets.
 
    Outside the tokens on purpose (a test holds the raw colors and @media widths to this): the cast's art, a chart's
-   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and for now the card transition
-   (#83). */
+   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and the card transition's
+   keyframe percentages. */
 :root {
   color-scheme: light dark;
 
@@ -90,7 +90,8 @@
   --radius-card: 20px;
   --radius-pill: 999px;
 
-  /* Motion. Walk cycles, scroll-driven keyframes and the card transition keep their own timings. */
+  /* Motion. Walk cycles and scroll-driven keyframes keep their own timings, and the card transition has its own
+     tokens, below. */
   --duration-label: 150ms;
   --duration-fade: 180ms;
   --duration-hover: 200ms;
@@ -104,6 +105,33 @@
   --ease-out: ease-out;
   --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
+
+  /* The card transition (N1), as Josh approved it on his phone (#48). Its own tokens, even where a value matches
+     one above, so the cast's walk and the morph can change apart. Its radius and border are --radius-card and
+     --border-width, so the morph starts and ends on the card as it's drawn.
+     Kept in step: the card's keyframes in site.css are fractions of --duration-card, and the pages under the box
+     swap 60ms from the box's own fade, which at 500ms is 12% of it. A theme that changes one of these keeps:
+     - Opening: --duration-card-grow is 76% of --duration-card, where card-grows loses its corners. The pages swap
+       at 70% and the box fades from 82%.
+     - Closing: --delay-card-shrink is 30% of --duration-card, where the pages swap, and with
+       --duration-card-shrink it adds up to --duration-card. The box has faded in by 18%.
+     - At another --duration-card, 12% is no longer 60ms, so the keyframes' 70%, 82%, 18% and 30% move to keep
+       60ms. WebKit showed the old page through the box at 30ms apart.
+     - --ease-card-swap stays a step, or the two pages show through each other, and --ease-card-box stays linear,
+       or its keyframe percentages stop being times.
+     --duration-morph is a page change with no card, such as from the contents, and --ease-morph is how every
+     moving piece moves, card or not. */
+  --duration-morph: 420ms;
+  --ease-morph: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-card: 500ms;
+  --duration-card-grow: 380ms;
+  --duration-card-shrink: 350ms;
+  --delay-card-shrink: 150ms;
+  --ease-card-swap: step-end;
+  --ease-card-box: linear;
+  /* The parade sliding back up once the card has landed. */
+  --duration-parade-return: 280ms;
+  --ease-parade-return: cubic-bezier(0.2, 0, 0, 1);
 
   /* Elevation and shadows */
   --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);
