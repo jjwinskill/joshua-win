@@ -272,18 +272,25 @@ span[id^='cast-']:target {
     animation-timing-function: var(--ease-morph);
   }
 
-  /* The card, 500ms in all. Opening, it grows for 380ms over a home page that holds still, then fades to
-     show the essay under it. Closing runs the other way. The box is painted here rather than from
-     snapshots, which would stretch. */
-  /* The pages under the box swap 60ms before it starts to fade (and 60ms after it's done fading in, closing).
-     Swapping at the same moment showed the old page through the box for a frame in WebKit, and at 30ms apart
-     it still did now and then. The timings are tokens, and the keyframe percentages below are fractions of
-     --duration-card: tokens.css says what a theme keeps in step if it changes them. */
+  /* The card runs for --duration-card in all. Opening, it grows for --duration-card-grow over a home page
+     that holds still, then fades to show the essay under it. Closing runs the other way: it fades in, the
+     pages swap at --delay-card-shrink, and it shrinks for --duration-card-shrink. The box is painted here
+     rather than from snapshots, which would stretch. */
+  /* The pages under the box swap at least 60ms before it starts to fade (and 60ms after it's done fading in,
+     closing). Swapping at the same moment showed the old page through the box for a frame in WebKit, and at
+     30ms apart it still did now and then. The swap is a step, so the two pages never show through each other.
+     The keyframes below are fractions of --duration-card, and at 500ms, 12% is 60ms. In step with it:
+     - card-until-covered and card-once-covered swap at 70%, and card-grows fades from 82%: 12% apart.
+     - card-grows loses its corners at 76%, which is --duration-card-grow.
+     - card-shrinks has faded in by 18%, and card-until-sheet and card-once-sheet swap at 30%: 12% apart. 30%
+       is --delay-card-shrink.
+     - card-shrinks starts to round its corners at 24%.
+     A --duration-card under 500ms moves the swaps and fades further apart, to keep 60ms. */
   [data-card]::view-transition-old(root),
   [data-card]::view-transition-new(root) {
     mix-blend-mode: normal;
     animation-duration: var(--duration-card);
-    animation-timing-function: var(--ease-card-swap);
+    animation-timing-function: step-end;
     animation-fill-mode: both;
   }
 
@@ -321,7 +328,7 @@ span[id^='cast-']:target {
     /* These would otherwise inherit from the group, whose movement is shorter and may wait. */
     animation-duration: var(--duration-card);
     animation-delay: 0s;
-    animation-timing-function: var(--ease-card-box);
+    animation-timing-function: linear;
     animation-fill-mode: both;
   }
 
