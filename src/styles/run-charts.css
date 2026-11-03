@@ -40,8 +40,8 @@
 }
 
 .run-chart figcaption {
-  margin-block-start: var(--space-caption);
+  margin-block-start: var(--space-xs);
   font-family: var(--font-ui);
-  font-size: var(--text-small);
+  font-size: var(--text-sm);
   color: var(--ink-soft);
 }

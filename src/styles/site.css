@@ -27,12 +27,12 @@ h1 {
 }
 
 p {
-  margin: 0 0 var(--space-paragraph);
+  margin: 0 0 var(--space-lg);
 }
 
 .kicker {
   font-family: var(--font-ui);
-  font-size: var(--text-kicker);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
   color: var(--accent);
@@ -45,7 +45,7 @@ p {
     var(--measure-dek),
     calc(100vw - 2 * var(--space-gutter) - 2 * var(--border-width) - 2 * var(--space-card))
   );
-  font-size: var(--text-dek);
+  font-size: var(--text-lg);
   color: var(--ink-soft);
   margin: 0;
   font-style: italic;
@@ -57,7 +57,7 @@ p {
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-gutter);
   font-family: var(--font-ui);
-  font-size: var(--text-small);
+  font-size: var(--text-sm);
 }
 
 a {
@@ -158,7 +158,7 @@ body:has(.piece-sheet) {
 }
 
 .piece-head {
-  padding: var(--space-5xl) max(var(--space-gutter), calc((100% - var(--measure-text)) / 2))
+  padding: var(--space-4xl) max(var(--space-gutter), calc((100% - var(--measure-text)) / 2))
     var(--space-xl);
 }
 
@@ -183,7 +183,7 @@ body:has(.piece-sheet) {
 .piece-body h2,
 .cast-section h2 {
   font-family: var(--font-ui);
-  font-size: var(--text-section);
+  font-size: var(--text-md);
   letter-spacing: var(--tracking-section);
   text-transform: uppercase;
   margin: var(--space-3xl) 0 var(--space-sm);
@@ -192,7 +192,7 @@ body:has(.piece-sheet) {
 
 .piece-date {
   font-family: var(--font-ui);
-  font-size: var(--text-small);
+  font-size: var(--text-sm);
   color: var(--ink-soft);
   margin: var(--space-md) 0 0;
 }
@@ -270,7 +270,7 @@ span[id^='cast-']:target {
 /* The cast list */
 .cast-sub {
   font-family: var(--font-ui);
-  font-size: var(--text-small);
+  font-size: var(--text-sm);
   color: var(--ink-soft);
   margin: calc(-1 * var(--space-2xs)) 0 var(--space-md);
 }
@@ -288,16 +288,16 @@ span[id^='cast-']:target {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: var(--space-cast-gap);
+  gap: var(--space-2xs);
   height: 100%;
-  padding: var(--space-cast-card);
+  padding: var(--space-md) var(--space-xs);
   border: var(--border-width) solid var(--rule);
   border-radius: var(--radius-xl);
   background: var(--paper);
   color: var(--ink);
   text-decoration: none;
   font-family: var(--font-ui);
-  font-size: var(--text-cast-name);
+  font-size: var(--text-sm);
   line-height: var(--leading-ui);
 }
 
@@ -310,7 +310,7 @@ span[id^='cast-']:target {
 
 .cast-list .role {
   color: var(--ink-soft);
-  font-size: var(--text-cast-role);
+  font-size: var(--text-xs);
 }
 
 /* The shared legs follow the page's ink, or they vanish on a dark background. */
@@ -537,8 +537,8 @@ span[id^='cast-']:target {
 
   .piece-card {
     transition:
-      translate var(--duration-hover) var(--ease-hover),
-      box-shadow var(--duration-hover) var(--ease-hover);
+      translate var(--duration-hover) var(--ease-soft),
+      box-shadow var(--duration-hover) var(--ease-soft);
   }
 
   @media (hover: hover) {
@@ -554,14 +554,14 @@ span[id^='cast-']:target {
 
   .piece-body a {
     transition:
-      text-decoration-color var(--duration-hover) var(--ease-hover),
-      text-decoration-thickness var(--duration-hover) var(--ease-hover);
+      text-decoration-color var(--duration-hover) var(--ease-soft),
+      text-decoration-thickness var(--duration-hover) var(--ease-soft);
   }
 
   [data-kind='write-up'] .piece-body a {
     transition:
-      background-size var(--duration-state) var(--ease-hover),
-      color var(--duration-hover) var(--ease-hover);
+      background-size var(--duration-state) var(--ease-soft),
+      color var(--duration-hover) var(--ease-soft);
   }
 
   .cast-list a {

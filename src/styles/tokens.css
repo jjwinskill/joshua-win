@@ -33,14 +33,12 @@
   --text-body: 1.1875rem;
   --text-title: clamp(2.2rem, 6.5vw, 3.5rem);
   --text-card-title: clamp(1.9rem, 5.5vw, 3rem);
-  --text-dek: 1.25rem;
-  --text-section: 1rem;
-  --text-button: 0.95rem;
-  --text-cast-name: 0.92rem;
-  --text-small: 0.9rem;
-  --text-kicker: 0.8rem;
-  --text-cast-role: 0.78rem;
-  --text-label: 0.75rem;
+  /* The scale for everything that isn't body text or a title: labels and kickers, captions and UI, section
+     headings, and the dek. */
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
   --leading-body: 1.6;
   --leading-title: 1.08;
   --leading-ui: 1.3;
@@ -54,31 +52,25 @@
   --tracking-section: 0.06em;
   --tracking-kicker: 0.06em;
 
-  /* Spacing */
+  /* Spacing: one scale, plus the page's gutter and the card's padding, which grows with the screen. */
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
-  --space-caption: 0.6rem;
   --space-sm: 0.75rem;
   --space-md: 1rem;
-  --space-paragraph: 1.25rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 2.5rem;
   --space-3xl: 3rem;
   --space-4xl: 4rem;
-  --space-5xl: 4.5rem;
   --space-gutter: 16px;
   --space-card: clamp(1.5rem, 5vw, 3rem);
-  --space-scrub-gap: 0.4rem;
-  --space-cast-gap: 0.35rem;
-  --space-cast-card: 1rem 0.5rem 0.9rem;
-  --space-label: 0.25rem 0.55rem;
   --bar-height: 96px;
   --cast-width: 44px;
 
   /* Measure */
   --measure-page: 56rem;
-  --measure-text: 40rem;
+  /* In the reading font's own characters: about 62 a line, and 64 in a write-up's Jost. */
+  --measure-text: 62ch;
   /* The dek's, which the card and the page share. See .dek. */
   --measure-dek: 34rem;
   --measure-caption: 34rem;
@@ -119,12 +111,11 @@
   --duration-hop: 460ms;
   --duration-highlight: 600ms;
   --duration-look: 900ms;
-  --ease-soft: ease;
+  /* Soft Optical's: quick to start, gentle to settle. */
+  --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
   --ease-out: ease-out;
   --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
-  /* A card or link answering a pointer. */
-  --ease-hover: cubic-bezier(0.25, 0.8, 0.25, 1);
   /* How far a card rises on hover, and sinks on a press (Cocoa Pillow's press, made much smaller). */
   --card-lift: 2px;
   --card-press: 1px;
@@ -233,6 +224,7 @@
   --text-title: clamp(2.1rem, 6vw, 3.25rem);
   --text-card-title: clamp(1.8rem, 5vw, 2.8rem);
   --leading-body: 1.65;
+  --measure-text: 64ch;
   --weight-heading: 500;
   --tracking-section: 0.08em;
   --tracking-kicker: 0.08em;
@@ -240,7 +232,7 @@
   --radius-card: var(--write-up-radius-card);
   --duration-hover: 240ms;
   --duration-press: 100ms;
-  --ease-hover: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --card-lift: 4px;
   --shadow-lift: var(--write-up-shadow-lift);
   --card-press-shadow: none;
