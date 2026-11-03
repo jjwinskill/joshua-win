@@ -99,6 +99,7 @@ Check a transition or animation in this order, so it costs as few images as poss
 | `pnpm build` | Static build into `dist/skill/` |
 | `pnpm check:selected` | What must pass before a PR auto-merges (G48): typecheck, lint, format, all unit tests, a build, then the Playwright specs for what this branch changed (`scripts/select-e2e.ts`). A path the map doesn't know runs every spec. Needs Playwright's browser (see `pnpm test:e2e`). |
 | `pnpm phone <name>` | Builds and uploads a preview, and prints its URL (see Previews) |
+| `THEMES=yes pnpm phone <name>` | The same, with phase 4's contending themes and their switcher (#85). `THEMES=yes` works on `pnpm dev` and `pnpm build` too. Run `pnpm test:e2e themes` on such a build: on any other, those tests skip. Removed by #86. |
 | `pnpm charts` | Renders the Mermaid floor from the run file into `src/components/charts/mermaid/`, using Playwright's Chromium (G40). Run it after changing `src/content/run.json` or how charts are generated, and commit the SVGs. Unit tests fail until you do if the Mermaid text changed, but not if only render settings or Mermaid's version did. Checked against Mermaid 12.2.0 on 2026-11-01. |
 | `pnpm preview` | Serves `dist/skill/` with Astro's server (no Worker; for a quick look only) |
 | `pnpm exec wrangler dev` | Serves `dist/` through the real Worker in local workerd at http://localhost:8787/skill/. Build first. |

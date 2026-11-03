@@ -3,6 +3,7 @@
 import { morphNames } from './morph';
 import { CastFigure } from './cast/CastFigure';
 import type { CastKey } from './cast/registry';
+import type { PieceKind } from '../lib/pieces';
 
 interface PieceCardProps {
   href: string;
@@ -10,13 +11,20 @@ interface PieceCardProps {
   kicker: string;
   title: string;
   dek: string;
+  kind: PieceKind;
   cast: readonly CastKey[];
 }
 
-export function PieceCard({ href, slug, kicker, title, dek, cast }: PieceCardProps) {
+export function PieceCard({ href, slug, kicker, title, dek, kind, cast }: PieceCardProps) {
   const names = morphNames(slug);
   return (
-    <a className="piece-card" href={href} data-morph style={{ viewTransitionName: names.box }}>
+    <a
+      className="piece-card"
+      href={href}
+      data-kind={kind}
+      data-morph
+      style={{ viewTransitionName: names.box }}
+    >
       <p className="kicker" data-morph style={{ viewTransitionName: names.kicker }}>
         {kicker}
       </p>

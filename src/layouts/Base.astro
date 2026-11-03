@@ -3,19 +3,22 @@ import { ClientRouter } from 'astro:transitions';
 import '../styles/tokens.css';
 import '../styles/site.css';
 import { sitePath } from '../lib/paths';
+import type { PieceKind } from '../lib/pieces';
 
 interface Props {
   title: string;
+  // A piece's kind, so a theme can dress essays and write-ups apart.
+  kind?: PieceKind;
 }
 
-const { title } = Astro.props;
+const { title, kind } = Astro.props;
 
 // Set only for production builds (G18), so previews and local builds aren't counted.
 const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-kind={kind}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

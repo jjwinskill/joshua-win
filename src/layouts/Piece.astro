@@ -21,7 +21,7 @@ const names = morphNames(piece.id);
 const cast = await pieceCast(piece);
 ---
 
-<Base title={title}>
+<Base title={title} kind={kind}>
   <div class="piece-sheet" style={{ viewTransitionName: names.box }}></div>
   <article data-piece={piece.id}>
     <header class="piece-head">
