@@ -7,7 +7,8 @@ Judgement calls for the code on this site. The **reviewer** enforces them, and a
 - Report what would make the site wrong: a bug, a broken promise in the ticket, a missing test. Skip style and cleanup, since a reviewer who must find something will, and fixing it adds abstraction.
 - Each finding gives a file and line, what goes wrong, and when.
 - Read the test diff first. Flag a removed test, a weakened assertion, a lowered threshold, or a skipped check.
-- Stop at three rounds on one PR. Anything still open goes on the PR as accepted or as a follow-up.
+- Answer a defect with a fix, a follow-up issue, or a quote from the code, output or spec that disproves it. Doubt, or agents disagreeing, is no answer. A labeled judgement call can be declined in one line.
+- Stop at three rounds on one PR. Anything still open goes on the PR as a follow-up, unless Josh accepts it.
 - Findings and their answers go on the PR (G21).
 
 ## Tests
@@ -23,7 +24,7 @@ Judgement calls for the code on this site. The **reviewer** enforces them, and a
 Go through every line below for any part that moves, against the code, and say on the PR or in a test how each one holds. Every one was a real bug in phase 3.
 
 - **Screen sizes:** it starts and finishes on a phone, and on a screen too short to show all of it.
-- **Input:** a mostly vertical swipe still scrolls the page. A cancelled pointer, a second finger and a mouse that loses its button all leave it working. A slipped tap still counts as a tap.
+- **Input:** a mostly vertical swipe still scrolls the page. A canceled pointer, a second finger and a mouse that loses its button all leave it working. A slipped tap still counts as a tap.
 - **Focus:** Tab can reach each control in every state, including folded or zero-sized ones, and the focus can be seen there.
 - **Reduced motion:** it holds still, and switching it on mid-play stops the motion and leaves the content reachable.
 - **Bounds:** nothing clips at its most extreme pose, and the longest label stays on screen at phone width.
