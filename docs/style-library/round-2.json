@@ -1,0 +1,378 @@
+[
+  {
+    "n": 1,
+    "name": "One Line Worn In, Teal",
+    "describe": "The dusk-aubergine page you liked, with the honey marker line swapped for a calm mint-teal one. Set in Jost, with 28px cards, pill buttons and a hand-drawn teal line for rules, link underlines and focus. Links you have followed stay drawn, so the site slowly shows where you have been. It feels like a quiet night study with one pen.",
+    "for": "Return readers who like a site that remembers them, and writers who want each piece to have its own hand.",
+    "pitch": "You liked the purple and the worn-in line but not the yellow. This keeps both and trades honey for teal, which sits calmly on aubergine and is easier on the eyes at night. Jost brings the Futura feel you asked for, and the round shapes bring the snuggle. The line is the only decoration, so the page stays quiet and the drawings stay the stars. Pick it if the idea of a site that remembers its readers is the part you liked best.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended, weights 100 to 900; 400 for body, 500 for headings; keep body at 18px or above; subset to Latin.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1A1423",
+      "surface": "#251C30",
+      "text": "#F2EADF",
+      "text_soft": "#C0B3C2",
+      "rule": "#3A2E47",
+      "accent": "#6FD3C0",
+      "accent_text": "#1A1423"
+    },
+    "light": {
+      "bg": "#F3ECDC",
+      "surface": "#FBF7EC",
+      "text": "#2B2034",
+      "text_soft": "#5C4E66",
+      "rule": "#DDD2BD",
+      "accent": "#0E6B5F",
+      "accent_text": "#FBF7EC"
+    },
+    "shape": { "radius_card_px": 28, "radius_small_px": 999, "border_px": 1 },
+    "elevation": {
+      "dark": "0 6px 20px -10px rgba(0, 0, 0, 0.6)",
+      "light": "0 6px 18px -10px rgba(60, 40, 70, 0.22)"
+    },
+    "motion": {
+      "duration_ms": 300,
+      "easing": "cubic-bezier(0.3, 0.7, 0.2, 1)",
+      "hover": "Cards lift 3px and their shadow deepens. Links and rules draw a teal marker line left to right in 300ms. Press settles 1px in 100ms. Arrival fades up 8px."
+    },
+    "focus": { "width": "3px", "style": "solid", "dark_color": "#6FD3C0", "light_color": "#0E6B5F", "offset": "3px" },
+    "signature": "One teal marker line, 3px and slightly wobbly, draws under links, along rules and around focused controls, and stays drawn on links you have followed.",
+    "features": [
+      {
+        "name": "Worn links",
+        "what": "Links you have not followed rest bare, hover draws a teal line under them, and followed links keep the line drawn, remembered only in this browser.",
+        "trigger": "hover",
+        "look": "Rest: link text in the accent color with no underline. Hover or keyboard focus: a 3px wobbly teal line (a hand-drawn SVG path, about 1.5px of vertical wobble) draws under the text from left to right. Followed: the same line stays fully drawn at rest, and the link text stays accent color. The line color is #6FD3C0 in dark and #0E6B5F in light, sitting 3px below the baseline. Show three links in the demo: one unfollowed, one followed (preset), and a button that clears the memory. Clicking a demo link marks it followed in localStorage without navigating.",
+        "timing": "300ms, cubic-bezier(0.3, 0.7, 0.2, 1), animating stroke-dashoffset or a left-to-right clip-path inset",
+        "reduced": "The line appears fully drawn instantly on hover and focus, with no draw animation; followed links are unchanged."
+      },
+      {
+        "name": "Marker-line rule with a per-piece wobble",
+        "what": "Section rules are a 3px hand-drawn teal line whose wobble is set by a per-piece seed, so each piece draws the same line in its own hand.",
+        "trigger": "scroll into view",
+        "look": "A full-width horizontal rule, 3px thick, round caps, teal (#6FD3C0 dark, #0E6B5F light), drawn as a polyline with small vertical offsets of up to 2px. Show three rules in the demo from seeds 1, 2 and 3 so the different wobble is visible, each labelled with its seed. A seed button re-draws a rule with a new random seed.",
+        "timing": "300ms draw left to right on entering the viewport, cubic-bezier(0.3, 0.7, 0.2, 1), once",
+        "reduced": "The rule is shown fully drawn at once; the wobble stays."
+      },
+      {
+        "name": "Line-draw focus",
+        "what": "When a control gets keyboard focus, a teal line draws around it and then stays as a solid ring.",
+        "trigger": "focus",
+        "look": "Around a pill button, a 3px teal outline traced as an SVG rounded-rect stroke, 3px outside the control. During the draw the stroke starts at the top-left and runs clockwise until closed; after the draw it is a solid 3px ring. Colors are #6FD3C0 on dark and #0E6B5F on light.",
+        "timing": "300ms, cubic-bezier(0.3, 0.7, 0.2, 1), stroke-dashoffset from full length to 0, then solid",
+        "reduced": "The solid 3px ring appears immediately with no tracing."
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "name": "Plum Hour",
+    "describe": "Your liked purple page in the shapes you picked from Streamline. A dusk-aubergine page with oat text, a cool periwinkle accent and no yellow, in Jost, with 28px cards and pill buttons. Links rest as thin underlines and grow a soft tinted pill behind them on hover. It feels like early evening: warm paper text on a plum room with one cool light.",
+    "for": "Readers who want the purple and the round, modern shapes, with an accent that is calm instead of loud.",
+    "pitch": "This is the shortest path from what you liked to something you can ship. The purple page is the one you said you liked, the shapes are the ones you asked for, and the periwinkle gives a cool lift against warm oat text, so no orange and no yellow. The worn-in pill is a small, useful idea: a link you have followed keeps a faint tint, so the site quietly remembers you. Pick it if you want the least risky route to a page that looks like you meant it.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 for body, 500 for headings; keep body at 18px or above; subset to Latin.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1A1423",
+      "surface": "#271D33",
+      "text": "#F2EADF",
+      "text_soft": "#C4B8C8",
+      "rule": "#3C3049",
+      "accent": "#AFB6F2",
+      "accent_text": "#1A1423"
+    },
+    "light": {
+      "bg": "#F3ECDC",
+      "surface": "#FBF7EC",
+      "text": "#2B2034",
+      "text_soft": "#5C4E66",
+      "rule": "#DDD2BD",
+      "accent": "#4A44A6",
+      "accent_text": "#FBF7EC"
+    },
+    "shape": { "radius_card_px": 28, "radius_small_px": 999, "border_px": 1 },
+    "elevation": {
+      "dark": "0 12px 32px -14px rgba(0, 0, 0, 0.7)",
+      "light": "0 12px 30px -16px rgba(70, 40, 90, 0.28)"
+    },
+    "motion": {
+      "duration_ms": 240,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "hover": "A card lifts 4px and its shadow stretches. Press takes 100ms. Arrival fades up 8px. Links grow a tinted pill behind the text left to right."
+    },
+    "focus": { "width": "3px", "style": "solid", "dark_color": "#AFB6F2", "light_color": "#4A44A6", "offset": "3px" },
+    "signature": "Links rest as thin underlines and grow a tinted pill behind them on hover, and a followed link keeps that pill at a lighter tint.",
+    "features": [
+      {
+        "name": "Worn-in pill",
+        "what": "Hovering a link grows a rounded tinted pill behind the text, and links you have followed keep the pill faintly, remembered locally.",
+        "trigger": "hover",
+        "look": "Rest: link text in the accent color with a 1px underline, 3px below the baseline. Hover or focus: a pill-shaped background (border-radius 999px, extending 0.3em left and right and 0.1em above and below the text) grows from the left edge to full width. Pill tint is the accent at 30% opacity (rgba(175,182,242,0.30) dark, rgba(74,68,166,0.30) light) and the link text switches to the main text color so it keeps contrast. Followed: the same pill rests at 30% tint at all times. Demo with three links, one preset as followed, plus a clear-memory button. Clicking a demo link marks it followed in localStorage without navigating.",
+        "timing": "300ms, cubic-bezier(0.22, 1, 0.36, 1), animating transform scaleX from 0 to 1 with origin at the left",
+        "reduced": "The pill appears instantly on hover and focus with no growth; followed links are unchanged."
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "name": "Sorting Office, Counter Green",
+    "describe": "Your liked sorting room with the football-team orange taken out. A brown-black page like a lamp-lit mail room, cream text, and a soft old-post-office counter green for everything active. Cards are rounded at 22px and controls at 14px, so it reads friendly without becoming pills. A thin muted blue stripe runs along the page edge, and headings are stops on the progress route.",
+    "for": "Readers who like systems and diagrams and want a cozy page that still has a clever structure.",
+    "pitch": "You said you liked this style except for the orange. Here is the same page with a green that sits in the old post-office world: it is calm, gets 9:1 on the dark page, and carries no team colors in either mode. The corners are rounder, and the focus ring is a single solid green ring with no white-plus-orange. The stops are the clever part: your headings become stations on the route, and they light up as you pass, which is a real reading aid and not just a flourish.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 body at 19px with 1.7 leading, about 62 characters wide; headings at 500.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.7,
+      "scale_ratio": 1.25,
+      "h1_px": 50,
+      "measure_ch": 62,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#1C1612",
+      "surface": "#271F19",
+      "text": "#F2E8D5",
+      "text_soft": "#BDAE98",
+      "rule": "#3D3228",
+      "accent": "#86C79B",
+      "accent_text": "#1C1612"
+    },
+    "light": {
+      "bg": "#F3E6C8",
+      "surface": "#FBF3DE",
+      "text": "#2A1D14",
+      "text_soft": "#5E4B3A",
+      "rule": "#D9C8A0",
+      "accent": "#1F6B3F",
+      "accent_text": "#FBF3DE"
+    },
+    "shape": { "radius_card_px": 22, "radius_small_px": 14, "border_px": 1 },
+    "elevation": {
+      "dark": "0 8px 22px -10px rgba(0, 0, 0, 0.65)",
+      "light": "0 8px 20px -12px rgba(70, 40, 15, 0.3)"
+    },
+    "motion": {
+      "duration_ms": 220,
+      "easing": "cubic-bezier(0, 0, 0.2, 1)",
+      "hover": "A card's rule brightens toward green in 220ms ease-out. Press sinks the card 1px. Arrival fades in over 200ms."
+    },
+    "focus": { "width": "3px", "style": "solid", "dark_color": "#86C79B", "light_color": "#1F6B3F", "offset": "4px" },
+    "signature": "Headings are stops on a route with square turns and a wobbly hand-drawn stroke, and each stop lights green as you pass it.",
+    "features": [
+      {
+        "name": "Stops",
+        "what": "Headings are stops on a route line, and each stop lights green when the reader scrolls past it.",
+        "trigger": "scroll into view",
+        "look": "A vertical route in the left margin: a 3px wobbly stroke (about 1.5px of hand-drawn jitter) with square 90-degree turns where it steps to the next stop. Unpassed route stroke is #6B5A48 on dark and #A58E66 on light. Each heading has a stop: a 14px circle with a 3px outline in the soft text color and a transparent center, sitting on the route next to the heading. When a heading crosses the middle of the viewport, its stop fills with the accent (#86C79B dark, #1F6B3F light), gains a soft 4px halo at 25% opacity, and the route segment above it is stroked in the accent. The demo should be a scrollable panel with 4 headings. A thin muted blue stripe (#7FA3C7 dark, #3F6A94 light), 4px wide, runs along the left edge of the panel.",
+        "timing": "200ms ease-out (cubic-bezier(0, 0, 0.2, 1)) for the fill and halo; the route segment colors over 200ms",
+        "reduced": "The stop's color swaps to green at once, with no halo growth or segment fade."
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "name": "Cocoa Pillow",
+    "describe": "A cocoa-brown page with cream text and a grayed dusty-rose accent, in Jost. Cards are 28px rounded soft pads and buttons and tags are pills. Pressing a card sinks it like a cushion. It is the snuggliest option in the set, and the rose is muted enough that it never reads as pink.",
+    "for": "Readers who want the cocoa page you liked, now with Futura-style type and round shapes, and who value warmth over drama.",
+    "pitch": "You pinned the cocoa page and asked to see it with Jost and the pill shapes. This is that, with a grayed rose for links in place of apricot, so the warm brown stays and the orange goes. Cocoa is the snuggly half and the curves and Jost are the futuristic half, so the two are in the right proportion. The pillow press is a small touch that makes every card feel like something you can push, and it ends in 120ms, so nothing slows the reader.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 for body, 500 for headings; keep body at 18px or above; subset to Latin.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1C1511",
+      "surface": "#271E18",
+      "text": "#F4E9D8",
+      "text_soft": "#BFAF9A",
+      "rule": "#3A2E25",
+      "accent": "#D8A29B",
+      "accent_text": "#1C1511"
+    },
+    "light": {
+      "bg": "#F7EEDF",
+      "surface": "#FFF9EE",
+      "text": "#2B1D14",
+      "text_soft": "#6A5645",
+      "rule": "#DCCDB6",
+      "accent": "#8A3F3A",
+      "accent_text": "#FFF9EE"
+    },
+    "shape": { "radius_card_px": 28, "radius_small_px": 999, "border_px": 1 },
+    "elevation": {
+      "dark": "0 10px 24px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 238, 220, 0.06), inset 0 -6px 12px -8px rgba(0, 0, 0, 0.3)",
+      "light": "0 10px 24px -14px rgba(90, 55, 35, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -6px 12px -8px rgba(120, 80, 50, 0.12)"
+    },
+    "motion": {
+      "duration_ms": 240,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "hover": "A card lifts 4px and its shadow stretches. Press sinks it 2px in 120ms with a deeper inner shadow, and release takes 240ms. Arrival fades up 8px."
+    },
+    "focus": { "width": "3px", "style": "solid", "dark_color": "#D8A29B", "light_color": "#8A3F3A", "offset": "3px" },
+    "signature": "Cards are soft pads: pressing one sinks it 2px with a deeper inner shadow, and it settles back slowly.",
+    "features": [
+      {
+        "name": "Pillow press",
+        "what": "A card rests as a soft raised pad, and pressing it sinks it 2px with a deeper inner shadow, then releases slowly.",
+        "trigger": "press",
+        "look": "Rest: a 28px-radius card in the surface color with a soft outer shadow (0 10px 24px -12px at 65% black), a 1px inner highlight along the top edge and a faint inner shade along the bottom edge, as in the elevation token. Pressed: translateY(2px), the outer shadow shrinks to 0 3px 8px -6px, and an inner shadow appears (inset 0 6px 14px -4px rgba(0,0,0,0.5) on dark, inset 0 6px 14px -4px rgba(90,55,35,0.28) on light); the surface color darkens by about 4%. Show two or three cards, and make a card respond to mouse, touch and the Space or Enter key.",
+        "timing": "Press: 120ms, cubic-bezier(0.22, 1, 0.36, 1). Release: 240ms, same curve. Hover lift of 4px at 240ms.",
+        "reduced": "No movement and no shadow change; the card changes surface color only (about 4% darker while pressed) and returns."
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "name": "Moss Room",
+    "describe": "A deep forest-black page with bone-white text and a pale lichen-mint accent, in Jost with 28px cards and pill buttons. The current page's nav pill carries a small mint standby dot that slowly breathes. Light mode is celadon paper with a fern-green accent. It feels like a quiet greenhouse at night.",
+    "for": "Readers who liked the mint of the first menu, want a calm, green-leaning page, and like small, quiet signs of life.",
+    "pitch": "You said you like the colors in the first item and want to leave the orange behind. This takes that mint and puts it on a deeper forest page, so green is the whole mood and nothing else competes. The standby dot is the only moving thing on the page, a 6px-to-9px breath every 3 seconds on the current nav pill. It tells you where you are, it looks like a device waiting patiently, and it stops the moment you hover so it never nags.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 for body, 600 for headings to hold up on the dark green page; keep body at 18px or above; subset to Latin.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 600,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#121A15",
+      "surface": "#1A241E",
+      "text": "#EFEBDD",
+      "text_soft": "#B3BDB0",
+      "rule": "#2B3A31",
+      "accent": "#A8D8C4",
+      "accent_text": "#121A15"
+    },
+    "light": {
+      "bg": "#F0EEDF",
+      "surface": "#FAF8EC",
+      "text": "#1C2A22",
+      "text_soft": "#4B5A50",
+      "rule": "#D5D4BF",
+      "accent": "#2D6A4F",
+      "accent_text": "#FAF8EC"
+    },
+    "shape": { "radius_card_px": 28, "radius_small_px": 999, "border_px": 1 },
+    "elevation": {
+      "dark": "0 12px 30px -14px rgba(0, 0, 0, 0.7)",
+      "light": "0 12px 28px -16px rgba(30, 60, 45, 0.25)"
+    },
+    "motion": {
+      "duration_ms": 240,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "hover": "A card lifts 4px and its shadow stretches. Press settles 2px in 120ms. Arrival fades up 8px."
+    },
+    "focus": { "width": "3px", "style": "solid", "dark_color": "#A8D8C4", "light_color": "#2D6A4F", "offset": "3px" },
+    "signature": "The current page's nav pill carries a mint standby dot that slowly swells and settles, like a device waiting.",
+    "features": [
+      {
+        "name": "Standby dot",
+        "what": "The nav pill of the current page carries a small mint dot that swells from 6px to 9px every 3 seconds, and hovering the pill stops it.",
+        "trigger": "load",
+        "look": "A row of four nav pills (for example Home, Essays, Write-ups, About). The current pill has a 1px accent outline and a round dot to the left of its label. The dot is #A8D8C4 on dark and #2D6A4F on light. At rest it is 6px across; at the peak it is 9px with a faint 3px halo at 30% opacity in the same color. The dot is centered in a fixed 10px box, so the label never moves. On hover or focus of the pill, the dot settles to 6px, with no halo, and stays still until the pointer leaves.",
+        "timing": "3s loop, infinite, ease-in-out: 0% 6px, 50% 9px, 100% 6px. Hover stop settles in 240ms, cubic-bezier(0.22, 1, 0.36, 1)",
+        "reduced": "The dot is a static 6px dot with no loop and no halo."
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "name": "Soft Sorting Office",
+    "describe": "A softer sorting office: an ink-slate page with paper-colored text and a quiet sky-blue accent, in Jost, with 14px cards and 12px buttons that are rounded but not pills. Each piece has its own grayed tint in brick-rose, moss or slate-violet, shown as a small tab tucked into the card like a pigeonhole label. The page stays calm and the tints only show as small marks. It feels like a well-kept filing room.",
+    "for": "Readers who want the sorting-office idea in a gentler, less orange form, and who like a site where each piece has a color of its own.",
+    "pitch": "You liked the sorting office and wanted it rounder and less shouty. Here the blue-slate page replaces the brown and the accent is sky, so there is no orange and nothing like a team. The pigeonhole tab borrows how the WPA park posters worked: one shared frame, one color per place, so a whole site reads as one family. Pieces get their color in a small tab that slides out on hover. It makes the cards easy to tell apart without a single loud color.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 body at 19px with 1.7 leading, about 62 characters wide; headings at 500.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.7,
+      "scale_ratio": 1.25,
+      "h1_px": 48,
+      "measure_ch": 62,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#16202A",
+      "surface": "#1E2A36",
+      "text": "#EEE9DE",
+      "text_soft": "#A9B4BC",
+      "rule": "#2E3C4A",
+      "accent": "#8FB8D6",
+      "accent_text": "#16202A"
+    },
+    "light": {
+      "bg": "#F1EDE2",
+      "surface": "#FAF7EE",
+      "text": "#1E2933",
+      "text_soft": "#4D5B66",
+      "rule": "#D9D3C2",
+      "accent": "#2F6489",
+      "accent_text": "#FAF7EE"
+    },
+    "shape": { "radius_card_px": 14, "radius_small_px": 12, "border_px": 1 },
+    "elevation": {
+      "dark": "0 6px 18px -10px rgba(0, 0, 0, 0.6)",
+      "light": "0 6px 16px -10px rgba(30, 45, 60, 0.22)"
+    },
+    "motion": {
+      "duration_ms": 220,
+      "easing": "cubic-bezier(0, 0, 0.2, 1)",
+      "hover": "The pigeonhole tab slides out 10px in 220ms ease-out. Press takes 90ms. Arrival wipes the piece's tint down the card in 300ms."
+    },
+    "focus": { "width": "2px", "style": "solid", "dark_color": "#8FB8D6", "light_color": "#2F6489", "offset": "3px" },
+    "signature": "Each card carries its piece's tint as a pigeonhole tab tucked into a slot, and the tab slides out on hover or focus.",
+    "features": [
+      {
+        "name": "Pigeonhole tab",
+        "what": "Each card shows its piece's tint as a small tab tucked into a slot on the card's top edge, and hover or focus slides it out 10px.",
+        "trigger": "hover",
+        "look": "Each 14px-radius card has a slot: a 72px-wide, 3px-tall groove in the rule color along the top edge, near the right corner. A 64px-wide, 28px-tall tab with 6px top corners and no label sits in the slot, in the piece tint. Dark tints: brick-rose #B98782, moss #8FA67F, slate-violet #9D95B8. Light tints: brick-rose #A5605A, moss #6B8458, slate-violet #75699A. At rest only 6px of the tab shows above the card edge; on hover or keyboard focus of the card it slides up 10px, to 16px showing. Demo with three cards, one per tint. The tab never overlaps card text.",
+        "timing": "220ms, cubic-bezier(0, 0, 0.2, 1) (ease-out), animating translateY by 10px",
+        "reduced": "The tab is shown slid out (16px showing) at all times, with no movement."
+      }
+    ]
+  }
+]
