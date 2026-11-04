@@ -1,0 +1,502 @@
+[
+  {
+    "n": 1,
+    "name": "Atomic Hearth",
+    "describe": "A warm brown-black page with cream text and a single mint glow, softened by rounded corners and thin rules. It feels like a friendly house with a space-age kitchen: mid-century warmth, a small futuristic edge, nothing cold.",
+    "for": "Readers who want the site to feel playful and welcoming first, and clever second.",
+    "pitch": "This is the most direct answer to your 'futuristic snuggly' puzzle: the warmth lives in the page color and the future lives in one mint accent, so neither fights the other. Bricolage Grotesque has just enough quirk in its letterforms that your marker drawings look like family instead of guests. It is also the safest bet for long essays, because the type is a grotesque with real body-text manners.",
+    "font": "Bricolage Grotesque",
+    "font_note": "Variable (OFL); use the opsz and wght axes, with a lighter optical size for body and a heavier, tighter one for headings; subset to Latin.",
+    "fallback": "'Bricolage Grotesque Fallback', 'Avenir Next', 'Segoe UI', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 700,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1B1A17",
+      "surface": "#25231F",
+      "text": "#F3EBDD",
+      "text_soft": "#B9B0A0",
+      "rule": "#3A3730",
+      "accent": "#7FD6C2",
+      "accent_text": "#1B1A17"
+    },
+    "light": {
+      "bg": "#F6F1E7",
+      "surface": "#FFFBF3",
+      "text": "#1E1B16",
+      "text_soft": "#5C5448",
+      "rule": "#D9CFBC",
+      "accent": "#0F6B5E",
+      "accent_text": "#F6F1E7"
+    },
+    "shape": { "radius_card_px": 20, "radius_small_px": 10, "border_px": 1 },
+    "elevation": {
+      "dark": "0 10px 30px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(127, 214, 194, 0.06)",
+      "light": "0 10px 28px -14px rgba(60, 45, 20, 0.28), 0 1px 2px rgba(60, 45, 20, 0.08)"
+    },
+    "motion": {
+      "duration_ms": 280,
+      "easing": "cubic-bezier(0.2, 0.7, 0.1, 1)",
+      "hover": "An accent underline draws in from the left on links; cards brighten their rule to mint."
+    },
+    "focus": { "outline": "3px solid #7FD6C2 (light: #0F6B5E)", "offset": "3px" },
+    "signature": "One mint glow and a hover underline that draws itself in, on a warm, rounded, thin-ruled page."
+  },
+  {
+    "n": 2,
+    "name": "Soft Optical",
+    "describe": "A cocoa-black page with cream text and an apricot accent, set entirely in one soft serif. Headlines have wonky, friendly personality while paragraphs sit calm and steady. It is the most book-like option, with no decoration beyond the letters.",
+    "for": "Readers of long essays who want a literary, cozy feel with a little wit in the titles.",
+    "pitch": "If the paper copy of Too Loud a Solitude is the feeling you want, this is the closest: the snuggly part is in the letterforms themselves, so the page needs nothing added. The wonk switches on only at headline sizes, so the personality lands where people look first and never tires the eye over 3,000 words. It sits beside marker drawings because both are visibly made by a human hand.",
+    "font": "Fraunces",
+    "font_note": "Variable (OFL) with opsz, wght, SOFT and WONK axes; set WONK to 1 and SOFT to about 100 only above roughly 40px, and keep body at the low-contrast, steady optical size.",
+    "fallback": "'Fraunces Fallback', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.6,
+      "scale_ratio": 1.25,
+      "h1_px": 56,
+      "measure_ch": 62,
+      "heading_weight": 600,
+      "body_weight": 400,
+      "tracking_caps": "0.06em"
+    },
+    "dark": {
+      "bg": "#1C1511",
+      "surface": "#271E18",
+      "text": "#F4E9D8",
+      "text_soft": "#BFAF9A",
+      "rule": "#3A2E25",
+      "accent": "#F2A874",
+      "accent_text": "#1C1511"
+    },
+    "light": {
+      "bg": "#F7EEDF",
+      "surface": "#FFF9EE",
+      "text": "#2B1D14",
+      "text_soft": "#6A5645",
+      "rule": "#DCCDB6",
+      "accent": "#9C4916",
+      "accent_text": "#FFF9EE"
+    },
+    "shape": { "radius_card_px": 14, "radius_small_px": 8, "border_px": 1 },
+    "elevation": {
+      "dark": "0 8px 24px -10px rgba(0, 0, 0, 0.6)",
+      "light": "0 8px 22px -12px rgba(80, 50, 20, 0.3)"
+    },
+    "motion": {
+      "duration_ms": 220,
+      "easing": "cubic-bezier(0.25, 0.8, 0.25, 1)",
+      "hover": "Link underlines thicken and warm to apricot; cards lift 2px with a slightly deeper shadow."
+    },
+    "focus": { "outline": "2px solid #F2A874 (light: #9C4916)", "offset": "3px" },
+    "signature": "Wonk and softness turn on only at display sizes, so titles have personality and paragraphs stay quiet."
+  },
+  {
+    "n": 3,
+    "name": "Overprint",
+    "describe": "A night-teal page printed in a few flat inks: cream, tomato red and mustard, with no gradients. Cards sit on hard offset shadows in a second ink, like a WPA screen print. It is bold, graphic and clearly of this decade rather than a retro costume.",
+    "for": "Readers who like poster-like, graphic design and want the site to have a visible point of view.",
+    "pitch": "This is the one that looks designed at a glance, which matters for your first-five-seconds test. Flat color gives black marker line art the cleanest possible ground, so your drawings read better here than anywhere else. The press-to-flatten card is a small clever idea that also tells the reader exactly what they just did.",
+    "font": "Bricolage Grotesque",
+    "font_note": "Variable (OFL); use a heavy, tight setting for headings to feel printed, and the optical-size axis to keep body text open and readable.",
+    "fallback": "'Bricolage Grotesque Fallback', 'Avenir Next', 'Segoe UI', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.6,
+      "scale_ratio": 1.3,
+      "h1_px": 56,
+      "measure_ch": 62,
+      "heading_weight": 800,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#0F2A2E",
+      "surface": "#16383D",
+      "text": "#F5EBD3",
+      "text_soft": "#A9C4BF",
+      "rule": "#2C5A5F",
+      "accent": "#FF765A",
+      "accent_text": "#0F2A2E"
+    },
+    "light": {
+      "bg": "#F5ECD7",
+      "surface": "#FFF8E6",
+      "text": "#0F2A2E",
+      "text_soft": "#36585C",
+      "rule": "#D8C9A6",
+      "accent": "#AF3519",
+      "accent_text": "#FFF8E6"
+    },
+    "shape": { "radius_card_px": 6, "radius_small_px": 3, "border_px": 2 },
+    "elevation": {
+      "dark": "6px 6px 0 #E9B73C",
+      "light": "5px 5px 0 #D9A12A"
+    },
+    "motion": {
+      "duration_ms": 140,
+      "easing": "cubic-bezier(0.3, 0, 0.2, 1)",
+      "hover": "A card slides its offset shadow a few pixels wider; on press the shadow collapses to zero and the card sits flat in the page."
+    },
+    "focus": { "outline": "3px solid #E9B73C (light: #AF3519)", "offset": "3px" },
+    "signature": "Pressing a card flattens its hard offset shadow into the page, as if the ink layer were printed."
+  },
+  {
+    "n": 4,
+    "name": "Lamplight",
+    "describe": "A deep aubergine-black page with neutral text, where color arrives only as a soft amber and teal glow behind whatever you touch. Set in Jost at a large 19px with generous leading. It feels like reading by a stained-glass lamp: cozy and futuristic, with no neon.",
+    "for": "Night readers who want a calm, glowing, slightly dreamy page.",
+    "pitch": "This is the cleanest test of your Futura instinct: Jost is the closest open cousin, and the roomy 19px at 1.7 leading is chosen so a geometric sans can carry an essay. The glow does the work of 'futuristic' without the harshness of neon, so it fits your worry that cyberpunk is too heavy. Choose it if you want to find out whether Futura-style type really works on this site.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), weights 100 to 900; use 400 for body and 500 for headings; keep body large because geometric faces need space.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.7,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 62,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#17101C",
+      "surface": "#21182A",
+      "text": "#ECE9EE",
+      "text_soft": "#B5AFBA",
+      "rule": "#34293F",
+      "accent": "#F2B14E",
+      "accent_text": "#17101C"
+    },
+    "light": {
+      "bg": "#FBF7F1",
+      "surface": "#FFFFFF",
+      "text": "#241C2B",
+      "text_soft": "#5E5566",
+      "rule": "#E3DACD",
+      "accent": "#8F5A00",
+      "accent_text": "#FFFFFF"
+    },
+    "shape": { "radius_card_px": 18, "radius_small_px": 10, "border_px": 1 },
+    "elevation": {
+      "dark": "0 8px 28px -10px rgba(0, 0, 0, 0.65)",
+      "light": "0 8px 24px -12px rgba(60, 40, 80, 0.22)"
+    },
+    "motion": {
+      "duration_ms": 320,
+      "easing": "cubic-bezier(0.22, 0.8, 0.3, 1)",
+      "hover": "A soft amber and teal light fades up behind the card or link; text and layout do not move."
+    },
+    "focus": { "outline": "3px solid #F2B14E (light: #8F5A00), solid so it passes, with a faint glow around it", "offset": "3px" },
+    "signature": "Hover and focus raise a soft two-hue light behind the element."
+  },
+  {
+    "n": 5,
+    "name": "Streamline",
+    "describe": "A deep aubergine-black page, warm cream text and one polished apricot accent, with every edge rounded: cards at 28px, pill buttons, focus rings that follow the shape. Everything eases with the same long, calm curve and cards glide up slightly on hover. It feels fast but unhurried.",
+    "for": "Readers who like smooth, modern, softly rounded product design.",
+    "pitch": "One rule, round everything, gets you both snuggly and futuristic, which is the hardest problem you gave us. It is also the lowest-risk to build: one radius family, one curve, one accent, so nothing can clash. Jost keeps your Futura taste in the headlines, and the rounded shapes soften it enough to feel inviting.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), Futura-descended; 400 for body, 500 for headings; round-feeling at larger sizes, so keep body at 18px or above.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 64,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1A1220",
+      "surface": "#251A2D",
+      "text": "#F6EBDD",
+      "text_soft": "#C2B3BC",
+      "rule": "#3A2D44",
+      "accent": "#FFA86B",
+      "accent_text": "#1A1220"
+    },
+    "light": {
+      "bg": "#FBF5EA",
+      "surface": "#FFFDF8",
+      "text": "#2F1A3A",
+      "text_soft": "#6B5075",
+      "rule": "#E6DAC8",
+      "accent": "#A64400",
+      "accent_text": "#FFFDF8"
+    },
+    "shape": { "radius_card_px": 28, "radius_small_px": 999, "border_px": 1 },
+    "elevation": {
+      "dark": "0 12px 32px -14px rgba(0, 0, 0, 0.7)",
+      "light": "0 12px 30px -16px rgba(70, 30, 80, 0.3)"
+    },
+    "motion": {
+      "duration_ms": 240,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "hover": "A card lifts 4px and its shadow stretches, as if gliding on a rail; no bounce."
+    },
+    "focus": { "outline": "3px solid #FFA86B (light: #A64400), following the element's rounded shape", "offset": "3px" },
+    "signature": "Every surface eases on one long ease-out curve, and hover lifts a card a few pixels as if on a rail."
+  },
+  {
+    "n": 6,
+    "name": "One Line Spine",
+    "describe": "A dusk-aubergine page, oat in light, with a single wobbly honey marker line running down the margin from the header to the progress bar. Headings sit on the line as nodes, so it doubles as a table of contents. Underlines and focus rings draw themselves as pieces of the same line.",
+    "for": "Readers of long pieces who like to know where they are, and who enjoy a clever idea that actually helps.",
+    "pitch": "This is the only option that fixes a real problem: you can see how far through a long essay you are, and jump around, without any extra widgets. It makes your marker drawings the point rather than an add-on, because the site's one decoration is a hand-drawn line. On a phone it shrinks to the progress track, so it cannot get in the way.",
+    "font": "Figtree",
+    "font_note": "Variable (OFL), weights 300 to 900; friendly, open geometric-humanist forms; 400 body, 700 headings.",
+    "fallback": "'Figtree Fallback', 'Avenir Next', 'Segoe UI', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 48,
+      "measure_ch": 64,
+      "heading_weight": 700,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1D1626",
+      "surface": "#281E34",
+      "text": "#F0E8DC",
+      "text_soft": "#BDB0BF",
+      "rule": "#3C2F4A",
+      "accent": "#F0B94A",
+      "accent_text": "#1D1626"
+    },
+    "light": {
+      "bg": "#F1EADB",
+      "surface": "#FAF6EC",
+      "text": "#2A1E33",
+      "text_soft": "#5F5068",
+      "rule": "#DACFBA",
+      "accent": "#805300",
+      "accent_text": "#FAF6EC"
+    },
+    "shape": { "radius_card_px": 12, "radius_small_px": 6, "border_px": 1 },
+    "elevation": {
+      "dark": "0 6px 20px -10px rgba(0, 0, 0, 0.6)",
+      "light": "0 6px 18px -10px rgba(60, 40, 70, 0.25)"
+    },
+    "motion": {
+      "duration_ms": 260,
+      "easing": "cubic-bezier(0.3, 0.7, 0.2, 1)",
+      "hover": "A honey line draws under the link or along the card edge from left to right, like a pen stroke."
+    },
+    "focus": { "outline": "3px solid #F0B94A (light: #805300), drawn on as a line segment", "offset": "3px" },
+    "signature": "One continuous wobbly marker line runs down the margin, with headings as nodes, so the line is the table of contents."
+  },
+  {
+    "n": 7,
+    "name": "Lamplight Dial",
+    "describe": "A night-reading mode in aubergine-black with neutral text and a soft teal and amber glow, in Jost at 19px with 1.7 leading. Instead of a dark/light switch there is one warmth dial with three stops (night, dusk, day) that you set once and it remembers. All stops pass AA for body text.",
+    "for": "People who read at all hours and are bothered by the sudden jump between dark and light.",
+    "pitch": "This turns your 'dark first, with a light option' into something better: a smooth reading light that you tune to the room. It keeps everything good about Lamplight and adds a control that is useful on every visit, not a gimmick. Pick it if you want the site to feel considerate about how people actually read.",
+    "font": "Jost",
+    "font_note": "Variable (OFL); 400 body at 19px, 500 headings; the large size and loose leading are what let a geometric sans carry long text.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.7,
+      "scale_ratio": 1.25,
+      "h1_px": 52,
+      "measure_ch": 62,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#120E18",
+      "surface": "#1D1726",
+      "text": "#E9E6EC",
+      "text_soft": "#B0A9B8",
+      "rule": "#2F2639",
+      "accent": "#5ED6CA",
+      "accent_text": "#120E18"
+    },
+    "light": {
+      "bg": "#FCF8F0",
+      "surface": "#FFFFFF",
+      "text": "#1F1A26",
+      "text_soft": "#5A5262",
+      "rule": "#E5DCCF",
+      "accent": "#0B6B66",
+      "accent_text": "#FFFFFF"
+    },
+    "shape": { "radius_card_px": 16, "radius_small_px": 10, "border_px": 1 },
+    "elevation": {
+      "dark": "0 8px 28px -10px rgba(0, 0, 0, 0.7)",
+      "light": "0 8px 24px -12px rgba(50, 40, 70, 0.2)"
+    },
+    "motion": {
+      "duration_ms": 320,
+      "easing": "cubic-bezier(0.22, 0.8, 0.3, 1)",
+      "hover": "A soft teal and amber light rises behind the element; changing the dial cross-fades all colors over the same time."
+    },
+    "focus": { "outline": "3px solid #5ED6CA (light: #0B6B66), solid", "offset": "3px" },
+    "signature": "Theme is one warmth dial with three stops (night, dusk, day), set once and remembered."
+  },
+  {
+    "n": 8,
+    "name": "One Line Worn In",
+    "describe": "A dusk-aubergine page, oat in light, drawn with a honey marker line that the house only defines as a grammar: weight, wobble and a draw time of about 300 ms. As you read, the site wears in: links you have followed stay drawn in honey and headings you have read keep their underline. Each piece can bring its own wobble to the same line.",
+    "for": "Return readers who like a site that remembers them, and writers who want each piece to have its own hand.",
+    "pitch": "This one makes the site feel lived in: it shows readers where they have been without any account or tracking beyond their own browser. It also gives each piece its own character while keeping the whole site consistent, which is exactly your 'each piece a derivation of the main style' brief. It is the most cohesive way to carry the drawings through the whole site.",
+    "font": "Figtree",
+    "font_note": "Variable (OFL), weights 300 to 900; 400 body, 700 headings; open, friendly shapes that read well at length.",
+    "fallback": "'Figtree Fallback', 'Avenir Next', 'Segoe UI', system-ui, sans-serif",
+    "type": {
+      "body_px": 18,
+      "line_height": 1.65,
+      "scale_ratio": 1.25,
+      "h1_px": 48,
+      "measure_ch": 64,
+      "heading_weight": 700,
+      "body_weight": 400,
+      "tracking_caps": "0.08em"
+    },
+    "dark": {
+      "bg": "#1A1423",
+      "surface": "#251C30",
+      "text": "#F2EADF",
+      "text_soft": "#C0B3C2",
+      "rule": "#3A2E47",
+      "accent": "#F2BC4E",
+      "accent_text": "#1A1423"
+    },
+    "light": {
+      "bg": "#F3ECDC",
+      "surface": "#FBF7EC",
+      "text": "#2B2034",
+      "text_soft": "#5C4E66",
+      "rule": "#DDD2BD",
+      "accent": "#7A4E00",
+      "accent_text": "#FBF7EC"
+    },
+    "shape": { "radius_card_px": 12, "radius_small_px": 6, "border_px": 1 },
+    "elevation": {
+      "dark": "0 6px 20px -10px rgba(0, 0, 0, 0.6)",
+      "light": "0 6px 18px -10px rgba(60, 40, 70, 0.22)"
+    },
+    "motion": {
+      "duration_ms": 300,
+      "easing": "cubic-bezier(0.3, 0.7, 0.2, 1)",
+      "hover": "The honey line draws under a link in about 300 ms; once followed, it stays drawn."
+    },
+    "focus": { "outline": "3px solid #F2BC4E (light: #7A4E00), drawn on and then left solid", "offset": "3px" },
+    "signature": "Followed links stay drawn in honey and read headings keep their underline, so the line is spread by the reader's own visits."
+  },
+  {
+    "n": 9,
+    "name": "Voice and Tooling",
+    "describe": "A graphite page with soft bone text, a peach accent for links and a mint accent for tooling. One family does both jobs: sans for the prose, mono for the machine labels such as dates, tags, navigation and captions. On hover a label's mono slides to proportional in 200 ms.",
+    "for": "Technical readers and anyone who likes the idea that code and prose live in the same house.",
+    "pitch": "This puts your 'human plus robot' brief in the type itself, which no other option does. It suits a site that mixes essays with technical write-ups, since the machine voice is already on every page as labels. It still uses one self-hosted font, so it stays fast.",
+    "font": "Recursive",
+    "font_note": "Variable (OFL) with MONO, CASL, wght, slnt and CRSV axes; MONO 0 for prose, MONO 1 for tooling labels; subset to Latin and keep only the axes in use to limit file size.",
+    "fallback": "'Recursive Fallback', ui-sans-serif, system-ui, 'Segoe UI', sans-serif",
+    "type": {
+      "body_px": 17,
+      "line_height": 1.6,
+      "scale_ratio": 1.25,
+      "h1_px": 46,
+      "measure_ch": 66,
+      "heading_weight": 650,
+      "body_weight": 400,
+      "tracking_caps": "0.06em"
+    },
+    "dark": {
+      "bg": "#1E2023",
+      "surface": "#282B2F",
+      "text": "#EDE6D8",
+      "text_soft": "#B4B3AC",
+      "rule": "#3A3E43",
+      "accent": "#FFB59A",
+      "accent_text": "#1E2023"
+    },
+    "light": {
+      "bg": "#F1ECE0",
+      "surface": "#FAF7F0",
+      "text": "#1D2420",
+      "text_soft": "#4F5A54",
+      "rule": "#D6D0C0",
+      "accent": "#9E3D1A",
+      "accent_text": "#FAF7F0"
+    },
+    "shape": { "radius_card_px": 8, "radius_small_px": 4, "border_px": 1 },
+    "elevation": {
+      "dark": "0 6px 18px -8px rgba(0, 0, 0, 0.6)",
+      "light": "0 4px 14px -8px rgba(30, 40, 35, 0.25)"
+    },
+    "motion": {
+      "duration_ms": 200,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "hover": "A label's mono axis eases to proportional while the card rule turns mint; links shift to peach underline."
+    },
+    "focus": { "outline": "2px solid #7BE0B6 (light: #1F6B4F), mint tooling ring", "offset": "2px" },
+    "signature": "A label's mono axis morphs to proportional on hover, 200 ms."
+  },
+  {
+    "n": 10,
+    "name": "Sorting Office",
+    "describe": "A mail-sack brown-black page, like a lamp-lit sorting room, with warm cream text and a single postal-vermilion accent for things that are connected or active. A thin airmail-blue and vermilion stripe runs flat along the page edge. The only decoration is the routing diagram of the piece you are reading, drawn like a person sketching a machine's wiring.",
+    "for": "Readers who like systems, diagrams and ideas that are clever and useful, and who are happy with a more ambitious site.",
+    "pitch": "This is the one that makes the site's structure into its look, so there is nothing added that the text does not need. The cast walking a route with machine-exact turns and a hand-drawn stroke is your human-plus-robot idea made visible. It is the biggest build and the riskiest, so choose it if you want the most memorable site of the ten and are willing to prove each interaction makes sense.",
+    "font": "Jost",
+    "font_note": "Variable (OFL), a Futura cousin; 400 body at 19px and 1.7 leading, about 62 characters wide; this style bets that a geometric sans can carry long essays.",
+    "fallback": "'Jost Fallback', Futura, 'Century Gothic', 'Avenir Next', system-ui, sans-serif",
+    "type": {
+      "body_px": 19,
+      "line_height": 1.7,
+      "scale_ratio": 1.25,
+      "h1_px": 50,
+      "measure_ch": 62,
+      "heading_weight": 500,
+      "body_weight": 400,
+      "tracking_caps": "0.1em"
+    },
+    "dark": {
+      "bg": "#1C1612",
+      "surface": "#271F19",
+      "text": "#F2E8D5",
+      "text_soft": "#BDAE98",
+      "rule": "#3D3228",
+      "accent": "#FF5A36",
+      "accent_text": "#1C1612"
+    },
+    "light": {
+      "bg": "#F3E6C8",
+      "surface": "#FBF3DE",
+      "text": "#2A1D14",
+      "text_soft": "#5E4B3A",
+      "rule": "#D9C8A0",
+      "accent": "#B02A0C",
+      "accent_text": "#FBF3DE"
+    },
+    "shape": { "radius_card_px": 8, "radius_small_px": 4, "border_px": 1 },
+    "elevation": {
+      "dark": "0 8px 22px -10px rgba(0, 0, 0, 0.65)",
+      "light": "0 8px 20px -12px rgba(70, 40, 15, 0.3)"
+    },
+    "motion": {
+      "duration_ms": 220,
+      "easing": "cubic-bezier(0.25, 0.8, 0.25, 1)",
+      "hover": "A thin vermilion connector lights up between every mention of the same term; a card nudges 2px toward its connection."
+    },
+    "focus": { "outline": "2px solid #FF5A36 (light: #B02A0C) with an inner 2px cream gap ring (#F2E8D5 dark, #FBF3DE light) via box-shadow; round only on round things", "offset": "2px" },
+    "signature": "Hovering or focusing a term lights every other mention of it with a thin vermilion connector, on a route drawn with exact turns and a hand-drawn stroke."
+  }
+]
