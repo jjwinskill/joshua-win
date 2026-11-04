@@ -3,8 +3,8 @@
    before the other stylesheets.
 
    Outside the tokens on purpose (a test holds the raw colors and @media widths to this): the cast's art, a chart's
-   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and for now the card transition
-   (#83). */
+   or drawing's own geometry, colors and keyframes, a treatment's scoped overrides, and the card transition's
+   keyframe percentages. */
 :root {
   color-scheme: light dark;
 
@@ -90,7 +90,8 @@
   --radius-card: 20px;
   --radius-pill: 999px;
 
-  /* Motion. Walk cycles, scroll-driven keyframes and the card transition keep their own timings. */
+  /* Motion. Walk cycles and scroll-driven keyframes keep their own timings, and the card transition has its own
+     tokens, below. */
   --duration-label: 150ms;
   --duration-fade: 180ms;
   --duration-hover: 200ms;
@@ -104,6 +105,29 @@
   --ease-out: ease-out;
   --ease-move: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-hop: cubic-bezier(0.28, 1.6, 0.5, 1);
+
+  /* The card transition (N1), as Josh approved it on his phone (#48). Its own tokens, even where a value matches
+     one above, so the cast's walk and the morph can change apart. Its radius and border are --radius-card and
+     --border-width, so the morph starts and ends on the card as it's drawn.
+     The grow, and the shrink and its delay, follow --duration-card, so a theme sets only that. The card's
+     keyframes are fractions of it, and the pages must swap at least 60ms from the box's fade, so a shorter one
+     moves keyframes too: site.css lists them, beside the keyframes.
+     These reach the morph only when set on :root (html), because the transition's pseudo-elements inherit only
+     from html. A [data-piece] treatment can't change them, and a theme switcher that sets an attribute on html
+     must set it again in astro:after-swap, because the router replaces html's attributes on each swap.
+     --duration-morph is a page change with no card, such as from the contents, and --ease-morph is how every
+     moving piece moves, card or not. */
+  --duration-morph: 420ms;
+  --ease-morph: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-card: 500ms;
+  /* Where card-grows loses its corners. In whole numbers, so 500ms gives exactly 380ms. */
+  --duration-card-grow: calc(var(--duration-card) * 76 / 100);
+  /* Where the pages swap, closing. */
+  --delay-card-shrink: calc(var(--duration-card) * 30 / 100);
+  --duration-card-shrink: calc(var(--duration-card) - var(--delay-card-shrink));
+  /* The parade sliding back up once the card has landed. */
+  --duration-parade-return: 280ms;
+  --ease-parade-return: cubic-bezier(0.2, 0, 0, 1);
 
   /* Elevation and shadows */
   --bar-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 8%, transparent);

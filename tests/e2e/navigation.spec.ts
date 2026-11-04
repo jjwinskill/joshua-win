@@ -206,7 +206,7 @@ test('a tap uses the copy fetched ahead of time, with one history entry per page
   await expect(page.getByRole('article')).toBeVisible();
 });
 
-test('the pages under the card swap before it starts to fade, and after it has faded in', async ({
+test('the pages under the card swap 60ms before it starts to fade, and after it has faded in', async ({
   page,
 }) => {
   await page.goto('./');
@@ -236,9 +236,68 @@ test('the pages under the card swap before it starts to fade, and after it has f
     number,
     number,
   ];
-  // 12% of 500ms is 60ms, nearly four frames at 60 Hz, since WebKit can run them apart.
-  expect(fadeStart - swapOpening).toBeGreaterThanOrEqual(12);
-  expect(swapClosing - fadedIn).toBeGreaterThanOrEqual(12);
+
+  // When each of the card's animations starts and how long it runs, as the transition runs them, since a
+  // theme can change --duration-card.
+  const recordTimings = () =>
+    document.addEventListener(
+      'astro:before-swap',
+      (event) => {
+        const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
+        void viewTransition.ready.then(() => {
+          const timings = JSON.parse(sessionStorage.getItem('cardTimings') ?? '{}') as object;
+          const animations = document.documentElement.getAnimations({
+            subtree: true,
+          }) as CSSAnimation[];
+          for (const { animationName, effect } of animations) {
+            const { delay, duration } = effect?.getTiming() ?? {};
+            Object.assign(timings, {
+              [animationName]: { delay: Number(delay), duration: Number(duration) },
+            });
+          }
+          sessionStorage.setItem('cardTimings', JSON.stringify(timings));
+        });
+      },
+      { once: true },
+    );
+  const timings = () =>
+    page.evaluate(
+      () =>
+        JSON.parse(sessionStorage.getItem('cardTimings') ?? '{}') as Record<
+          string,
+          { delay: number; duration: number }
+        >,
+    );
+  const noTransition = () =>
+    page.waitForFunction(
+      () =>
+        !document.documentElement
+          .getAnimations({ subtree: true })
+          .some((animation) =>
+            (animation.effect as KeyframeEffect | null)?.pseudoElement?.includes('view-transition'),
+          ),
+    );
+
+  await page.evaluate(recordTimings);
+  await page.getByRole('link', { name: /Lorem ipsum dolor/ }).click();
+  await expect.poll(timings).toHaveProperty('card-grows');
+  await noTransition();
+  await page.evaluate(recordTimings);
+  await page.goBack();
+  await expect.poll(timings).toHaveProperty('card-shrinks');
+
+  const recorded = await timings();
+  const at = (name: string, percent: number) => {
+    const { delay, duration } = recorded[name] ?? { delay: NaN, duration: NaN };
+    return delay + (percent * duration) / 100;
+  };
+  // 60ms is nearly four frames at 60 Hz, since WebKit can run them apart.
+  expect(
+    at('card-grows', fadeStart) - at('card-until-covered', swapOpening),
+  ).toBeGreaterThanOrEqual(60);
+  expect(at('card-until-sheet', swapClosing) - at('card-shrinks', fadedIn)).toBeGreaterThanOrEqual(
+    60,
+  );
 });
 
 test('a tap adds its history entry straight away, before the page has arrived', async ({

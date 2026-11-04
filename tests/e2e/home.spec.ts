@@ -132,14 +132,40 @@ test.describe('the card transition', () => {
         const { viewTransition } = event as unknown as { viewTransition: ViewTransition };
         void viewTransition.ready.then(() => {
           const parade = document.querySelector('.parade');
-          const running = document.documentElement
-            .getAnimations({ subtree: true })
-            .map((animation) => (animation as CSSAnimation).animationName);
+          const animations = document.documentElement.getAnimations({
+            subtree: true,
+          }) as CSSAnimation[];
+          const running = animations.map((animation) => animation.animationName);
+          // The box's corners and edge at each keyframe.
+          const box = animations.find(({ animationName }) =>
+            ['card-grows', 'card-shrinks'].includes(animationName),
+          );
+          const keyframes = ((box?.effect as KeyframeEffect | null)?.getKeyframes() ?? []).map(
+            (keyframe) => ({ radius: keyframe.borderTopLeftRadius, shadow: keyframe.boxShadow }),
+          );
+          // When the card's animations, and the card's own group, start and how long they run.
+          const timings = Object.fromEntries(
+            animations
+              .filter(
+                ({ animationName, effect }) =>
+                  animationName.startsWith('card-') ||
+                  (effect as KeyframeEffect | null)?.pseudoElement?.startsWith(
+                    '::view-transition-group(piece-box-',
+                  ),
+              )
+              .map(({ animationName, effect }) => {
+                const { delay, duration } = effect?.getTiming() ?? {};
+                const name = animationName.startsWith('card-') ? animationName : 'group';
+                return [name, { delay: Number(delay), duration: Number(duration) }];
+              }),
+          );
           sessionStorage.setItem(
             'midTransition',
             JSON.stringify({
               parade: parade && getComputedStyle(parade).translate,
               running,
+              keyframes,
+              timings,
             }),
           );
         });
@@ -154,6 +180,8 @@ test.describe('the card transition', () => {
         JSON.parse(sessionStorage.getItem('midTransition') ?? '{}') as {
           parade: string | null;
           running: string[];
+          keyframes: { radius?: string; shadow?: string }[];
+          timings: Record<string, { delay: number; duration: number }>;
         },
     );
 
@@ -189,6 +217,62 @@ test.describe('the card transition', () => {
       .toMatchObject({
         running: expect.arrayContaining(['card-shrinks']),
       });
+  });
+
+  test('under a theme, the box starts and ends on the card, and its timings stay in step', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    // Not the house values, so a radius, border or timing written in place of a token would show.
+    await page.evaluate(() => {
+      const theme = () => {
+        document.documentElement.style.setProperty('--radius-card', '7px');
+        document.documentElement.style.setProperty('--border-width', '3px');
+        document.documentElement.style.setProperty('--duration-card', '600ms');
+      };
+      theme();
+      // The router replaces the root's attributes on each swap.
+      document.addEventListener('astro:after-swap', theme);
+    });
+    await expect(page.locator('.piece-card').first()).toHaveCSS('border-top-left-radius', '7px');
+    const edge = expect.stringMatching(/ 0px 0px 0px 3px inset$/);
+
+    await page.evaluate(recordMidTransition);
+    await openPiece(page);
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ running: expect.arrayContaining(['card-grows']) });
+    const opening = await midTransition(page);
+    expect(opening.keyframes[0]?.radius).toBe('7px');
+    for (const { shadow } of opening.keyframes) expect(shadow).toEqual(edge);
+    const card = opening.timings['card-grows']?.duration ?? 0;
+    expect(card).toBeGreaterThan(0);
+    expect(opening.timings['card-until-covered']?.duration).toBe(card);
+    expect(opening.timings['card-once-covered']?.duration).toBe(card);
+    // The box loses its corners at 76% as the group lands.
+    expect(opening.timings.group?.duration).toBeCloseTo(card * 0.76);
+    // The parade comes back up once the card has landed.
+    const parade = page.locator('.parade');
+    await expect(parade).toHaveCSS('translate', 'none');
+    const paradeReturn = await parade.evaluate((el) => getComputedStyle(el).transitionDuration);
+    expect(Number.parseFloat(paradeReturn)).toBeGreaterThan(0);
+
+    // From rest, not from the middle of the opening.
+    await forgetTransitions(page);
+    await page.evaluate(recordMidTransition);
+    await page.goBack();
+    await expect
+      .poll(() => midTransition(page))
+      .toMatchObject({ running: expect.arrayContaining(['card-shrinks']) });
+    const closing = await midTransition(page);
+    expect(closing.keyframes.at(-1)?.radius).toBe('7px');
+    for (const { shadow } of closing.keyframes) expect(shadow).toEqual(edge);
+    expect(closing.timings['card-shrinks']?.duration).toBe(card);
+    expect(closing.timings['card-until-sheet']?.duration).toBe(card);
+    const group = closing.timings.group ?? { delay: 0, duration: 0 };
+    expect(group.duration).toBeGreaterThan(0);
+    // The group waits for the pages to swap, then lands as the box does.
+    expect(group.delay + group.duration).toBeCloseTo(card);
   });
 
   test('morphs back through the link home, and forward again', async ({ page }) => {
